@@ -60,11 +60,11 @@ module SnippetCli
               end
               puts os_choice
               if (os_choice == 'Windows')
-                 config_path = "\\Roaming\\AppData\\espanso\\default.yml"
+                 config_path = "#{ENV["FOLDERID_RoamingAppData}"]}\espanso\\default.yml"
               elsif (os_choice == 'Mac')
-                 config_path = "$HOME/Library/Preferences/espanso/default.yml"
+                 config_path = "#{ENV["HOME"]}/Library/Preferences/espanso/default.yml"
               else (os_choice == 'Linux')
-                 config_path = "$XDG_CONFIG_HOME/espanso/default.yml"
+                 config_path = "#{ENV["XDG_CONFIG_HOME}"]}/espanso/default.yml"
               end
           puts @leading
           self.config_path=config_path
@@ -95,7 +95,7 @@ module SnippetCli
         if File.exist?("#{ENV["HOMEPATH"]}/snippet_cli_config.txt") && File.read("#{ENV["HOMEPATH"]}/snippet_cli_config.txt").include?("CONFIG_PRESENT = TRUE")
         else
           File.open("#{ENV["HOMEPATH"]}/snippet_cli_config.txt", "a") { |f| f.write "NAME = #{self.user_name}\n"}
-          File.open("#{ENV["HOMEPATH"]}/snippet_cli_config.txt", "a") { |f| f.write "OS = #{self.config_path}\n"}
+          File.open("#{ENV["HOMEPATH"]}/snippet_cli_config.txt", "a") { |f| f.write "ESPANSO_YML = #{self.config_path}\n"}
           File.open("#{ENV["HOMEPATH"]}/snippet_cli_config.txt", "a") { |f| f.write "CONFIG_PRESENT = TRUE\n"}
         end
       end
