@@ -51,19 +51,20 @@ module SnippetCli
         def get_os()
           puts @leading
           prompt = TTY::Prompt.new
-              os_choice = prompt.multi_select("⟶  What OS are you using?", active_color: :bright_blue) do |menu|
+              os_choice = prompt.select("⟶  What OS are you using?", active_color: :bright_blue) do |menu|
                 menu.enum "->"
 
                 menu.choice :Windows
                 menu.choice :Linux
                 menu.choice :Mac_OS
               end
-              if (os_choice.include? "Windows")
+              puts os_choice
+              if (os_choice == 'Windows')
                  config_path = "\\Roaming\\AppData\\espanso\\default.yml"
-              elsif (os_choice.include?"Mac_OS")
+              elsif (os_choice == 'Mac')
                  config_path = "$HOME/Library/Preferences/espanso/default.yml"
-              else os_choice.include?("Linux")
-                 config_path = "#{$XDG_CONFIG_HOME}/espanso/default.yml"
+              else (os_choice == 'Linux')
+                 config_path = "$XDG_CONFIG_HOME/espanso/default.yml"
               end
           puts @leading
           self.config_path=config_path
@@ -91,8 +92,7 @@ module SnippetCli
         end
     
       def generate_config()
-        if File.exist?("./snippet_cli_config.txt") then
-    
+        if File.exist?("#{ENV["HOMEPATH"]}/snippet_cli_config.txt") && File.read("#{ENV["HOMEPATH"]}/snippet_cli_config.txt").include?("CONFIG_PRESENT = TRUE")
         else
           File.open("#{ENV["HOMEPATH"]}/snippet_cli_config.txt", "a") { |f| f.write "NAME = #{self.user_name}\n"}
           File.open("#{ENV["HOMEPATH"]}/snippet_cli_config.txt", "a") { |f| f.write "OS = #{self.config_path}\n"}
@@ -105,7 +105,7 @@ module SnippetCli
           self.get_name()
           self.get_os()
           puts @leading
-          puts "Thanks thats all we need to know about your configuration."
+          puts "Thanks, that's all we need to know about your configuration."
           puts @leading
           puts @leading
           puts "You can now type snippet_cli new to get started."
