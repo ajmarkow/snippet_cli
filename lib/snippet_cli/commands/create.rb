@@ -19,7 +19,7 @@ module SnippetCli
       end
 
       def show_banner()
-        box = TTY::Box::frame(width:80, height:11, border: :thick, align: :left) do 
+        box = TTY::Box::frame(width:67, height:11, border: :thick, align: :left) do 
         "
         #####   #     # ### ######  ######  ####### ####### 
         #     # ##    #  #  #     # #     # #          #    
@@ -46,11 +46,12 @@ module SnippetCli
         case snippet_type
           when 1
             puts @leading
+            
             replacement = prompt.multiline("what did you want the trigger to be replaced with?")
+            # replacement.map{|string| string.gsub!('\n','\\n')}
             puts "#{@file_path}"+"  "+"#{snippet_trigger}"+" "+"#{replacement}"
-            puts replacement.length()
             if (replacement.length() > 1)
-              single_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement.join(""))
+              single_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement)
             else
               single_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement[0])
             end

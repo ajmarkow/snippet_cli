@@ -22,7 +22,7 @@ module SnippetCli
         class Error < StandardError; end
         
         def show_banner()
-          box = TTY::Box::frame(width:80, height:11, border: :thick, align: :left) do 
+          box = TTY::Box::frame(width:67, height:11, border: :thick, align: :left) do 
           " LAUNCHING...
            #####  #     # ### ######  ######  ####### ####### 
           #     # ##    #  #  #     # #     # #          #    

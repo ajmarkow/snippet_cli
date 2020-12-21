@@ -13,7 +13,11 @@ module SnippetGenerator
 
       def single_snippet_export(file_to_write,trigger,replacement)
         File.open(file_to_write,"a") { |file| file.write('  - trigger: '+'":'+trigger+QUOTE+NEW_LINE) }
-        File.open(file_to_write,"a") { |file| file.write('    replace: '+QUOTE+replacement+QUOTE+NEW_LINE) }
+        File.open(file_to_write,"a") { |file| file.write('    replace: |-'+NEW_LINE) }
+        replacement.each do |item|
+          File.open(file_to_write,"a") { |file| file.write('           '+item) }
+        end
+
       end
 
   # Create a YAML Comment to separate sections of snippet file.
