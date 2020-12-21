@@ -50,6 +50,7 @@ PLATFORMS
   x64-mingw32
 
 DEPENDENCIES
+  bundler
   pastel
   rake (~> 12.0)
   rspec (~> 3.0)
@@ -58,4 +59,4 @@ DEPENDENCIES
   tty-prompt
 
 BUNDLED WITH
-   2.1.4
+   1.17.3

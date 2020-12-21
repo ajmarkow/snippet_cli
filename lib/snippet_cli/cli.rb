@@ -18,6 +18,18 @@ module SnippetCli
     end
     map %w(--version -v) => :version
 
+    desc 'create', 'Command description...'
+    method_option :help, aliases: '-h', type: :boolean,
+                         desc: 'Display usage information'
+    def create(*)
+      if options[:help]
+        invoke :help, ['create']
+      else
+        require_relative 'commands/create'
+        SnippetCli::Commands::Create.new(options).execute
+      end
+    end
+
     desc 'setup', 'Creates Config for Using Tool to Add Snippets'
     method_option :help, aliases: '-h', type: :boolean,
                          desc: 'Set directory to write to snippet file in'

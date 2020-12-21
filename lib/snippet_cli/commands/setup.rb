@@ -24,7 +24,7 @@ module SnippetCli
         def show_banner()
           box = TTY::Box::frame(width:80, height:11, border: :thick, align: :left) do 
           " LAUNCHING...
-          #####  #     # ### ######  ######  ####### ####### 
+           #####  #     # ### ######  ######  ####### ####### 
           #     # ##    #  #  #     # #     # #          #    
           #       # #   #  #  #     # #     # #          #    
            #####  #  #  #  #  ######  ######  #####      #    
@@ -104,12 +104,12 @@ module SnippetCli
           self.show_banner()
           self.get_name()
           self.get_os()
-          puts @leading
-          puts "Thanks, that's all we need to know about your configuration."
-          puts @leading
-          puts @leading
-          puts "You can now type snippet_cli new to get started."
-          puts @leading
+          output.puts @leading
+          output.puts "Thanks, that's all we need to know about your configuration."
+          output.puts @leading
+          output.puts @leading
+          output.puts "You can now type snippet_cli new to get started."
+          output.puts @leading
           self.generate_config()
       end
     end
