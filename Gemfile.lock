@@ -23,6 +23,8 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
     rspec-support (3.10.0)
+    snippets_for_espanso (0.1.2)
+      yaml
     strings (0.2.0)
       strings-ansi (~> 0.2)
       unicode-display_width (~> 1.5)
@@ -45,6 +47,7 @@ GEM
     unicode-display_width (1.7.0)
     unicode_utils (1.4.0)
     wisper (2.0.1)
+    yaml (0.1.0)
 
 PLATFORMS
   x64-mingw32
@@ -55,6 +58,7 @@ DEPENDENCIES
   rake (~> 12.0)
   rspec (~> 3.0)
   snippet_cli!
+  snippets_for_espanso
   tty-box
   tty-prompt
 

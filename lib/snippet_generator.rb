@@ -1,5 +1,5 @@
 # Some Definitions for the sake of readability.
-module SnippetGenerator.
+module SnippetGenerator
   NEW_LINE="\n"
     QUOTE = '"'
 
