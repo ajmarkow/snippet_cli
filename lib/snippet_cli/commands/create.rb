@@ -47,8 +47,11 @@ module SnippetCli
           when 1
             puts @leading
             puts "Now you'll enter what you want replaced."
+            puts @leading
             puts "But first ..."
+            puts @leading
             puts "Don't use tabs. YAML hates them and it leads to unpredictable results."
+            puts @leading
             replacement = prompt.multiline("what did you want the trigger to be replaced with?")
             # replacement.map{|string| string.gsub!('\n','\\n')}
             puts "#{@file_path}"+"  "+"#{snippet_trigger}"+" "+"#{replacement}"
