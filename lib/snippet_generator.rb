@@ -14,7 +14,7 @@ module SnippetGenerator
       def single_snippet_export(file_to_write,trigger,replacement)
         File.open(file_to_write,"a") { |file| file.write(NEW_LINE+'  - trigger: '+'":'+trigger+QUOTE+NEW_LINE) }
         File.open(file_to_write,"a") { |file| file.write('    replace: |-'+NEW_LINE) }
-        if (replacement.instance_of?(String) ) then
+        if (replacement.instance_of?(String)) then
           File.open(file_to_write,"a") { |file| file.write('           '+replacement) }
         else
           replacement.each do |item|

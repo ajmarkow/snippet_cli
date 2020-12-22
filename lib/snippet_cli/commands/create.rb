@@ -50,7 +50,7 @@ module SnippetCli
             puts @leading
             puts "But first ..."
             puts @leading
-            puts "Don't use tabs. YAML hates them and it leads to unpredictable results."
+            puts prompt.error("Don't use tabs. YAML hates them and it leads to unpredictable results.")
             puts @leading
             replacement = prompt.multiline("what did you want the trigger to be replaced with?")
             if (replacement.length() > 1)
@@ -61,8 +61,6 @@ module SnippetCli
           when 2
             puts "hit case 2"
           end
-        puts snippet_type
-        puts snippet_trigger
       end
 
       def execute(input: $stdin, output: $stdout)
