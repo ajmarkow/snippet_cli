@@ -18,19 +18,31 @@ module SnippetCli
     end
     map %w(--version -v) => :version
 
-    desc 'create', 'Command description...'
+    desc 'info [DOCS]', 'Command description...'
     method_option :help, aliases: '-h', type: :boolean,
                          desc: 'Display usage information'
-    def create(*)
+    def info(docs = nil)
       if options[:help]
-        invoke :help, ['create']
+        invoke :help, ['info']
       else
-        require_relative 'commands/create'
-        SnippetCli::Commands::Create.new(options).execute
+        require_relative 'commands/info'
+        SnippetCli::Commands::Info.new(docs, options).execute
       end
     end
 
-    desc 'setup', 'Creates Config for Using Tool to Add Snippets'
+    desc 'new', 'Command description...'
+    method_option :help, aliases: '-h', type: :boolean,
+                         desc: 'Display usage information'
+    def new(*)
+      if options[:help]
+        invoke :help, ['new']
+      else
+        require_relative 'commands/new'
+        SnippetCli::Commands::New.new(options).execute
+      end
+    end
+
+    desc 'setup', 'News Config for Using Tool to Add Snippets'
     method_option :help, aliases: '-h', type: :boolean,
                          desc: 'Set directory to write to snippet file in'
     def setup(*)

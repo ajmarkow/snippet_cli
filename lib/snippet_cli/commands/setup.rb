@@ -1,7 +1,7 @@
 require_relative '../command'
 require 'tty-box'
 require 'tty-prompt'
-require 'banner'
+require './lib/banner'
 # frozen_string_literal: true
 
 
@@ -18,25 +18,6 @@ module SnippetCli
           @os_choice = os_choice  
           @config_present = config_present 
         end
-    
-        class Error < StandardError; end
-        
-        def show_banner()
-          box = TTY::Box::frame(width:67, height:11, border: :thick, align: :left) do 
-          " LAUNCHING...
-           #####  #     # ### ######  ######  ####### ####### 
-          #     # ##    #  #  #     # #     # #          #    
-          #       # #   #  #  #     # #     # #          #    
-           #####  #  #  #  #  ######  ######  #####      #    
-                # #   # #  #  #       #       #          #    
-          #     # #    ##  #  #       #       #          #    
-           #####  #     # ### #       #       #######    #    CLI                                                                
-          "
-          end
-          puts box
-        end
-    
-
     
         def get_name()
           puts @leading
@@ -101,7 +82,7 @@ module SnippetCli
       end
 
       def execute(input: $stdin, output: $stdout)
-          self.show_banner()
+          show_banner()
           self.get_name()
           self.get_os()
           output.puts @leading

@@ -24,7 +24,7 @@ module SnippetGenerator
 
       end
 
-  # Create a YAML Comment to separate sections of snippet file.
+  # New a YAML Comment to separate sections of snippet file.
 
   def heading_snippet_export(file_to_write,heading)
     File.open(file_to_write,"a") { |file| file.write("# "+ heading+NEW_LINE) }     
@@ -41,7 +41,7 @@ module SnippetGenerator
   ## ! TO DO: REFACTOR FORM METHODS INTO ONE METHOD which accounts for all cases. Add comments clarifying
   ## ! DATA STRUCTURE NEEDED.
   #Takes a string for trigger. form_values should be an array.form_fields should also be of type array.
-  #Parses statements and creates picklists based on form fields and values for each field provided 
+  #Parses statements and news picklists based on form fields and values for each field provided 
 
       def picklist_snippet_export(form_trigger,statement,form_fields,formvalues,file_to_write)
         form_fields.each do |value|
@@ -62,7 +62,7 @@ module SnippetGenerator
 
       end
 
-  # Creates a snippet with large text box
+  # News a snippet with large text box
 
         def textarea_snippet_export(file_to_write)
           File.open(file_to_write,"a") { |file| file.write('  - trigger: '+QUOTE+':'+form_trigger+QUOTE+NEW_LINE) }

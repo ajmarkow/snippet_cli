@@ -2,13 +2,14 @@
 require 'tty-box'
 require 'tty-prompt'
 require 'snippet_generator'
+require './lib/banner'
 # require 'snippets_for_espanso/SnippetGenerator'
 require_relative '../command'
 
 
 module SnippetCli
   module Commands
-    class Create < SnippetCli::Command
+    class New < SnippetCli::Command
       include SnippetGenerator
       @leading = "                                      "
       
@@ -18,22 +19,7 @@ module SnippetCli
         @file_path = "~/ajstest.yml"
       end
 
-      def show_banner()
-        box = TTY::Box::frame(width:67, height:11, border: :thick, align: :left) do 
-        "
-        #####   #     # ### ######  ######  ####### ####### 
-        #     # ##    #  #  #     # #     # #          #    
-        #       # #   #  #  #     # #     # #          #    
-         #####  #  #  #  #  ######  ######  #####      #    
-              # #   # #  #  #       #       #          #    
-        #     # #    ##  #  #       #       #          #    
-         #####  #     # ### #       #       #######    #    CLI                                                                
-        "
-        end
-        puts box
-      end
-
-      def create_form()
+      def new_form()
         puts "Let's add a new snippet to your configuration"
         puts @leading
         choices = {"A snippet":1, "A snippet with a form":2}
@@ -50,7 +36,7 @@ module SnippetCli
             puts @leading
             puts "But first ..."
             puts @leading
-            puts prompt.error("Don't use tabs. YAML hates them and it leads to unpredictable results.")
+            prompt.error("Don't use tabs. YAML hates them and it leads to unpredictable results.")
             puts @leading
             replacement = prompt.multiline("what did you want the trigger to be replaced with?")
             if (replacement.length() > 1)
@@ -66,7 +52,7 @@ module SnippetCli
       def execute(input: $stdin, output: $stdout)
         # Command logic goes here ...
         output.puts show_banner()
-        create_form()
+        new_form()
       end
     end
   end

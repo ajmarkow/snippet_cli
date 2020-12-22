@@ -7,9 +7,13 @@ GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.4.4)
+    kramdown (2.3.0)
+      rexml
     pastel (0.8.0)
       tty-color (~> 0.5)
     rake (12.3.3)
+    rexml (3.2.4)
+    rouge (3.26.0)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
       rspec-expectations (~> 3.10.0)
@@ -36,6 +40,14 @@ GEM
       tty-cursor (~> 0.7)
     tty-color (0.6.0)
     tty-cursor (0.7.1)
+    tty-markdown (0.7.0)
+      kramdown (>= 1.16.2, < 3.0)
+      pastel (~> 0.8)
+      rouge (~> 3.14)
+      strings (~> 0.2.0)
+      tty-color (~> 0.5)
+      tty-screen (~> 0.8)
+    tty-platform (0.3.0)
     tty-prompt (0.23.0)
       pastel (~> 0.8)
       tty-reader (~> 0.8)
@@ -60,6 +72,8 @@ DEPENDENCIES
   snippet_cli!
   snippets_for_espanso
   tty-box
+  tty-markdown
+  tty-platform
   tty-prompt
 
 BUNDLED WITH
