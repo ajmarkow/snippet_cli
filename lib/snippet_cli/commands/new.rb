@@ -19,25 +19,35 @@ module SnippetCli
         @file_path = "~/ajstest.yml"
       end
 
+      def but_first()
+        puts @leading
+        puts "Now you'll enter what you want replaced."
+        puts @leading
+        puts "But first ..."
+        puts @leading
+        prompt.error("Don't use tabs. YAML hates them and it leads to unpredictable results.")
+        puts @leading
+      end
+
       def new_form()
         puts "Let's add a new snippet to your configuration"
         puts @leading
-        choices = {"A snippet":1, "A snippet with a form":2}
-        snippet_type = prompt.select("Do you want a Snippet or a Snippet with a form?", choices)
+        snippet_type = prompt.select("Do you want a Snippet or a Snippet with a form?") do |menu|
+          menu.enum "."
+
+          menu.choice "A snippet",1
+          menu.choice "A snippet with a form",2 
+        end
         puts @leading
         snippet_trigger=prompt.ask("What do you want to type to trigger the snippet?")
         puts @leading
         puts "Okay, the snippet will be triggered by:"
         prompt.ok( ":#{snippet_trigger}")
+        puts@leading
         case snippet_type
           when 1
-            puts @leading
-            puts "Now you'll enter what you want replaced."
-            puts @leading
-            puts "But first ..."
-            puts @leading
-            prompt.error("Don't use tabs. YAML hates them and it leads to unpredictable results.")
-            puts @leading
+            but_first()
+            
             replacement = prompt.multiline("what did you want the trigger to be replaced with?")
             if (replacement.length() > 1)
               single_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement)
@@ -45,7 +55,17 @@ module SnippetCli
               single_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement[0])
             end
           when 2
-            puts "hit case 2"
+            newprompt = TTY::Prompt.new
+            newprompt.warn("For a form field wrap the word in double brackets.  Like {{example}}")
+            puts @leading
+            newprompt.ok("Also make sure the name of each form field is unique.")
+            puts @leading
+            replacement = prompt.multiline("what did you want the trigger to be replaced with?")
+           if (replacement.length() > 1)
+              input_form_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement)
+            else
+              input_form_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement[0])
+            end
           end
       end
 

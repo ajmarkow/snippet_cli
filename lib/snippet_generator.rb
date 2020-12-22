@@ -34,9 +34,16 @@ module SnippetGenerator
   # For example "AJ likes coding in {{language}} and using {{editor}} to write code."
 
   def input_form_snippet_export(file_to_write, form_trigger,form_statement)
-    File.open(file_to_write,"a") { |file| file.write(NEW_LINE+'  - trigger: '+QUOTE+':'+form_trigger+QUOTE+NEW_LINE) }
-    File.open(file_to_write,"a") { |file| file.write('    form: |'+NEW_LINE)}
-    File.open(file_to_write,"a") { |file| file.write('      '+form_statement)}
+    File.open(file_to_write,"a") { |file| file.write('  - trigger: '+QUOTE+':'+form_trigger+QUOTE+NEW_LINE) }
+    File.open(file_to_write,"a") { |file| file.write('    form: |-'+NEW_LINE)}
+      if (form_statement.instance_of?(String)) then
+        File.open(file_to_write,"a") { |file| file.write('      '+form_statement)}
+      else
+        form_statement.each do |item|
+          File.open(file_to_write,"a") { |file| file.write('           '+item) }
+        end
+      end
+    File.open(file_to_write,"a") { |file| file.write(NEW_LINE) }
   end
   ## ! TO DO: REFACTOR FORM METHODS INTO ONE METHOD which accounts for all cases. Add comments clarifying
   ## ! DATA STRUCTURE NEEDED.

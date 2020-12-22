@@ -15,6 +15,6 @@ Click the link below to send an email to the developer.
 
 | **Command**  |      **Purpose**      |
 |----------|:------------------:|
-| setup |  Sets up  path to snippet file |
+| setup |  Sets up path to snippet file |
 | new |    Opens dialog to add new snippet or form.  |
 | info| Docs, Contact Info, and Resources |
