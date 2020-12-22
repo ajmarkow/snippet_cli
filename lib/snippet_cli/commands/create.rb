@@ -53,8 +53,6 @@ module SnippetCli
             puts "Don't use tabs. YAML hates them and it leads to unpredictable results."
             puts @leading
             replacement = prompt.multiline("what did you want the trigger to be replaced with?")
-            # replacement.map{|string| string.gsub!('\n','\\n')}
-            puts "#{@file_path}"+"  "+"#{snippet_trigger}"+" "+"#{replacement}"
             if (replacement.length() > 1)
               single_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement)
             else
