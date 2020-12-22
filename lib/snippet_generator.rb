@@ -12,7 +12,7 @@ module SnippetGenerator
   #Writes a snippet to file when given trigger and replacement strings.
 
       def single_snippet_export(file_to_write,trigger,replacement)
-        File.open(file_to_write,"a") { |file| file.write('  - trigger: '+'":'+trigger+QUOTE+NEW_LINE) }
+        File.open(file_to_write,"a") { |file| file.write(NEW_LINE+'  - trigger: '+'":'+trigger+QUOTE+NEW_LINE) }
         File.open(file_to_write,"a") { |file| file.write('    replace: |-'+NEW_LINE) }
         replacement.each do |item|
           File.open(file_to_write,"a") { |file| file.write('           '+item) }
@@ -30,9 +30,9 @@ module SnippetGenerator
   # For example "AJ likes coding in {{language}} and using {{editor}} to write code."
 
   def input_form_snippet_export(file_to_write, form_trigger,form_statement)
-    File.open(file_to_write,"a") { |file| file.write('  - trigger: '+QUOTE+':'+form_trigger+QUOTE+NEW_LINE) }
+    File.open(file_to_write,"a") { |file| file.write(NEW_LINE+'  - trigger: '+QUOTE+':'+form_trigger+QUOTE+NEW_LINE) }
     File.open(file_to_write,"a") { |file| file.write('    form: |'+NEW_LINE)}
-    File.open(file_to_write,"a") { |file| file.write('      '+form_statement+NEW_LINE)}
+    File.open(file_to_write,"a") { |file| file.write('      '+form_statement)}
   end
   ## ! TO DO: REFACTOR FORM METHODS INTO ONE METHOD which accounts for all cases. Add comments clarifying
   ## ! DATA STRUCTURE NEEDED.
