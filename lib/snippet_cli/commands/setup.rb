@@ -1,6 +1,7 @@
 require_relative '../command'
 require 'tty-box'
 require 'tty-prompt'
+require 'tty-platform'
 require './lib/banner'
 # frozen_string_literal: true
 
@@ -8,6 +9,7 @@ require './lib/banner'
 module SnippetCli
   module Commands
     class Setup < SnippetCli::Command
+      platform= TTY::Platform.new
       @leading = "                                      "
       attr_accessor :user_name,:config_path,:user_storage,:config_present,:os_choice
     
@@ -31,20 +33,13 @@ module SnippetCli
     
         def get_os()
           puts @leading
-          prompt = TTY::Prompt.new
-              os_choice = prompt.select("⟶  What OS are you using?", active_color: :bright_blue) do |menu|
-                menu.enum "->"
-
-                menu.choice :Windows
-                menu.choice :Linux
-                menu.choice :Mac_OS
-              end
-              puts os_choice
-              if (os_choice == 'Windows')
-                 config_path = "#{ENV["FOLDERID_RoamingAppData}"]}\espanso\\default.yml"
-              elsif (os_choice == 'Mac')
+          puts "Checking what os you're using..."
+            os_choice = platform.os()
+              if (platform.windows? == true)
+                 config_path = "#{ENV["FOLDERID_RoamingAppData}"]}\\espanso\\default.yml"
+              elsif (platform.mac? == true)
                  config_path = "#{ENV["HOME"]}/Library/Preferences/espanso/default.yml"
-              else (os_choice == 'Linux')
+              else (platform.linux? == true)
                  config_path = "#{ENV["XDG_CONFIG_HOME}"]}/espanso/default.yml"
               end
           puts @leading
@@ -52,7 +47,7 @@ module SnippetCli
           self.os_choice = os_choice
           puts "We'll set the config path to:"
           puts @leading
-          puts "#{config_path}"
+          prompt.ok("#{config_path}")
   
         end
     
