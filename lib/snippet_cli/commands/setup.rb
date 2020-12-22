@@ -36,11 +36,11 @@ module SnippetCli
           puts "Checking what os you're using..."
             os_choice = platform.os()
               if (platform.windows? == true)
-                 config_path = "#{ENV["FOLDERID_RoamingAppData}"]}\\espanso\\default.yml"
+                 config_path = "#{ENV["FOLDERID_RoamingAppData"]}\\espanso\\default.yml"
               elsif (platform.mac? == true)
                  config_path = "#{ENV["HOME"]}/Library/Preferences/espanso/default.yml"
               else (platform.linux? == true)
-                 config_path = "#{ENV["XDG_CONFIG_HOME}"]}/espanso/default.yml"
+                 config_path = "#{ENV["XDG_CONFIG_HOME"]}/espanso/default.yml"
               end
           puts @leading
           self.config_path=config_path
