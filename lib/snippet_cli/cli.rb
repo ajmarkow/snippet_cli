@@ -18,7 +18,7 @@ module SnippetCli
     end
     map %w(--version -v) => :version
 
-    desc 'info [DOCS]', 'Command description...'
+    desc 'info [DOCS]', 'Show info and docs about using the program.'
     method_option :help, aliases: '-h', type: :boolean,
                          desc: 'Display usage information'
     def info(docs = nil)
@@ -30,7 +30,7 @@ module SnippetCli
       end
     end
 
-    desc 'new', 'Command description...'
+    desc 'new', 'Guides you through adding a new snippet.'
     method_option :help, aliases: '-h', type: :boolean,
                          desc: 'Display usage information'
     def new(*)
@@ -42,7 +42,7 @@ module SnippetCli
       end
     end
 
-    desc 'setup', 'News Config for Using Tool to Add Snippets'
+    desc 'setup', 'Sets up snippet_cli to modify correct file.'
     method_option :help, aliases: '-h', type: :boolean,
                          desc: 'Set directory to write to snippet file in'
     def setup(*)
