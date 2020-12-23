@@ -37,9 +37,9 @@ class Setup
           if (config_path.include? "Windows")
             return config_path = "\\Roaming\\AppData\\espanso\\default.yml"
           elsif (config_path.include?"OS X")
-            return config_path = "$HOME/Library/Preferences/espanso/default.yml"
+            return config_path = "#{ENV["HOME"]}/Library/Preferences/espanso/default.yml"
           else config_path.include?("Linux")
-            return config_path = "$XDG_CONFIG_HOME/espanso/default.yml"
+            return config_path = "#{ENV["HOME"]}/.config/espanso/default.yml"
           end
       puts @leading
       self.user_os=config_path
@@ -62,13 +62,13 @@ class Setup
     end
 
   def generate_config()
-    if File.exist?("./snippet_cli_config.txt") then
+    if File.exist?("#{ENV["HOME"]}/snippet_cli_config.txt") then
 
     else
-      File.open("./snippet_cli_config.txt", "a") { |f| f.write "NAME = #{self.user_name}\n"}
-      File.open("./snippet_cli_config.txt", "a") { |f| f.write "OS = #{self.user_os}\n"}
-      File.open("./snippet_cli_config.txt", "a") { |f| f.write "STORAGE = #{self.user_storage}\n"}
-      File.open("./snippet_cli_config.txt", "a") { |f| f.write "CONFIG_PRESENT = TRUE\n"}
+      File.open("#{ENV["HOME"]}/snippet_cli_config.txt", "a") { |f| f.write "NAME = #{self.user_name}\n"}
+      File.open("#{ENV["HOME"]}/snippet_cli_config.txt", "a") { |f| f.write "OS = #{self.user_os}\n"}
+      File.open("#{ENV["HOME"]}/snippet_cli_config.txt", "a") { |f| f.write "STORAGE = #{self.user_storage}\n"}
+      File.open("#{ENV["HOME"]}/snippet_cli_config.txt", "a") { |f| f.write "CONFIG_PRESENT = TRUE\n"}
     end
   end
 end

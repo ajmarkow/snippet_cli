@@ -1,8 +1,8 @@
 require_relative '../command'
+require 'bundler/setup'
 require 'tty-box'
 require 'tty-prompt'
 require 'tty-platform'
-require './lib/banner'
 # frozen_string_literal: true
 
 
@@ -20,6 +20,21 @@ module SnippetCli
           @os_choice = os_choice  
           @config_present = config_present 
         end
+
+      def show_banner()
+        box = TTY::Box::frame(width:67, height:11, border: :thick, align: :left) do 
+        "
+        #####   #     # ### ######  ######  ####### ####### 
+        #     # ##    #  #  #     # #     # #          #    
+        #       # #   #  #  #     # #     # #          #    
+         #####  #  #  #  #  ######  ######  #####      #    
+              # #   # #  #  #       #       #          #    
+        #     # #    ##  #  #       #       #          #    
+         #####  #     # ### #       #       #######    #    CLI                                                                
+        "
+        end
+        puts box
+      end
     
         def get_name()
           puts @leading
@@ -40,7 +55,7 @@ module SnippetCli
               elsif (platform.mac? == true)
                  config_path = "#{ENV["HOME"]}/Library/Preferences/espanso/default.yml"
               else (platform.linux? == true)
-                 config_path = "#{ENV["XDG_CONFIG_HOME"]}/espanso/default.yml"
+                 config_path = "#{ENV["HOME"]}/.config/espanso/default.yml"
               end
           puts @leading
           self.config_path=config_path

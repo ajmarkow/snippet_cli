@@ -1,9 +1,9 @@
 # frozen_string_literal: true
+require 'bundler/setup'
 require 'tty-box'
 require 'tty-prompt'
-require 'snippet_generator'
+require_relative '../../snippet_generator'
 require 'httparty'
-require './lib/banner'
 require 'json'
 require 'ascii'
 # require 'snippets_for_espanso/SnippetGenerator'
@@ -13,13 +13,27 @@ require_relative '../command'
 module SnippetCli
   module Commands
     class New < SnippetCli::Command
+            def show_banner()
+        box = TTY::Box::frame(width:67, height:11, border: :thick, align: :left) do 
+        "
+        #####   #     # ### ######  ######  ####### ####### 
+        #     # ##    #  #  #     # #     # #          #    
+        #       # #   #  #  #     # #     # #          #    
+         #####  #  #  #  #  ######  ######  #####      #    
+              # #   # #  #  #       #       #          #    
+        #     # #    ##  #  #       #       #          #    
+         #####  #     # ### #       #       #######    #    CLI                                                                
+        "
+        end
+        puts box
+      end
       include SnippetGenerator
       @leading = "                                      "
       
       prompt=TTY::Prompt.new
       def initialize(options)
         @options = options
-        @file_path = File.readlines("#{ENV["HOMEPATH"]}/snippet_cli_config.txt")[1]
+        @file_path = File.readlines("#{ENV["HOME"]}/snippet_cli_config.txt")[1]
         @file_path = Ascii.process(@file_path)
       end
 
