@@ -5,6 +5,7 @@ require 'snippet_generator'
 require 'httparty'
 require './lib/banner'
 require 'json'
+require 'ascii'
 # require 'snippets_for_espanso/SnippetGenerator'
 require_relative '../command'
 
@@ -19,7 +20,7 @@ module SnippetCli
       def initialize(options)
         @options = options
         @file_path = File.readlines("#{ENV["HOMEPATH"]}/snippet_cli_config.txt")[1]
-        puts @file_path
+        @file_path = Ascii.process(@file_path)
       end
 
       def but_first()
