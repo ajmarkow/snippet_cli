@@ -36,7 +36,7 @@ module SnippetCli
           puts "Checking what os you're using..."
             os_choice = platform.os()
               if (platform.windows? == true)
-                 config_path = "#{ENV["FOLDERID_RoamingAppData"]}\\espanso\\default.yml"
+                 config_path = "#{ENV["HOMEPATH"]}\\AppData\\Roaming\\espanso\\default.yml"
               elsif (platform.mac? == true)
                  config_path = "#{ENV["HOME"]}/Library/Preferences/espanso/default.yml"
               else (platform.linux? == true)
@@ -68,10 +68,10 @@ module SnippetCli
         end
     
       def generate_config()
-        if File.exist?("#{ENV["HOMEPATH"]}/snippet_cli_config.txt") && File.read("#{ENV["HOMEPATH"]}/snippet_cli_config.txt").include?("CONFIG_PRESENT = TRUE")
+        if File.exist?("#{ENV["HOMEPATH"]}\\snippet_cli_config.txt") && File.read("#{ENV["HOMEPATH"]}\\snippet_cli_config.txt").include?("CONFIG_PRESENT = TRUE")
         else
           File.open("#{ENV["HOMEPATH"]}/snippet_cli_config.txt", "a") { |f| f.write "NAME = #{self.user_name}\n"}
-          File.open("#{ENV["HOMEPATH"]}/snippet_cli_config.txt", "a") { |f| f.write "ESPANSO_YML = #{self.config_path}\n"}
+          File.open("#{ENV["HOMEPATH"]}/snippet_cli_config.txt", "a") { |f| f.write "#{self.config_path}\n"}
           File.open("#{ENV["HOMEPATH"]}/snippet_cli_config.txt", "a") { |f| f.write "CONFIG_PRESENT = TRUE\n"}
         end
       end

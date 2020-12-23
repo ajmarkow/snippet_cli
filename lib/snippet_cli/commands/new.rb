@@ -18,7 +18,8 @@ module SnippetCli
       prompt=TTY::Prompt.new
       def initialize(options)
         @options = options
-        @file_path = "#{ENV["HOME"]}/ajstest.yml"
+        @file_path = File.readlines("#{ENV["HOMEPATH"]}/snippet_cli_config.txt")[1]
+        puts @file_path
       end
 
       def but_first()
@@ -52,9 +53,9 @@ module SnippetCli
               but_first()
               replacement = prompt.multiline("what did you want the trigger to be replaced with?")
               if (replacement.length() > 1)
-                single_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement)
+                single_snippet_export(@file_path,snippet_trigger,replacement)
               else
-                single_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement[0])
+                single_snippet_export(@file_path,snippet_trigger,replacement[0])
               end
             when 2
               puts @leading
@@ -70,11 +71,11 @@ module SnippetCli
               newprompt.ok("Also make sure the name of each form field is unique.")
               puts @leading
               replacement = prompt.multiline("what did you want the trigger to be replaced with?")
-            if (replacement.length() > 1)
-                input_form_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement)
-              else
-                input_form_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement[0])
-              end
+                if (replacement.length() > 1)
+                  input_form_snippet_export(@file_path,snippet_trigger,replacement)
+                else
+                  input_form_snippet_export(@file_path,snippet_trigger,replacement[0])
+                end
             when 3
               puts @leading
               url = prompt.ask("What's the URL of the snippet?",default: "http://localhost:3000/snippets/1")
