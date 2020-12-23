@@ -32,24 +32,24 @@ module SnippetCli
       end
 
       def new_form()
-        def user_input_process()
+          puts "Let's add a new snippet to your configuration"
+          puts @leading
           snippet_type = prompt.select("Do you want a Snippet or a Snippet with a form?") do |menu|
           menu.enum "."
 
           menu.choice "A snippet",1
           menu.choice "A snippet with a form",2 
+          menu.choice "A snippet from Semplificato API",3
           end
-
-          puts @leading
-          snippet_trigger=prompt.ask("What do you want to type to trigger the snippet?")
-          puts @leading
-          puts "Okay, the snippet will be triggered by:"
-          prompt.ok( ":#{snippet_trigger}")
-          puts@leading
           case snippet_type
             when 1
+              puts @leading
+              snippet_trigger=prompt.ask("What do you want to type to trigger the snippet?")
+              puts @leading
+              puts "Okay, the snippet will be triggered by:"
+              prompt.ok( ":#{snippet_trigger}")
+              puts@leading
               but_first()
-
               replacement = prompt.multiline("what did you want the trigger to be replaced with?")
               if (replacement.length() > 1)
                 single_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement)
@@ -57,6 +57,13 @@ module SnippetCli
                 single_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement[0])
               end
             when 2
+              puts @leading
+              snippet_trigger=prompt.ask("What do you want to type to trigger the snippet?")
+              puts @leading
+              puts "Okay, the snippet will be triggered by:"
+              prompt.ok( ":#{snippet_trigger}")
+              puts@leading
+              but_first()
               newprompt = TTY::Prompt.new
               newprompt.warn("For a form field wrap the word in double brackets.  Like {{example}}")
               puts @leading
@@ -68,30 +75,16 @@ module SnippetCli
               else
                 input_form_snippet_export("#{ENV["HOME"]}/ajstest.yml",snippet_trigger,replacement[0])
               end
+            when 3
+              puts @leading
+              url = prompt.ask("What's the URL of the snippet?",default: "http://localhost:3000/snippets/1")
+              json_url = url+(".json")
+              api_response=HTTParty.get(json_url)
+              response_parsed = api_response.body
+              single_snippet_export(@file_path,response_parsed['trigger'],response_parsed['replacement'])
+              puts@leading
+              prompt.ok("Added snippet from #{url}")
             end
-        end
-
-        puts "Let's add a new snippet to your configuration"
-        puts @leading
-        from_api = prompt.select("Did you want to pull a snippet from our Web API?", %w(API NO))
-        puts from_api
-        if (from_api == "NO") then
-          puts "false"
-          user_input_process()
-        else (from_api == "API")
-          def api_process()
-            url = prompt.ask("What's the URL of the snippet?",default: "http://localhost:3000/snippets/1")
-            puts url
-          
-            json_url = url+(".json")
-            api_response=HTTParty.get(json_url)
-            response_parsed = api_response.body
-            puts response_parsed
-            single_snippet_export(@file_path,response_parsed['trigger'],response_parsed['replacement'])
-            puts prompt.ok("Added snippet at #{url}")
-          end
-          api_process()
-        end
       end
 
       def execute(input: $stdin, output: $stdout)
