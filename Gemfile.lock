@@ -1,7 +1,16 @@
 PATH
   remote: .
   specs:
-    snippet_cli (0.1.0)
+    snippet_cli (0.2.4)
+      ascii
+      bundler
+      httparty
+      pastel
+      snippets_for_espanso
+      tty-box
+      tty-markdown
+      tty-platform
+      tty-prompt
 
 GEM
   remote: https://rubygems.org/

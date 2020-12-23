@@ -1,5 +1,5 @@
-require 'tty/prompt'
-require 'tty/box'
+require 'tty-prompt'
+require 'tty-box'
 prompt = TTY::Prompt.new
 
 
