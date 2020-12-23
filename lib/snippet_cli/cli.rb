@@ -42,7 +42,7 @@ module SnippetCli
       end
     end
 
-    desc 'setup', 'Sets up snippet_cli to modify correct file.'
+    desc 'setup', 'Sets up snippet_cli to modify correct.'
     method_option :help, aliases: '-h', type: :boolean,
                          desc: 'Set directory to write to snippet file in'
     def setup(*)

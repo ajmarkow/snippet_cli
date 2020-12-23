@@ -12,3 +12,4 @@ gem 'tty-markdown'
 gem "pastel"
 gem "bundler"
 gem "snippets_for_espanso"
+gem "httparty"
