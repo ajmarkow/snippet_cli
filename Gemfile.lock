@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    snippet_cli (0.2.4)
+    snippet_cli (0.2.5)
       ascii
       bundler
       httparty

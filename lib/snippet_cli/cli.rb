@@ -8,6 +8,10 @@ module SnippetCli
   #
   # @api public
   class CLI < Thor
+  def self.exit_on_failure?
+    true
+    puts "Something went wrong, try again."
+  end
     # Error raised by this runner
     Error = Class.new(StandardError)
 
@@ -20,7 +24,7 @@ module SnippetCli
 
     desc 'info [DOCS]', 'Show info and docs about using the program.'
     method_option :help, aliases: '-h', type: :boolean,
-                         desc: 'Display usage information'
+                         desc: 'Shows you where you can find more documentation and leave feedback for the program.'
     def info(docs = nil)
       if options[:help]
         invoke :help, ['info']
@@ -32,7 +36,7 @@ module SnippetCli
 
     desc 'new', 'Guides you through adding a new snippet.'
     method_option :help, aliases: '-h', type: :boolean,
-                         desc: 'Display usage information'
+                         desc: 'Adds a new snippet to your yml file.'
     def new(*)
       if options[:help]
         invoke :help, ['new']
@@ -42,9 +46,9 @@ module SnippetCli
       end
     end
 
-    desc 'setup', 'Sets up snippet_cli to modify correct.'
+    desc 'setup', 'Sets up snippet_cli to modify correct file.'
     method_option :help, aliases: '-h', type: :boolean,
-                         desc: 'Set directory to write to snippet file in'
+                         desc: 'Sets directory to write to snippet file in.'
     def setup(*)
       if options[:help]
         invoke :help, ['setup']
