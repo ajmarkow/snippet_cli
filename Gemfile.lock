@@ -78,6 +78,12 @@ GEM
     wisper (2.0.1)
     yaml (0.1.0)
 
+PLATFORMS
+  x64-mingw32
+  x86_64-linux
+  x86_64-darwin-17
+
+
 DEPENDENCIES
   ascii
   bundler
