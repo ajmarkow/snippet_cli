@@ -1,4 +1,7 @@
----
+os:
+  - linux
+  - osx
+  - windows
 language: ruby
 cache: bundler
 rvm:

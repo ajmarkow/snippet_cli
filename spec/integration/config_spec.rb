@@ -1,9 +1,9 @@
-RSpec.describe "`snippet_cli config` command", type: :cli do
-  it "executes `snippet_cli help config` command successfully" do
-    output = `snippet_cli help config`
+RSpec.describe "`snippet_cli setup` command", type: :cli do
+  it "executes `snippet_cli help setup` command successfully" do
+    output = `snippet_cli help setup`
     expected_output = <<-OUT
 Usage:
-  snippet_cli config
+  snippet_cli setup
 
 Options:
   -h, [--help], [--no-help]  # Display usage information
