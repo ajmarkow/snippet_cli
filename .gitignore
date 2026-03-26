@@ -6,6 +6,9 @@
 /pkg/
 /spec/reports/
 /tmp/
+/vendor/bundle
+Gemfile.lock
+.DS_Store
 
 # rspec failure tracking
 .rspec_status
