@@ -1,0 +1,605 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ajm.codes/Espanso_Match_Schema.json",
+  "title": "Espanso Match Schema",
+  "description": "The schema for individual text expansions in a match file, for the open source program Espanso. See https://Espanso.org.",
+  "type": "object",
+  "properties": {
+    "triggers": {
+      "description": "An array with at least one item, a string, this is the text you type in order to trigger Espanso's text replacement. One expansion may have many triggers, and the property triggers is used when you want  trigger.(See https://espanso.org/docs/matches/basics/ or https://espanso.org/docs/matches/basics/#multiple-triggers)",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "error": "A text trigger must be at least one character. There must be at least one text trigger."
+    },
+    "trigger": {
+      "description": "A string, this is the text you type in order to trigger Espanso's text replacement. One expansion may have many triggers, but the property trigger is used when you want just one trigger.. (See https://espanso.org/docs/matches/basics/ or https://espanso.org/docs/matches/basics/#multiple-triggers)",
+      "type": "string",
+      "minLength": 1,
+      "error": "A text trigger must be at least one character. There must be at least one text trigger."
+    },
+    "debug": {
+      "description": "This boolean property defines whether Espanso uses the more verbose debug mode, with true meaning more detailed debugging info is provided, when using the command espanso log. See https://espanso.org/docs/matches/extensions/#debugging.",
+      "type": "boolean",
+      "default": false
+    },
+    "regex": {
+      "description": "This is a string field to trigger the text replacement, desribing a regex, which, when matched, triggers Espanso's text replacement. An alternate to trigger. Follows the syntax defined in Espanso docs. (See https://espanso.org/docs/matches/regex-triggers/)",
+      "type": "string"
+    },
+    "label": {
+      "description": "A string field to override the default description of a text replacement, making searching for your snippet easier. (See https://espanso.org/docs/matches/basics/#search-labels)",
+      "type": "string",
+      "minLength": 1
+    },
+    "word": {
+      "description": "A boolean field turning on and off setting that tells Espanso to only trigger that match if surrounded by word separators, such as spaces, commas and newlines. Useful for spell checking. (See https://espanso.org/docs/matches/basics/#word-triggers) ",
+      "type": "boolean"
+    },
+    "image_path": {
+      "description": "A string field that specifies a path to an image, which the text trigger will be replaced with, instead of text. (See https://espanso.org/docs/matches/basics/#image-matches)",
+      "type": "string"
+    },
+    "propagate_case": {
+      "description": "A boolean field turning on and off case-propagation, which makes it possible to expand a match preserving the trigger casing. (See https://espanso.org/docs/matches/basics/#case-propagation)",
+      "type": "boolean"
+    },
+    "replace": {
+      "description": "A string match that defines the text that will expand at every occurrence of the trigger. (See https://espanso.org/docs/matches/basics/#static-matches)",
+      "type": "string"
+    },
+    "form": {
+      "description": "An expansion which renders a form the user fills out in order for expansion to complete. A form must have at least one user-fillable fields denoted by double-brackets [[field_name]] syntax. (See https://espanso.org/docs/matches/forms/ )",
+      "type": "string",
+      "pattern": "(\\[\\[([a-zA-Z0-9!@#$%^&*)(+=._-]{1,25})\\]\\])"
+    },
+    "passive_only": {
+      "description": "A boolean to set a text expansion so it will only be expanded when using passive mode. Somewhat  & deprecated feature, see https://espanso.org/docs/legacy/passive-mode/.",
+      "type": "boolean",
+      "default": "false"
+    },
+    "global_vars": {
+      "type": "array",
+      "description": "A variable which may be used in many matches, and is not scoped to only a single snippet. See https://espanso.org/docs/matches/basics/#global-variables.",
+      "globalvarItems": {
+        "$ref": "#/vars/items"
+      }
+    },
+    "form_fields": {
+      "description": "An object containing properties of your form fields, and the names you use to refer to them.  The object keys are your field name. See https://espanso.org/docs/matches/forms/#controls. I like to prefix all form field names with FF_, in order for them to be consistent and easy to find.  Due to the way this schema is defined, you must always include the type attribute, to specify the specific type of form.",
+      "type": "object",
+      "additionalProperties": {
+        "required": [
+          "type"
+        ],
+        "additionalProperties": false,
+        "type": "object",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "choice"
+                }
+              }
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "multiline"
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "list"
+                }
+              }
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "multiline"
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "choice"
+                }
+              }
+            },
+            "then": {
+              "not": {
+                "required": [
+                  "multiline"
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "form"
+                }
+              }
+            },
+            "then": {
+              "description": "\"When using form type extension, you must use dot notation in your text replacement. The format it follows is {{variable_name.field_name}} where variable_name is the name of the variable in the params array, and field_name is the field_name within the layout property of the variable. For example, given the following item in the params array:\r\n\r\n      - name: \"var1\"\r\n        type: form\r\n        params:\r\n          layout: \"what is the adjective? [[adjective]]\"\r\n\r\nYour text expansion would need to follow the format:\r\n\r\n  - trigger: \"ajs_cool_example\"\r\n    replace: \"aj is {{var1.adjective}}\"",
+              "not": {
+                "required": [
+                  "values"
+                ]
+              }
+            }
+          }
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "What type of form element will be rendered when this form field is used. See https://espanso.org/docs/matches/forms/#controls.",
+            "enum": [
+              "choice",
+              "list",
+              "form"
+            ]
+          },
+          "multiline": {
+            "type": "boolean",
+            "default": "false"
+          },
+          "default": {
+            "type": "string",
+            "description": "Optional data that specifies the default value of the specific form field. See https://espanso.org/docs/matches/forms/#text-fields"
+          },
+          "trim_string_values": {
+            "type": "boolean",
+            "default": "true",
+            "description": "If you pass the values as a multiline string and this option is true, Espanso will trim the values and remove empty ones. If you choose this option, use the | pipe character after you type the values key and colon. See https://espanso.org/docs/matches/forms/#choice-box:~:text=(empty)-,trim_string_values,-If%20you%20pass."
+          },
+          "values": {
+            "description": "The list of values to choose from. This can be either a multiline string or an array of strings. See https://espanso.org/docs/matches/forms/#list-box",
+            "type": [
+              "array",
+              "string"
+            ],
+            "minItems": 1
+          }
+        }
+      }
+    },
+    "vars": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "echo"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "properties": {
+                    "echo": {
+                      "type": "string"
+                    },
+                    "debug": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "echo"
+                  ]
+                }
+              }
+            }
+          },
+                    {
+                      "if": {
+                        "properties": {
+                          "type": {
+                            "const": "form"
+                          }
+                        }
+                      },
+                      "then": {
+                        "properties": {
+                          "params": {
+                            "additionalProperties": false,
+                            "type": "object",
+                            "properties": {
+                              "layout": {
+                                "description": "\"When using form type extension, you must use dot notation in your text replacement. The format it follows is {{variable_name.field_name}} where variable_name is the name of the variable in the params array, and field_name is the field_name within the layout property of the variable.  Note that in the layout property, the field name should be surrounded with brackets as such, [[this_field]]. For example, given the following item in the params array:\r\n\r\n      - name: \"var1\"\r\n        type: form\r\n        params:\r\n          layout: \"what is the adjective? [[adjective]]\"\r\n\r\nYour text expansion would need to follow the format:\r\n\r\n  - trigger: \"ajs_cool_example\"\r\n    replace: \"aj is {{var1.adjective}}\"",
+                                "type": "string"
+                              },
+                              "debug": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "layout"
+                            ]
+                          }
+                        }
+                      }
+                    },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "random"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "properties": {
+                    "choices": {
+                      "type": "array"
+                    },
+                    "debug": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "choices"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "choice"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "properties": {
+                    "values": {
+                      "type": "array"
+                    },
+                    "debug": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "values"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "date"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "properties": {
+                    "format": {
+                      "type": "string"
+                    },
+                    "offset": {
+                      "type": "integer"
+                    },
+                    "debug": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "format"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "script"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "properties": {
+                    "args": {
+                      "type": "array",
+                      "maxItems": 2,
+                      "uniqueItems": true
+                    }
+                  },
+                  "required": [
+                    "args"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "shell"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "properties": {
+                    "cmd": {
+                      "type": "string"
+                    },
+                    "shell": {
+                      "type": "string"
+                    },
+                    "debug": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "cmd"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "description": "Variables have the capability to include the result of extensions within a match, but they can also be used to generate more complex text expansions. See https://espanso.org/docs/matches/variables/.",
+        "required": [
+          "type",
+          "name",
+          "params"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name within your text expansion definition to use your variable data.This variable should be named without double brackets, e.g., my_special_variable. In use, surround with {{ }} on either side of variable. See also https://espanso.org/docs/matches/variables/#variable-injection.",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "description": "In Espanso docs this is called the extensions system. This type field defines how the data for the variable is gathered. (See https://espanso.org/docs/matches/extensions/) ",
+            "enum": [
+              "clipboard",
+              "choice",
+              "date",
+              "echo",
+              "form",
+              "global",
+              "random",
+              "script",
+              "shell"
+            ]
+          },
+          "depends_on": {
+            "type": "array",
+            "description": "Specifies a list of other variables which this variable depends upon the value of.  Effectively, this forces the variable with the depends_on property to be evaluated last. This is usually inferred when Espanso evaluates the variables. When using an environmental variable in your parameters, with a type of cmd, or setting a global variable, it may be necessary to manually specify the dependency using this field.  See https://espanso.org/docs/matches/variables/#specify-the-depends_on-option-when-needed.",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "params": {
+            "type": "object",
+            "properties": {
+              "cmd": {
+                "description": "Specifically for the shell extension, this string field specifies what command you want to be run in your shell for the variable. See  https://espanso.org/docs/matches/extensions/#shell-extension.",
+                "type": "string"
+              },
+              "shell": {
+                "description": "Specifically for the shell extension, this option specifies what shell the commands specified using the cmd property will run in. See https://espanso.org/docs/matches/extensions/#choosing-the-shell.",
+                "type": "string",
+                "enum": [
+                  "cmd",
+                  "powershell",
+                  "wsl",
+                  "sh",
+                  "bash"
+                ]
+              },
+              "format": {
+                "description": "Specifically for the date extension, this property describes how the date will be formatted.  See https://espanso.org/docs/matches/extensions/#date-extension.",
+                "type": "string"
+              },
+              "offset": {
+                "description": "Specifically for the date extension, this property defines an offset that will be added when the extension is evaluated. See https://espanso.org/docs/matches/extensions/#future-and-past-dates.",
+                "type": "integer"
+              },
+              "locale": {
+                "description": "Specifically for the date extension, this property forces the date to use a specific locale's formatting. Should be a valid BCP47 option, from the list of enumerated values. See https://espanso.org/docs/matches/extensions/#advanced-localized-dates.",
+                "type": "string",
+                "enum": [
+                  "\"ar-SA\",\"bn-BD\",\"bn-IN\",\"cs-CZ\",\"da-DK\",\"de-AT\",\"de-CH\",\"de-DE\",\"el-GR\",\"en-AU\",\"en-CA\",\"en-GB\",\"en-IE\",\"en-IN\",\"en-NZ\",\"en-US\",\"en-ZA\",\"es-AR\",\"es-CL\",\"es-CO\",\"es-ES\",\"es-MX\",\"es-US\",\"fi-FI\",\"fr-BE\",\"fr-CA\",\"fr-CH\",\"fr-FR\",\"he-IL\",\"hi-IN\",\"hu-HU\",\"id-ID\",\"it-CH\",\"it-IT\",\"jp-JP\",\"ko-KR\",\"nl-BE\",\"nl-NL\",\"no-NO\",\"pl-PL\",\"pt-BR\",\"pt-PT\",\"ro-RO\",\"ru-RU\",\"sk-SK\",\"sv-SE\",\"ta-IN\",\"ta-LK\",\"th-TH\",\"tr-TR\",\"zh-CN\",\"zh-HK\",\"zh-TW\""
+                ]
+              },
+              "values": {
+                "description": "Specifically for the choice extension, this array contains a list of string values you will chose between in the selection dialog rendered with this type of expansion. See https://espanso.org/docs/matches/extensions/#choice-extension.",
+                "type": "array"
+              },
+              "choices": {
+                "description": "Specifically for the random extension, this array contains a list of string values Espanso will randomly chose between when replacing the trigger.  See https://espanso.org/docs/matches/extensions/#random-extension.",
+                "type": "array"
+              },
+              "echo": {
+                "description": "Specifically for the echo extension, this is the value of a fixed variable, where the name of the variable is the key. See https://espanso.org/docs/matches/extensions/#echo-extension.",
+                "type": "string"
+              },
+              "trim": {
+                "description": "This boolean property defines whether whitespace and newlines are removed from results and outputs of your commands/extensions.  See https://espanso.org/docs/matches/extensions/#trimming-the-output.",
+                "type": "boolean"
+              },
+              "debug": {
+                "description": "This boolean property defines whether Espanso uses the more verbose debug mode, with true meaning more detailed debugging info is provided, when using the command espanso log. See https://espanso.org/docs/matches/extensions/#debugging.",
+                "type": "boolean",
+                "default": false
+              },
+              "label": {
+                "description": "Specifically for the choice extension, this enables you to render  different text for an option than the final value. The id property denotes what value will be returned when this option is used. See https://espanso.org/docs/matches/extensions/#advanced-use-with-ids.",
+                "type": "string"
+              },
+              "id": {
+                "description": "Specifically for the choice extension, this helps  you to render  different text for an option than the final value. The label property denotes what value will be displayed when this option is used. This property denotes the true value. See Specifically for the choice extension, this enables you to render  different text for an option than the final value. The id property denotes what value will be returned when this option is used. See https://espanso.org/docs/matches/extensions/#advanced-use-with-ids.",
+                "type": "string"
+              },
+              "args ": {
+                "description": "Specifically for the script extension, this property provides an array of arguments, which are used when evaluating/running your scripts. First argument should be the programming language. Second argument should be the path to the script to run. See https://espanso.org/docs/matches/extensions/#script-extension.",
+                "type": "array"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "additionalProperties": false
+      },
+      "minItems": 0
+    }
+  },
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "trigger"
+          ]
+        },
+        {
+          "type": "object",
+          "required": [
+            "regex"
+          ]
+        },
+        {
+          "type": "object",
+          "required": [
+            "triggers"
+          ]
+        }
+      ]
+    },
+    {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "replace"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {},
+          "required": [
+            "image_path"
+          ]
+        },
+        {
+          "type": "object",
+          "required": [
+            "form"
+          ]
+        }
+      ]
+    },
+    {
+      "if": {
+        "properties": {
+          "image_path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "image_path"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "propagate_case"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "image_path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "image_path"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "word"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "image_path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "image_path"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "vars"
+          ]
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

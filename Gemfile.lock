@@ -1,0 +1,103 @@
+PATH
+  remote: .
+  specs:
+    snippet_cli (0.2.9)
+      ascii
+      bundler
+      httparty
+      pastel
+      snippets_for_espanso
+      tty-box
+      tty-markdown
+      tty-platform
+      tty-prompt
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    ascii (1.0.1)
+    bigdecimal (3.2.2)
+    csv (3.3.5)
+    diff-lcs (1.6.2)
+    httparty (0.23.1)
+      csv
+      mini_mime (>= 1.0.0)
+      multi_xml (>= 0.5.2)
+    kramdown (2.5.1)
+      rexml (>= 3.3.9)
+    mini_mime (1.1.5)
+    multi_xml (0.7.2)
+      bigdecimal (~> 3.1)
+    pastel (0.8.0)
+      tty-color (~> 0.5)
+    rake (13.3.0)
+    rexml (3.4.1)
+    rouge (4.5.2)
+    rspec (3.13.1)
+      rspec-core (~> 3.13.0)
+      rspec-expectations (~> 3.13.0)
+      rspec-mocks (~> 3.13.0)
+    rspec-core (3.13.5)
+      rspec-support (~> 3.13.0)
+    rspec-expectations (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-mocks (3.13.5)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.13.0)
+    rspec-support (3.13.4)
+    snippets_for_espanso (0.1.2)
+      yaml
+    strings (0.2.1)
+      strings-ansi (~> 0.2)
+      unicode-display_width (>= 1.5, < 3.0)
+      unicode_utils (~> 1.4)
+    strings-ansi (0.2.0)
+    thor (1.3.2)
+    tty-box (0.7.0)
+      pastel (~> 0.8)
+      strings (~> 0.2.0)
+      tty-cursor (~> 0.7)
+    tty-color (0.6.0)
+    tty-cursor (0.7.1)
+    tty-markdown (0.7.2)
+      kramdown (>= 1.16.2, < 3.0)
+      pastel (~> 0.8)
+      rouge (>= 3.14, < 5.0)
+      strings (~> 0.2.0)
+      tty-color (~> 0.5)
+      tty-screen (~> 0.8)
+    tty-platform (0.3.0)
+    tty-prompt (0.23.1)
+      pastel (~> 0.8)
+      tty-reader (~> 0.8)
+    tty-reader (0.9.0)
+      tty-cursor (~> 0.7)
+      tty-screen (~> 0.8)
+      wisper (~> 2.0)
+    tty-screen (0.8.2)
+    unicode-display_width (2.6.0)
+    unicode_utils (1.4.0)
+    wisper (2.0.1)
+    yaml (0.4.0)
+
+PLATFORMS
+  arm64-darwin-22
+
+DEPENDENCIES
+  ascii
+  bundler
+  httparty
+  pastel
+  rake
+  rspec (~> 3.0)
+  snippet_cli!
+  snippets_for_espanso
+  thor
+  tty-box
+  tty-markdown
+  tty-platform
+  tty-prompt
+
+BUNDLED WITH
+   2.4.10
