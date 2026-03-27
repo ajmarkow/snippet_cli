@@ -12,3 +12,9 @@ Gemfile.lock
 
 # rspec failure tracking
 .rspec_status
+
+# devenv local state (gems, caches, nix artifacts)
+.devenv/state/
+.devenv/*.db
+.devenv/*.db-shm
+.devenv/*.db-wal
