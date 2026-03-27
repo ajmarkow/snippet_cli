@@ -17,6 +17,7 @@ Gem::Specification.new do |spec|
   spec.metadata['homepage_uri']    = spec.homepage
   spec.metadata['source_code_uri'] = 'https://github.com/ajmarkow/snippet_cli'
   spec.metadata['changelog_uri']   = 'https://github.com/ajmarkow/snippet_cli/blob/master/CHANGELOG.md'
+  spec.metadata['github_repo']     = 'ssh://github.com/ajmarkow/snippet_cli'
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
