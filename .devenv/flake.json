@@ -1,1 +1,1 @@
-{"git-hooks":{"url":"github:cachix/git-hooks.nix"},"nixpkgs":{"url":"github:cachix/devenv-nixpkgs/rolling"}}
+{"nixpkgs":{"url":"github:cachix/devenv-nixpkgs/rolling"}}
