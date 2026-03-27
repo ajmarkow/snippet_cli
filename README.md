@@ -26,9 +26,33 @@ TODO: Write usage instructions here
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+This project uses [devenv](https://devenv.sh) (Nix-based) for environment management. Do not use rbenv, rvm, asdf, or Homebrew Ruby.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will new a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+### First-time setup
+
+1. [Install Nix](https://nixos.org/download) and [devenv](https://devenv.sh/getting-started/)
+2. Clone the repo:
+   ```
+   git clone https://github.com/ajmarkow/snippet_cli.git
+   cd snippet_cli
+   ```
+3. Enter the development environment:
+   ```
+   devenv shell
+   ```
+4. Install dependencies:
+   ```
+   bundle install
+   ```
+5. Run the tests to verify everything works:
+   ```
+   bundle exec rake spec
+   ```
+
+### Releasing a new version
+
+1. Update the version number in `lib/snippet_cli/version.rb`
+2. Commit with the message containing `gem-release-ready` — CI will build and push the gem to RubyGems automatically once tests pass
 
 ## Contributing
 
