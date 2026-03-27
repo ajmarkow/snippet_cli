@@ -3,7 +3,7 @@
 ## Overview
 
 A single `snippet new` command with option flags, plus a set of utility commands.
-Output is a valid Espanso match entry (YAML), either appended to a file or printed to stdout.
+Output is a valid Espanso match entry (YAML) printed to stdout. The user pipes or redirects as needed.
 
 ---
 
@@ -42,7 +42,6 @@ Output is a valid Espanso match entry (YAML), either appended to a file or print
 | `--label` | String | Search label override |
 | `--word` | Boolean | Word-boundary trigger mode |
 | `--propagate-case` | Boolean | Case propagation |
-| `--file` | String (path) | Append output to this YAML file (default: stdout) |
 
 ### Example invocations
 
@@ -62,8 +61,6 @@ snippet new --trigger :addr --form "Street: [[street]], City: [[city]]"
 # Shell var
 snippet new --trigger :sh --replace "{{out}}" --shell "whoami"
 
-# Append to file
-snippet new --trigger :ty --replace "Thank you" --file ~/.config/espanso/match/base.yml
 ```
 
 ---

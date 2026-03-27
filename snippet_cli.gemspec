@@ -29,7 +29,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'dry-cli',        '~> 1.0'
   spec.add_runtime_dependency 'dry-validation', '~> 1.10'
 
-  spec.add_development_dependency 'aruba', '~> 2.0'
-  spec.add_development_dependency 'rake',  '~> 13.0'
-  spec.add_development_dependency 'rspec', '~> 3.0'
+  spec.add_development_dependency 'aruba',   '~> 2.0'
+  spec.add_development_dependency 'rake',    '~> 13.0'
+  spec.add_development_dependency 'rspec',   '~> 3.0'
+  spec.add_development_dependency 'rubocop', '~> 1.0'
 end
