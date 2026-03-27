@@ -11,7 +11,9 @@
       "Read(//tmp/**)",
       "Bash(curl:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(git remote:*)"
+      "Bash(git remote:*)",
+      "mcp__mem0-mcp__get_memories",
+      "WebFetch(domain:devenv.sh)"
     ]
   }
 }

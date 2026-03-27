@@ -1,1 +1,5 @@
-{"managedFiles":[]}
+{
+  "managedFiles": [
+    ".pre-commit-config.yaml"
+  ]
+}

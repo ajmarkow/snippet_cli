@@ -1,0 +1,24 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 4.0
+  SuggestExtensions: false
+  Exclude:
+    - ".devenv/**/*"
+    - "vendor/**/*"
+
+# Policy decision for gem publishing — not enforced here
+Gemspec/RequireMFA:
+  Enabled: false
+
+# Dev deps stay in gemspec per project convention
+Gemspec/DevelopmentDependencies:
+  Enabled: false
+
+# Small project — doc comments add noise without benefit
+Style/Documentation:
+  Enabled: false
+
+# TargetRubyVersion is the devenv/dev linting target; required_ruby_version
+# is the minimum for gem consumers — they are independent concerns
+Gemspec/RequiredRubyVersion:
+  Enabled: false

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'snippet_cli binary', :type => :aruba do
+RSpec.describe 'snippet_cli binary', type: :aruba do
   context 'version command' do
     before { run_command_and_stop('snippet_cli version') }
 
