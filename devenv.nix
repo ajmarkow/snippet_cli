@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 {
+  packages = [ pkgs.gum ];
+
   languages.ruby = {
     enable = true;
     package = pkgs.ruby_4_0;
@@ -41,6 +43,10 @@
     "snippet_cli:test" = {
       exec = "bundle exec rake spec";
       description = "Run RSpec tests via rake";
+    };
+    "snippet_cli:submodule-update" = {
+      exec = "git submodule update --remote --recursive";
+      description = "Fetch latest commits from submodule remotes (e.g. espanso-schema-json)";
     };
   };
 }

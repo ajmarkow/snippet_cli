@@ -4,6 +4,7 @@ PATH
     snippet_cli (0.3.0)
       dry-cli (~> 1.0)
       dry-validation (~> 1.10)
+      gum (~> 0.3)
 
 GEM
   remote: https://rubygems.org/
@@ -87,6 +88,8 @@ GEM
       zeitwerk (~> 2.6)
     ffi (1.17.4-arm64-darwin)
     ffi (1.17.4-x86_64-linux-gnu)
+    gum (0.3.2-arm64-darwin)
+    gum (0.3.2-x86_64-linux)
     json (2.19.3)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)

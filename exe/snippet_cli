@@ -4,5 +4,7 @@
 $LOAD_PATH.unshift(File.join(__dir__, '..', 'lib'))
 
 require 'snippet_cli'
+require 'snippet_cli/banner'
 
+puts SnippetCli.banner
 Dry::CLI.new(SnippetCli::CLI).call

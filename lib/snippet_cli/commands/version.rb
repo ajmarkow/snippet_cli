@@ -9,7 +9,11 @@ module SnippetCli
       desc 'Print snippet_cli version'
 
       def call(**)
-        puts SnippetCli::VERSION
+        label = "  VERSION #{SnippetCli::VERSION}  "
+        bar   = '═' * label.length
+        puts "╔#{bar}╗"
+        puts "║#{label}║"
+        puts "╚#{bar}╝"
       end
     end
   end

@@ -70,7 +70,7 @@ snippet new --trigger :sh --replace "{{out}}" --shell "whoami"
 | Command | Description |
 |---|---|
 | `snippet validate FILE` | Validate a YAML match file against the Espanso schema |
-| `snippet list FILE` | List all triggers defined in a match file |
+| `snippet conflict FILE` | Search a match file for triggers that conflict with one another |
 | `snippet version` | Print the current gem version |
 
 ---
@@ -124,3 +124,9 @@ Do not use the custom schema as-is for validation — the broken `locale` enum a
 **Recommended path:** merge the two schemas. Use the official schema as the authoritative source of property coverage, types, and constraints, then layer the custom schema's descriptions and doc links on top. This would produce a schema superior to either individually.
 
 Until that merged schema exists, use the official schema for `snippet validate` correctness, and reference the custom schema for documentation context.
+
+---
+
+## Other Goals
+
+- Ensure schema works properly for matchfile, not just matches.

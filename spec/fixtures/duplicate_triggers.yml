@@ -1,0 +1,19 @@
+# frozen_string_literal: false
+# Fixture file for conflict detection tests
+
+matches:
+  - trigger: ":hello"
+    replace: "Hello, World!"
+  - trigger: ":hello"
+    replace: "Hello again!"
+  - trigger: ":hi"
+    replace: "Hi there!"
+  - triggers:
+      - ":bye"
+      - ":goodbye"
+    replace: "Goodbye!"
+  - triggers:
+      - ":bye"
+    replace: "See ya!"
+  - regex: ":(gr|great)ing"
+    replace: "Greetings!"
