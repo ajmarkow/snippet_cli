@@ -93,11 +93,11 @@ RSpec.describe SnippetCli::Commands::Conflict do
     end
   end
 
-  context 'with a trigger argument (mode 2)' do
+  context 'with a trigger option (mode 2)' do
     context 'when the trigger exists in the file' do
       it 'calls Gum.table with rows matching that trigger' do
         allow(Gum).to receive(:table)
-        command.call(file: fixture_path, trigger: ':hello')
+        command.call(file: fixture_path, trigger: [':hello'])
         expect(Gum).to have_received(:table) do |rows, **|
           expect(rows).not_to be_empty
           expect(rows.map { |r| r[1] }).to all(eq(':hello'))
@@ -107,8 +107,20 @@ RSpec.describe SnippetCli::Commands::Conflict do
 
     context 'when the trigger is not in the file' do
       it 'prints "not found" message' do
-        expect { command.call(file: clean_file.path, trigger: ':missing') }
+        expect { command.call(file: clean_file.path, trigger: [':missing']) }
           .to output(/not found/i).to_stdout
+      end
+    end
+
+    context 'with multiple triggers' do
+      it 'shows rows for all specified triggers' do
+        allow(Gum).to receive(:table)
+        command.call(file: fixture_path, trigger: [':hello', ':bye'])
+        expect(Gum).to have_received(:table) do |rows, **|
+          expect(rows).not_to be_empty
+          triggers_in_rows = rows.map { |r| r[1] }.uniq
+          expect(triggers_in_rows).to include(':hello', ':bye')
+        end
       end
     end
   end

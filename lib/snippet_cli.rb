@@ -10,6 +10,6 @@ module SnippetCli
     extend Dry::CLI::Registry
 
     register 'version', Commands::Version, aliases: ['v']
-    register 'conflict', Commands::Conflict
+    register 'conflict', Commands::Conflict, aliases: ['c']
   end
 end

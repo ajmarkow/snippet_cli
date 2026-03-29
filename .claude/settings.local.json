@@ -13,7 +13,13 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(git remote:*)",
       "mcp__mem0-mcp__get_memories",
-      "WebFetch(domain:devenv.sh)"
+      "WebFetch(domain:devenv.sh)",
+      "mcp__backlog__task_create",
+      "mcp__backlog__task_list",
+      "mcp__backlog__task_view",
+      "Bash(devenv shell:*)",
+      "WebFetch(domain:dry-rb.org)",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

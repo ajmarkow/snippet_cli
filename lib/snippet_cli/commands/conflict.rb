@@ -7,10 +7,10 @@ require_relative '../conflict_detector'
 module SnippetCli
   module Commands
     class Conflict < Dry::CLI::Command
-      desc 'Detect duplicate triggers in an Espanso match YAML file'
+      desc 'Detect duplicate triggers in an Espanso match YAML file (alias: c)'
 
-      argument :file,    required: true,  desc: 'Path to Espanso match YAML file'
-      argument :trigger, required: false, desc: 'Specific trigger to look up'
+      option :file,    required: true, aliases: ['-f'], desc: 'Path to Espanso match YAML file (required)'
+      option :trigger, type: :array, aliases: ['-t'], desc: 'Trigger(s) to look up (comma-separated or repeated flag)'
 
       def call(file:, trigger: nil, **)
         entries = load_entries(file)
@@ -46,15 +46,14 @@ module SnippetCli
         end
       end
 
-      def show_trigger(entries, trigger)
-        matches = entries.select { |e| e[:trigger] == trigger }
+      def show_trigger(entries, triggers)
+        matches = entries.select { |e| triggers.include?(e[:trigger]) }
         if matches.empty?
-          puts "Trigger '#{trigger}' not found"
+          puts "Trigger(s) #{triggers.join(', ')} not found"
           return
         end
-        rows = matches.each_with_index.map { |e, i| [i + 1, e[:trigger], e[:line]] }
         puts 'The following conflicts were found:'
-        Gum.table(rows, columns: %w[Instance Trigger Line], print: true)
+        Gum.table(build_rows(matches.group_by { |e| e[:trigger] }), columns: %w[Instance Trigger Line], print: true)
       end
     end
   end
