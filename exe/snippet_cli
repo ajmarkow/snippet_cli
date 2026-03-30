@@ -3,14 +3,19 @@
 
 $LOAD_PATH.unshift(File.join(__dir__, '..', 'lib'))
 
-require 'snippet_cli'
-require 'snippet_cli/banner'
-
-puts SnippetCli.banner
-
 begin
+  require 'snippet_cli'
+  require 'snippet_cli/banner'
+
+  puts SnippetCli.banner
+
   Dry::CLI.new(SnippetCli::CLI).call
 rescue Interrupt
-  warn "\nInterrupted."
+  if defined?(SnippetCli::UI)
+    puts
+    SnippetCli::UI.error('Interrupted, exiting snippet_cli.')
+  else
+    warn "\nInterrupted."
+  end
   exit 130
 end

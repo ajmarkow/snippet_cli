@@ -3,6 +3,7 @@
 require 'dry/cli'
 require_relative '../var_builder'
 require_relative '../snippet_builder'
+require_relative '../ui'
 
 module SnippetCli
   module Commands
@@ -13,9 +14,16 @@ module SnippetCli
                             desc: 'Print to stdout only (skip clipboard)'
 
       def call(no_clipboard: false, **)
-        vars   = VarBuilder.run
-        output = vars_yaml(vars)
+        deliver_vars(VarBuilder.run, no_clipboard)
+      rescue WizardInterrupted
+        puts
+        UI.error('Interrupted, exiting snippet_cli.')
+      end
 
+      private
+
+      def deliver_vars(vars, no_clipboard)
+        output = vars_yaml(vars)
         if no_clipboard
           puts output
         else
@@ -24,8 +32,6 @@ module SnippetCli
           puts '✓ Copied to clipboard'
         end
       end
-
-      private
 
       def vars_yaml(vars)
         return "vars: []\n" if vars.empty?

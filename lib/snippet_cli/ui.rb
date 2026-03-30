@@ -16,6 +16,10 @@ module SnippetCli
       gum_style(text, '--border=rounded', '--padding=0 1', '--border-foreground=46', '--bold')
     end
 
+    def self.error(text)
+      gum_style(text, '--border=rounded', '--padding=0 1', '--border-foreground=196', '--bold')
+    end
+
     def self.preview(text)
       gum_style(text, '--border=double', '--padding=0 1')
     end

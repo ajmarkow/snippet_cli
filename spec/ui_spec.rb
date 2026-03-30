@@ -106,4 +106,24 @@ RSpec.describe SnippetCli::UI do
       expect(received_args).to include('--bold')
     end
   end
+
+  describe '.error' do
+    include_examples 'passes text via stdin', :error
+    include_examples 'handles YAML-prefixed text without error', :error
+
+    it 'passes error border styling' do
+      received_args = nil
+      allow(Gum::Command).to receive(:run_non_interactive) do |*args, **|
+        received_args = args
+        'styled'
+      end
+      allow($stdout).to receive(:puts)
+
+      described_class.error('text')
+
+      args = received_args.join(' ')
+      expect(args).to include('border-foreground=196')
+      expect(args).to include('--bold')
+    end
+  end
 end

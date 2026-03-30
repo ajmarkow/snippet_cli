@@ -34,7 +34,7 @@ module SnippetCli
         exit 1
       rescue WizardInterrupted
         puts
-        UI.info('Interrupted, exiting snippet_cli.')
+        UI.error('Interrupted, exiting snippet_cli.')
       end
 
       private

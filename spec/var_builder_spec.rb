@@ -182,6 +182,12 @@ RSpec.describe SnippetCli::VarBuilder do
       expect { described_class.run }.to raise_error(SnippetCli::WizardInterrupted)
     end
 
+    it 'raises WizardInterrupted when Ruby raises Interrupt (SIGINT during Gum.confirm)' do
+      allow(Gum).to receive(:confirm).with('Add a variable?').and_raise(Interrupt)
+
+      expect { described_class.run }.to raise_error(SnippetCli::WizardInterrupted)
+    end
+
     it 'raises WizardInterrupted when Gum.input returns nil mid-variable' do
       allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
       allow(Gum).to receive(:input).with(placeholder: 'var name (no spaces)').and_return(nil)
@@ -193,6 +199,16 @@ RSpec.describe SnippetCli::VarBuilder do
       allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
       allow(Gum).to receive(:input).with(placeholder: 'var name (no spaces)').and_return('myvar')
       allow(Gum).to receive(:filter).and_return(nil)
+
+      expect { described_class.run }.to raise_error(SnippetCli::WizardInterrupted)
+    end
+
+    it 'raises WizardInterrupted when Gum.input returns nil during choice value collection' do
+      allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
+      allow(Gum).to receive(:input).with(placeholder: 'var name (no spaces)').and_return('myvar')
+      allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                       header: 'Variable type').and_return('choice')
+      allow(Gum).to receive(:input).with(placeholder: 'value (blank to finish)').and_return(nil)
 
       expect { described_class.run }.to raise_error(SnippetCli::WizardInterrupted)
     end

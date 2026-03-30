@@ -54,4 +54,18 @@ RSpec.describe SnippetCli::Commands::Vars do
         .to output(/vars/).to_stdout
     end
   end
+
+  context 'when VarBuilder is interrupted' do
+    before do
+      allow(SnippetCli::VarBuilder).to receive(:run).and_raise(SnippetCli::WizardInterrupted)
+      allow(Gum::Command).to receive(:run_non_interactive).and_wrap_original do |_m, *_args, input: nil, **_opts|
+        input.to_s
+      end
+    end
+
+    it 'prints interrupted message and exits cleanly' do
+      expect { command.call(no_clipboard: true) }
+        .to output(/Interrupted.*exiting snippet_cli/im).to_stdout
+    end
+  end
 end
