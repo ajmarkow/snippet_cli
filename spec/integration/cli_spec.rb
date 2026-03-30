@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/BlockLength
 require 'spec_helper'
 
 RSpec.describe 'snippet_cli binary', type: :aruba do
@@ -90,4 +89,3 @@ RSpec.describe 'snippet_cli binary', type: :aruba do
     end
   end
 end
-# rubocop:enable Metrics/BlockLength

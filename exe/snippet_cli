@@ -7,4 +7,10 @@ require 'snippet_cli'
 require 'snippet_cli/banner'
 
 puts SnippetCli.banner
-Dry::CLI.new(SnippetCli::CLI).call
+
+begin
+  Dry::CLI.new(SnippetCli::CLI).call
+rescue Interrupt
+  warn "\nInterrupted."
+  exit 130
+end

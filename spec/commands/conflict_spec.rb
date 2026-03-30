@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/BlockLength
 require 'spec_helper'
 require 'snippet_cli/commands/conflict'
 
@@ -125,4 +124,3 @@ RSpec.describe SnippetCli::Commands::Conflict do
     end
   end
 end
-# rubocop:enable Metrics/BlockLength

@@ -1,0 +1,186 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+require 'snippet_cli/snippet_builder'
+
+RSpec.describe SnippetCli::SnippetBuilder do
+  def build(**)
+    described_class.build(**)
+  end
+
+  describe '.build' do
+    context 'single trigger, simple replace' do
+      it 'emits a triggers array even for one trigger' do
+        yaml = build(triggers: [':hello'], replace: 'Hello!')
+        expect(yaml).to match(/triggers:/)
+        expect(yaml).to include('":hello"')
+      end
+
+      it 'single-quotes a plain replace string' do
+        yaml = build(triggers: [':hello'], replace: 'Hello!')
+        expect(yaml).to include("replace: 'Hello!'")
+      end
+    end
+
+    context 'multiple triggers' do
+      it 'lists all triggers in the array' do
+        yaml = build(triggers: [':hello', ':hi'], replace: 'Hey')
+        expect(yaml).to include('":hello"')
+        expect(yaml).to include('":hi"')
+      end
+    end
+
+    context 'regex trigger' do
+      it 'emits regex: key' do
+        yaml = build(triggers: ['(gr|great)ing'], is_regex: true, replace: 'Hello')
+        expect(yaml).to include('regex:')
+      end
+
+      it 'does not emit triggers: key' do
+        yaml = build(triggers: ['(gr|great)ing'], is_regex: true, replace: 'Hello')
+        expect(yaml).not_to include('triggers:')
+      end
+    end
+
+    context 'single_trigger: true' do
+      it 'emits singular trigger: key instead of triggers: array' do
+        yaml = build(triggers: [':hello'], replace: 'Hello!', single_trigger: true)
+        expect(yaml).to include('trigger: ')
+        expect(yaml).not_to include('triggers:')
+      end
+
+      it 'quotes the trigger value' do
+        yaml = build(triggers: [':hello'], replace: 'Hello!', single_trigger: true)
+        expect(yaml).to match(/trigger:.*':hello'|":hello"/)
+      end
+    end
+
+    context 'with vars' do
+      let(:vars) { [{ name: 'myvar', type: 'shell', params: { cmd: 'date' } }] }
+
+      it 'includes a vars block' do
+        yaml = build(triggers: [':dt'], vars: vars, replace: '{{myvar}}')
+        expect(yaml).to include('vars:')
+        expect(yaml).to include('name: myvar')
+        expect(yaml).to include('type: shell')
+        expect(yaml).to include('cmd:')
+      end
+
+      it 'includes the params indented under the var' do
+        yaml = build(triggers: [':dt'], vars: vars, replace: '{{myvar}}')
+        expect(yaml).to include('params:')
+      end
+    end
+
+    context 'with array params (random choices)' do
+      let(:vars) { [{ name: 'pick', type: 'random', params: { choices: %w[foo bar] } }] }
+
+      it 'renders choices as a block sequence, not a scalar string' do
+        yaml = build(triggers: [':test'], vars: vars, replace: '{{pick}}')
+        expect(yaml).not_to include('["foo"')
+        expect(yaml).not_to include('[foo,')
+        expect(yaml).to include("choices:\n")
+        expect(yaml).to include("- 'foo'")
+        expect(yaml).to include("- 'bar'")
+      end
+    end
+
+    context 'with array params (script args)' do
+      let(:vars) { [{ name: 'out', type: 'script', params: { args: ['/bin/script', '--flag'] } }] }
+
+      it 'renders args as a block sequence' do
+        yaml = build(triggers: [':run'], vars: vars, replace: '{{out}}')
+        expect(yaml).to include("args:\n")
+        expect(yaml).to include("- '/bin/script'")
+        expect(yaml).to include("- '--flag'")
+      end
+    end
+
+    context 'with mixed scalar and array params' do
+      let(:vars) do
+        [{ name: 'sh', type: 'shell', params: { cmd: 'date', shell: 'bash' } }]
+      end
+
+      it 'keeps scalar params on one line' do
+        yaml = build(triggers: [':d'], vars: vars, replace: '{{sh}}')
+        expect(yaml).to include("cmd: 'date'")
+        expect(yaml).to include("shell: 'bash'")
+      end
+    end
+
+    context 'without vars' do
+      it 'omits the vars key entirely' do
+        yaml = build(triggers: [':hi'], replace: 'hi')
+        expect(yaml).not_to include('vars:')
+      end
+
+      it 'also omits vars when given an empty array' do
+        yaml = build(triggers: [':hi'], vars: [], replace: 'hi')
+        expect(yaml).not_to include('vars:')
+      end
+    end
+
+    context 'multiline replace' do
+      it 'uses a literal block scalar' do
+        yaml = build(triggers: [':ml'], replace: "line one\nline two")
+        expect(yaml).to include("replace: |\n")
+      end
+
+      it 'preserves all lines' do
+        yaml = build(triggers: [':ml'], replace: "line one\nline two")
+        expect(yaml).to include('line one')
+        expect(yaml).to include('line two')
+      end
+    end
+
+    context 'replace with single quotes' do
+      it 'uses a double-quoted string' do
+        yaml = build(triggers: [':q'], replace: "it's a test")
+        expect(yaml).to include(%("it's a test"))
+      end
+    end
+
+    context 'replace with double quotes inside' do
+      it 'escapes the inner double quotes' do
+        yaml = build(triggers: [':q'], replace: 'say "hello"')
+        expect(yaml).to include('replace:')
+        expect(yaml).to include('say')
+        expect(yaml).to include('hello')
+      end
+    end
+
+    context 'with label and comment' do
+      it 'includes label when provided' do
+        yaml = build(triggers: [':lc'], replace: 'text', label: 'My Label')
+        expect(yaml).to include('label:')
+        expect(yaml).to include('My Label')
+      end
+
+      it 'includes comment when provided' do
+        yaml = build(triggers: [':lc'], replace: 'text', comment: 'A comment')
+        expect(yaml).to include('comment:')
+        expect(yaml).to include('A comment')
+      end
+    end
+
+    context 'without label or comment' do
+      it 'omits both keys' do
+        yaml = build(triggers: [':simple'], replace: 'text')
+        expect(yaml).not_to include('label:')
+        expect(yaml).not_to include('comment:')
+      end
+    end
+
+    context 'output structure' do
+      it 'starts with a YAML list item dash' do
+        yaml = build(triggers: [':hello'], replace: 'Hi')
+        expect(yaml).to start_with('- ')
+      end
+
+      it 'ends with a newline' do
+        yaml = build(triggers: [':hello'], replace: 'Hi')
+        expect(yaml).to end_with("\n")
+      end
+    end
+  end
+end

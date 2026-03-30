@@ -1,0 +1,32 @@
+# frozen_string_literal: true
+
+require 'gum'
+
+module SnippetCli
+  module UI
+    def self.info(text)
+      gum_style(text, '--border=rounded', '--padding=0 1')
+    end
+
+    def self.hint(text)
+      gum_style(text, '--border=rounded', '--padding=0 1', '--border-foreground=220')
+    end
+
+    def self.success(text)
+      gum_style(text, '--border=rounded', '--padding=0 1', '--border-foreground=46', '--bold')
+    end
+
+    def self.preview(text)
+      gum_style(text, '--border=double', '--padding=0 1')
+    end
+
+    # Pass text via stdin instead of as a positional CLI argument.
+    # Gum's arg parser interprets leading `-` characters (e.g. YAML list
+    # markers like `- triggers:`) as unknown flags when passed positionally.
+    def self.gum_style(text, *flags)
+      result = Gum::Command.run_non_interactive('style', *flags, input: text)
+      puts result
+    end
+    private_class_method :gum_style
+  end
+end

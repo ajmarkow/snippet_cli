@@ -1,10 +1,10 @@
 ---
 id: TASK-5
 title: 'snippet new: implement --vars flag with interactive prompt'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-27 20:16'
-updated_date: '2026-03-27 21:09'
+updated_date: '2026-03-30 04:12'
 labels:
   - feature
   - snippet-new
@@ -39,3 +39,9 @@ Each defined var is emitted in the `vars:` array of the output YAML with the cor
 - [ ] #6 Output YAML is valid against the Espanso match schema
 - [ ] #7 Omitting --vars produces output with no `vars:` key (non-interactive path unchanged)
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Decided not to implement. The interactive var flow is always available in the wizard; a separate --vars flag is unnecessary.
+<!-- SECTION:FINAL_SUMMARY:END -->

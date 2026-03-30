@@ -14,6 +14,12 @@ Gemspec/RequireMFA:
 Gemspec/DevelopmentDependencies:
   Enabled: false
 
+# RSpec describe blocks and gemspecs naturally exceed the default line limit
+Metrics/BlockLength:
+  Exclude:
+    - "spec/**/*_spec.rb"
+    - "*.gemspec"
+
 # Small project — doc comments add noise without benefit
 Style/Documentation:
   Enabled: false

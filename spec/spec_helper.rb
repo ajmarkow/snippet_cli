@@ -11,3 +11,10 @@ Aruba.configure do |config|
   config.exit_timeout = 15
   config.activate_announcer_on_command_failure = %i[stdout stderr]
 end
+
+RSpec.configure do |config|
+  # Reset $? before each example so that stale exit statuses from prior
+  # tests don't trigger the Ctrl+C detection ($?.exitstatus == 130) in
+  # confirm! wrappers when Gum.confirm is stubbed.
+  config.before(:each) { system('true') }
+end

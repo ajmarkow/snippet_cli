@@ -27,9 +27,10 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'dry-cli',        '~> 1.0'
-  spec.add_dependency 'dry-validation', '~> 1.10'
-  spec.add_dependency 'gum',            '~> 0.3'
+  spec.add_dependency 'clipboard', '~> 1.3'
+  spec.add_dependency 'dry-cli',       '~> 1.0'
+  spec.add_dependency 'gum',           '~> 0.3'
+  spec.add_dependency 'json_schemer',  '~> 2.0'
 
   spec.add_development_dependency 'aruba', '~> 2.0'
   spec.add_development_dependency 'bundler-audit', '~> 0.9'
