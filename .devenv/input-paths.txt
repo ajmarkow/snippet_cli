@@ -1,7 +1,0 @@
-/Users/ajmarkow/Documents/snippet_cli/.devenv/flake.json
-/Users/ajmarkow/Documents/snippet_cli/.devenv.flake.nix
-/Users/ajmarkow/Documents/snippet_cli/.env
-/Users/ajmarkow/Documents/snippet_cli/devenv.local.nix
-/Users/ajmarkow/Documents/snippet_cli/devenv.lock
-/Users/ajmarkow/Documents/snippet_cli/devenv.nix
-/Users/ajmarkow/Documents/snippet_cli/devenv.yaml
