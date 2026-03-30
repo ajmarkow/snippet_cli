@@ -26,9 +26,11 @@ plan-snippet-commands.md
 
 # devenv local state (track devenv.nix, devenv.yaml, devenv.lock at repo root only)
 .devenv/
-# Claude
-.claude/
-# Random markdown notes
+
+# Claude Code — local overrides only (.claude/agents and skills may stay tracked)
+.claude/settings.local.json
+
+# Local scratch notes
 refactor.md
 snippet_new_thoughts.md
 sunday-plan.md
