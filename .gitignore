@@ -1,4 +1,8 @@
+# Bundler / vendored gems
 /.bundle/
+vendor/bundle
+
+# Generated artifacts
 /.yardoc
 /_yardoc/
 /coverage/
@@ -6,17 +10,21 @@
 /pkg/
 /spec/reports/
 /tmp/
-/vendor/bundle
+
+# Ruby gem convention (lockfile not committed)
 Gemfile.lock
+
+# OS
 .DS_Store
 
-# rspec failure tracking
+# RSpec
 .rspec_status
 
+# Local scratch notes
 snippet_thoughts_new.md
 plan-snippet-commands.md
 
-# devenv local state (gems, caches, nix artifacts)
+# devenv (local Nix / gem path state)
 .devenv/state/
 .devenv/*.db
 .devenv/*.db-shm
