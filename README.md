@@ -32,20 +32,20 @@ This project uses [devenv](https://devenv.sh) (Nix-based) for environment manage
 
 1. [Install Nix](https://nixos.org/download) and [devenv](https://devenv.sh/getting-started/)
 2. Clone the repo:
-   ```
+   ```bash
    git clone https://github.com/ajmarkow/snippet_cli.git
    cd snippet_cli
    ```
 3. Enter the development environment:
-   ```
+   ```bash
    devenv shell
    ```
 4. Install dependencies:
-   ```
+   ```bash
    bundle install
    ```
 5. Run the tests to verify everything works:
-   ```
+   ```bash
    bundle exec rake spec
    ```
 
