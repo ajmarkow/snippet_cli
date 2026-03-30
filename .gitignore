@@ -29,7 +29,8 @@ plan-snippet-commands.md
 
 # Claude Code — local overrides only (.claude/agents and skills may stay tracked)
 .claude/settings.local.json
-
+# Agents
+.agents/
 # Local scratch notes
 refactor.md
 snippet_new_thoughts.md
