@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-03-30 04:13'
-updated_date: '2026-03-30 22:02'
+updated_date: '2026-03-31 03:06'
 labels:
   - validation
   - schema
@@ -25,11 +25,11 @@ Ensure the CLI (UI and business logic) correctly collects structures and outputs
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 CLI correctly collects echo input from user where applicable
-- [ ] #2 Internal representation of echo matches schema expectations
-- [ ] #3 Output YAML includes echo in the correct location and format
+- [x] #1 CLI correctly collects echo input from user where applicable
+- [x] #2 Internal representation of echo matches schema expectations
+- [x] #3 Output YAML includes echo in the correct location and format
 - [ ] #4 Generated snippets with echo pass schema validation via `snippet validate`
 - [ ] #5 Invalid or malformed echo input is prevented or corrected before output
 - [ ] #6 At least one end-to-end test covers input to YAML to validation
-- [ ] #7 No regressions for snippets that do not use echo
+- [x] #7 No regressions for snippets that do not use echo
 <!-- AC:END -->
