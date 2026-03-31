@@ -106,6 +106,91 @@ RSpec.describe SnippetCli::VarBuilder do
       end
     end
 
+    context 'when user adds a date variable' do
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
+        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('dt')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type').and_return('date')
+        allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'prompts for offset (date-specific)' do
+        expect(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
+        described_class.run
+      end
+
+      it 'prompts for locale (date-specific)' do
+        expect(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
+        described_class.run
+      end
+
+      it 'stores format in params' do
+        var = described_class.run.first
+        expect(var[:params][:format]).to eq('%Y-%m-%d')
+      end
+
+      it 'omits offset when user declines' do
+        var = described_class.run.first
+        expect(var[:params]).not_to have_key(:offset)
+      end
+
+      it 'omits locale when user declines' do
+        var = described_class.run.first
+        expect(var[:params]).not_to have_key(:locale)
+      end
+
+      context 'when user adds an offset' do
+        before do
+          allow(Gum).to receive(:confirm).with('Add an offset?').and_return(true)
+          allow(Gum).to receive(:input).with(placeholder: 'offset in seconds (e.g. 86400)').and_return('86400')
+        end
+
+        it 'stores offset as an integer in params' do
+          var = described_class.run.first
+          expect(var[:params][:offset]).to eq(86_400)
+        end
+      end
+
+      context 'when user adds a locale' do
+        before do
+          allow(Gum).to receive(:confirm).with('Add a locale?').and_return(true)
+          allow(Gum).to receive(:input).with(placeholder: 'BCP47 locale (e.g. en-US, ja-JP)').and_return('ja-JP')
+        end
+
+        it 'stores locale as a string in params' do
+          var = described_class.run.first
+          expect(var[:params][:locale]).to eq('ja-JP')
+        end
+      end
+    end
+
+    context 'when user adds a non-date variable (echo)' do
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('greeting')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type').and_return('echo')
+        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'does not prompt for offset' do
+        expect(Gum).not_to receive(:confirm).with('Add an offset?')
+        described_class.run
+      end
+
+      it 'does not prompt for locale' do
+        expect(Gum).not_to receive(:confirm).with('Add a locale?')
+        described_class.run
+      end
+    end
+
     context 'when user adds a form variable' do
       before do
         allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
@@ -165,6 +250,8 @@ RSpec.describe SnippetCli::VarBuilder do
       before do
         allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
         allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('dt')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('date')
@@ -202,6 +289,8 @@ RSpec.describe SnippetCli::VarBuilder do
       before do
         allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
         allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(true, false)
+        allow(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('dt', 'cmd')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1, header: 'Variable type').and_return(
           'date', 'shell'
@@ -279,6 +368,8 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('date')
         allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
+        allow(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
         allow(Gum).to receive(:confirm).with(a_string_including('Add an additional variable?')).and_return(false)
         allow(Gum).to receive(:table)
         allow($stdout).to receive(:puts)
@@ -312,6 +403,8 @@ RSpec.describe SnippetCli::VarBuilder do
           .with(*described_class::VAR_TYPES, limit: 1, header: 'Variable type')
           .and_return('date', 'shell')
         allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
+        allow(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
         allow(Gum).to receive(:filter).with(*described_class.platform_shells, limit: 1,
                                                                               header: 'Select shell').and_return('bash')
         allow(Gum).to receive(:input).with(placeholder: 'shell command').and_return('date')

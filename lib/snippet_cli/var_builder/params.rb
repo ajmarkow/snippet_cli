@@ -8,7 +8,6 @@ module SnippetCli
     module Params
       COLLECTORS = {
         'echo' => ->(b) { { echo: b.prompt!(Gum.input(placeholder: 'echo value')) } },
-        'date' => ->(b) { { format: b.prompt!(Gum.input(placeholder: 'date format (e.g. %Y-%m-%d)')) } },
         'random' => ->(b) { { choices: Params.collect_list(b, 'choice value') } },
         'choice' => ->(b) { { values: Params.collect_list(b, 'value') } },
         'form' => ->(b) { { layout: b.prompt!(Gum.write(header: 'Form layout (use [[field_name]] for fields)')) } }
@@ -19,6 +18,7 @@ module SnippetCli
         return collector.call(builder) if collector
 
         case type
+        when 'date'   then date(builder)
         when 'shell'  then shell(builder)
         when 'script' then script(builder)
         else {}
@@ -51,6 +51,18 @@ module SnippetCli
         )
         debug_trim(builder, args: raw.to_s.lines.map(&:chomp).reject(&:empty?))
       end
+
+      def self.date(builder)
+        params = { format: builder.prompt!(Gum.input(placeholder: 'date format (e.g. %Y-%m-%d)')) }
+        if builder.confirm!('Add an offset?')
+          params[:offset] = builder.prompt!(Gum.input(placeholder: 'offset in seconds (e.g. 86400)')).to_i
+        end
+        if builder.confirm!('Add a locale?')
+          params[:locale] = builder.prompt!(Gum.input(placeholder: 'BCP47 locale (e.g. en-US, ja-JP)'))
+        end
+        params
+      end
+      private_class_method :date
 
       def self.debug_trim(builder, params)
         params[:debug] = true if builder.confirm!('Enable debug mode?')
