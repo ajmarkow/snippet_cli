@@ -1,15 +1,17 @@
 ---
 id: TASK-12
 title: >-
-  Produce merged Espanso schema (official coverage + custom descriptions) for
-  snippet validate
+  Create merged Espanso validation schema (official + custom extensions) for
+  `snippet validate`
 status: To Do
 assignee: []
 created_date: '2026-03-27 20:16'
+updated_date: '2026-03-30 22:02'
 labels:
   - feature
   - schema
   - validation
+milestone: none
 dependencies:
   - TASK-9
   - TASK-10
@@ -20,21 +22,16 @@ references:
     https://raw.githubusercontent.com/espanso/espanso/refs/heads/dev/schemas/match.schema.json
   - >-
     https://raw.githubusercontent.com/ajmarkow/espanso-schema-json/refs/heads/master/schemas/Espanso_Match_Schema.json
-priority: medium
+priority: high
+ordinal: 0
 ---
 
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Create a merged schema that combines the best of both evaluated schemas:
-- **Property coverage, types, and constraints** from the official Espanso schema (authoritative, maintained by Espanso team)
-- **Prose descriptions and espanso.org doc links** from the custom schema
+Build a unified validation schema that combines the official Espanso match schema with custom extensions constraints and enhanced descriptions. This schema is the single source of truth used by `snippet validate`.
 
-This merged schema should validate a full `base.yaml`-style matchfile (top-level `matches` array + optional `global_vars` + `imports`). It is intended as the permanent schema backing `snippet validate`.
-
-Pre-requisites: the custom schema bug fixes (TASK-9) and missing properties (TASK-10) should be completed first, as those outputs feed into this merge.
-
-The merged schema should live in the repo (e.g. `schemas/espanso_match.schema.json`) and be bundled with the gem.
+Clarify how conflicts between official and custom fields are handled whether custom rules extend or override official ones and the expected schema format.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -47,4 +44,11 @@ The merged schema should live in the repo (e.g. `schemas/espanso_match.schema.js
 - [ ] #6 snippet validate uses this merged schema
 - [ ] #7 The merged schema passes JSON Schema meta-schema validation
 - [ ] #8 A suite of known-valid and known-invalid YAML fixtures passes/fails as expected
+- [ ] #9 Official Espanso schema is fully incorporated with no loss of coverage
+- [ ] #10 Custom fields and constraints are included and validated
+- [ ] #11 Schema supports all fields used by the CLI including extensions
+- [ ] #12 Conflicts between official and custom definitions are explicitly resolved
+- [ ] #13 Schema is consumable by `snippet validate` end-to-end
+- [ ] #14 Invalid inputs fail validation according to merged rules
+- [ ] #15 Schema structure is minimally documented for maintainability
 <!-- AC:END -->

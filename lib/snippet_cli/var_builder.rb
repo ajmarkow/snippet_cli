@@ -2,6 +2,7 @@
 
 require 'English'
 require 'gum'
+require_relative 'table_formatter'
 require_relative 'ui'
 require_relative 'var_builder/params'
 
@@ -16,8 +17,9 @@ module SnippetCli
     }.freeze
 
     # Collects Espanso variable definitions interactively. Raises WizardInterrupted on cancel.
-    def self.run
-      interactive_session
+    # skip_initial_prompt: true skips "Add a variable?" and goes straight to collecting the first var.
+    def self.run(skip_initial_prompt: false)
+      interactive_session(skip_initial_prompt: skip_initial_prompt)
     rescue Interrupt
       raise WizardInterrupted
     end
@@ -31,7 +33,7 @@ module SnippetCli
     end
 
     def self.collect_one_var(existing)
-      name = prompt!(Gum.input(placeholder: 'var name (no spaces)'))
+      name = prompt!(Gum.input(placeholder: 'Your variable name'))
       if existing.any? { |v| v[:name] == name }
         warn "Variable '#{name}' already defined — skipping"
         return nil
@@ -56,29 +58,52 @@ module SnippetCli
       raise WizardInterrupted
     end
 
-    def self.interactive_session
+    def self.interactive_session(skip_initial_prompt: false)
       vars = []
       loop do
-        break unless confirm!(vars.empty? ? 'Add a variable?' : 'Add another variable?')
-
+        unless vars.empty? && skip_initial_prompt
+          prompt_text = build_confirm_prompt(vars, skip_initial_prompt)
+          break unless confirm!(prompt_text)
+        end
         append_var!(vars)
       end
+      show_summary(vars) unless vars.empty?
       vars
     end
     private_class_method :interactive_session
+
+    def self.build_confirm_prompt(vars, skip_initial_prompt)
+      question = confirm_question(vars, skip_initial_prompt)
+      return question if vars.empty?
+
+      rows = vars.map { |v| [v[:name], v[:type]] }
+      table = TableFormatter.render(rows, headers: %w[Name Type])
+      "Current variables:\n\n#{table}\n\n#{question}\n"
+    end
+    private_class_method :build_confirm_prompt
+
+    def self.confirm_question(vars, skip_initial_prompt)
+      if skip_initial_prompt then 'Add an additional variable?'
+      elsif vars.empty?      then 'Add a variable?'
+      else                        'Add another variable?'
+      end
+    end
+    private_class_method :confirm_question
 
     def self.append_var!(vars)
       var = collect_one_var(vars)
       return if var.nil?
 
       vars << var
-      show_summary(vars)
     end
     private_class_method :append_var!
 
     def self.show_summary(vars)
+      names = vars.map { |v| "{{#{v[:name]}}}" }.join(', ')
+      UI.info("Reference your variables in the replacement using {{var}} syntax:\n#{names}")
       rows = vars.map { |var| [var[:name], var[:type]] }
       Gum.table(rows, columns: %w[Name Type], print: true)
+      puts
     end
     private_class_method :show_summary
   end

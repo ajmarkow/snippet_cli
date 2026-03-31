@@ -1,9 +1,10 @@
 ---
 id: TASK-24
 title: Investigate customizable keybindings in gum.write (Ctrl+J conflict)
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-30 04:13'
+updated_date: '2026-03-30 19:08'
 labels:
   - ux
   - research

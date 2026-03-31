@@ -1,9 +1,10 @@
 ---
 id: TASK-25
 title: Use gum.format for syntax highlighting generated code
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-30 04:13'
+updated_date: '2026-03-30 19:12'
 labels:
   - output
   - ux

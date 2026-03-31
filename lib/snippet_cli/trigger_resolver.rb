@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'conflict_detector'
+require_relative 'table_formatter'
 require_relative 'ui'
 require_relative 'wizard_helpers'
 
@@ -8,6 +9,9 @@ module SnippetCli
   # Resolves trigger input from CLI flags or interactive prompts.
   module TriggerResolver
     include WizardHelpers
+
+    RUST_REGEX_GUIDANCE = "Espanso uses Rust Regex syntax, ensure this is a valid Rust regex.\n" \
+                          'https://docs.rs/regex/1.1.8/regex/#syntax'
 
     private
 
@@ -53,7 +57,10 @@ module SnippetCli
 
     def collect_triggers(type, file, no_warn)
       if type == 'regex'
-        trigger = prompt!(Gum.input(placeholder: ':(gr|great)ing'))
+        UI.info(RUST_REGEX_GUIDANCE)
+        puts
+        trigger = prompt_non_empty_trigger('r"^(hello|bye)$"')
+
         check_conflicts([trigger], file, no_warn)
         return [[trigger], true]
       end
@@ -62,25 +69,38 @@ module SnippetCli
     end
 
     def collect_regular_triggers(file, no_warn)
-      UI.info(
-        "Multiple triggers can share one replacement.\n" \
-        "Enter them one at a time, you'll be asked to add another after each."
-      )
       triggers = prompt_trigger_loop
       check_conflicts(triggers, file, no_warn)
       [triggers, false]
     end
 
+    def prompt_non_empty_trigger(placeholder, header: nil)
+      loop do
+        opts = { placeholder: placeholder }
+        opts[:header] = header if header
+        opts[:header_style] = { foreground: '212' } if header
+        t = prompt!(Gum.input(**opts))
+        return t unless t.strip.empty?
+
+        UI.info('Trigger cannot be empty. Please enter a trigger string.')
+      end
+    end
+
     def prompt_trigger_loop
       triggers = []
+      UI.info("Multiple triggers can share one replacement.\n" \
+              "Enter them one at a time, you'll be asked to add another after each.")
       loop do
-        t = Gum.input(placeholder: ':trigger')
-        raise WizardInterrupted if t.nil?
-
-        triggers << t unless t.empty?
-        break unless confirm!('Add another trigger?')
+        triggers << prompt_non_empty_trigger(':trigger')
+        break unless confirm!(build_trigger_confirm_prompt(triggers))
       end
       triggers
+    end
+
+    def build_trigger_confirm_prompt(triggers)
+      rows = triggers.map { |t| [t] }
+      table = TableFormatter.render(rows, headers: ['Trigger'])
+      "Current triggers:\n\n#{table}\n\nAdd another trigger?"
     end
 
     def check_conflicts(triggers, file, no_warn)
