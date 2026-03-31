@@ -134,6 +134,30 @@ RSpec.describe SnippetCli::MatchValidator do
       expect(valid?(data)).to be(false)
     end
 
+    it 'accepts a date var with a valid BCP47 locale' do
+      data = { trigger: ':x', replace: '{{out}}',
+               vars: [{ name: 'out', type: 'date', params: { format: '%Y-%m-%d', locale: 'en-US' } }] }
+      expect(valid?(data)).to be(true)
+    end
+
+    it 'accepts a date var with locale ja-JP' do
+      data = { trigger: ':x', replace: '{{out}}',
+               vars: [{ name: 'out', type: 'date', params: { format: '%Y-%m-%d', locale: 'ja-JP' } }] }
+      expect(valid?(data)).to be(true)
+    end
+
+    it 'accepts a date var with an offset integer' do
+      data = { trigger: ':x', replace: '{{out}}',
+               vars: [{ name: 'out', type: 'date', params: { format: '%Y-%m-%d', offset: 86_400 } }] }
+      expect(valid?(data)).to be(true)
+    end
+
+    it 'rejects a date var with a non-integer offset' do
+      data = { trigger: ':x', replace: '{{out}}',
+               vars: [{ name: 'out', type: 'date', params: { format: '%Y-%m-%d', offset: '1day' } }] }
+      expect(valid?(data)).to be(false)
+    end
+
     it 'accepts all valid var types with appropriate params' do
       type_params = {
         'clipboard' => {},
