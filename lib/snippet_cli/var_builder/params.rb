@@ -11,7 +11,7 @@ module SnippetCli
         'date' => ->(b) { { format: b.prompt!(Gum.input(placeholder: 'date format (e.g. %Y-%m-%d)')) } },
         'random' => ->(b) { { choices: Params.collect_list(b, 'choice value') } },
         'choice' => ->(b) { { values: Params.collect_list(b, 'value') } },
-        'form' => ->(b) { { layout: b.prompt!(Gum.input(placeholder: 'form layout template')) } }
+        'form' => ->(b) { { layout: b.prompt!(Gum.write(header: 'Form layout (use [[field_name]] for fields)')) } }
       }.freeze
 
       def self.collect(builder, type)

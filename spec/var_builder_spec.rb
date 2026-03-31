@@ -106,6 +106,35 @@ RSpec.describe SnippetCli::VarBuilder do
       end
     end
 
+    context 'when user adds a form variable' do
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('myform')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type').and_return('form')
+        allow(Gum).to receive(:write).with(hash_including(header: a_string_including('layout')))
+                                     .and_return("Enter your name: [[name]]\nEnter city: [[city]]")
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'collects layout via gum write (multiline)' do
+        expect(Gum).to receive(:write).with(hash_including(header: a_string_including('layout')))
+                                      .and_return('Enter your name: [[name]]')
+        described_class.run
+      end
+
+      it 'stores the multiline layout in params' do
+        var = described_class.run.first
+        expect(var[:params][:layout]).to eq("Enter your name: [[name]]\nEnter city: [[city]]")
+      end
+
+      it 'does not use gum input for form layout' do
+        expect(Gum).not_to receive(:input).with(placeholder: 'form layout template')
+        described_class.run
+      end
+    end
+
     context 'duplicate name detection' do
       before do
         # Flow: add 'myvar' → try 'myvar' again (dup, next) → stop
