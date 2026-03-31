@@ -7,7 +7,7 @@ module SnippetCli
     # Interactive collection of Espanso `params` hashes per variable type.
     module Params
       COLLECTORS = {
-        'echo' => ->(b) { { value: b.prompt!(Gum.input(placeholder: 'echo value')) } },
+        'echo' => ->(b) { { echo: b.prompt!(Gum.input(placeholder: 'echo value')) } },
         'date' => ->(b) { { format: b.prompt!(Gum.input(placeholder: 'date format (e.g. %Y-%m-%d)')) } },
         'random' => ->(b) { { choices: Params.collect_list(b, 'choice value') } },
         'choice' => ->(b) { { values: Params.collect_list(b, 'value') } },

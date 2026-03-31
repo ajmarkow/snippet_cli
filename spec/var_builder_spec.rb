@@ -16,6 +16,28 @@ RSpec.describe SnippetCli::VarBuilder do
       end
     end
 
+    context 'when user adds an echo variable' do
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('greeting')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type').and_return('echo')
+        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('John')
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'stores the value under the :echo key in params' do
+        var = described_class.run.first
+        expect(var[:params][:echo]).to eq('John')
+      end
+
+      it 'does not use :value as the params key' do
+        var = described_class.run.first
+        expect(var[:params]).not_to have_key(:value)
+      end
+    end
+
     context 'when user adds a shell variable' do
       before do
         # First loop: "Add a variable?" → vars empty; after add: "Add another variable?"
