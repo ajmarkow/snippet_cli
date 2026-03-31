@@ -1,0 +1,3 @@
+# Missing required top-level 'matches' key
+imports:
+  - "some_file.yml"

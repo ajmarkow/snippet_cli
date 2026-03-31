@@ -179,6 +179,102 @@ RSpec.describe SnippetCli::MatchValidator do
     end
   end
 
+  context 'per-type parameter validation (TASK-27)' do
+    def var(type, params)
+      { trigger: ':x', replace: '{{out}}', vars: [{ name: 'out', type: type, params: params }] }
+    end
+
+    context 'echo' do
+      it 'rejects missing echo key' do
+        expect(valid?(var('echo', { trim: true }))).to be false
+      end
+
+      it 'rejects echo with non-string value' do
+        expect(valid?(var('echo', { echo: 42 }))).to be false
+      end
+
+      it 'rejects unknown params' do
+        expect(valid?(var('echo', { echo: 'hi', unknown: true }))).to be false
+      end
+    end
+
+    context 'date' do
+      it 'rejects missing format key' do
+        expect(valid?(var('date', { offset: 3600 }))).to be false
+      end
+
+      it 'rejects format with non-string value' do
+        expect(valid?(var('date', { format: 42 }))).to be false
+      end
+
+      it 'rejects unknown params' do
+        expect(valid?(var('date', { format: '%Y', unknown: true }))).to be false
+      end
+    end
+
+    context 'shell' do
+      it 'rejects missing cmd key' do
+        expect(valid?(var('shell', { shell: 'bash' }))).to be false
+      end
+
+      it 'rejects cmd with non-string value' do
+        expect(valid?(var('shell', { cmd: 42 }))).to be false
+      end
+
+      it 'rejects unknown params' do
+        expect(valid?(var('shell', { cmd: 'date', unknown: true }))).to be false
+      end
+    end
+
+    context 'script' do
+      it 'rejects missing args key' do
+        expect(valid?(var('script', {}))).to be false
+      end
+
+      it 'rejects args with non-array value' do
+        expect(valid?(var('script', { args: 'not-an-array' }))).to be false
+      end
+
+      it 'rejects unknown params' do
+        expect(valid?(var('script', { args: ['/bin/echo'], unknown: true }))).to be false
+      end
+    end
+
+    context 'random' do
+      it 'rejects missing choices key' do
+        expect(valid?(var('random', {}))).to be false
+      end
+
+      it 'rejects unknown params' do
+        expect(valid?(var('random', { choices: %w[a b], unknown: true }))).to be false
+      end
+    end
+
+    context 'choice' do
+      it 'rejects missing values key' do
+        expect(valid?(var('choice', {}))).to be false
+      end
+
+      it 'rejects unknown params' do
+        expect(valid?(var('choice', { values: %w[a b], unknown: true }))).to be false
+      end
+    end
+
+    context 'form' do
+      it 'rejects missing layout key' do
+        expect(valid?(var('form', {}))).to be false
+      end
+
+      it 'rejects layout with non-string value' do
+        expect(valid?(var('form', { layout: 42 }))).to be false
+      end
+
+      it 'rejects unknown params' do
+        expect(valid?(var('form', { layout: 'Hello [[name]]', unknown: true }))).to be false
+      end
+    end
+  end
+
   describe '.errors' do
     it 'returns an empty array for valid data' do
       expect(errors(trigger: ':ty', replace: 'Thank you')).to be_empty

@@ -1,0 +1,9 @@
+matches:
+  - trigger: ":hello"
+    replace: "Hello, World!"
+  - trigger: ":ty"
+    replace: "Thank you"
+  - triggers:
+      - ":bye"
+      - ":goodbye"
+    replace: "Goodbye!"

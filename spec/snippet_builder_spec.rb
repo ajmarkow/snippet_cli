@@ -2,6 +2,8 @@
 
 require 'spec_helper'
 require 'snippet_cli/snippet_builder'
+require 'snippet_cli/file_validator'
+require 'yaml'
 
 RSpec.describe SnippetCli::SnippetBuilder do
   def build(**)
@@ -168,6 +170,50 @@ RSpec.describe SnippetCli::SnippetBuilder do
         yaml = build(triggers: [':simple'], replace: 'text')
         expect(yaml).not_to include('label:')
         expect(yaml).not_to include('comment:')
+      end
+    end
+
+    # TASK-18: echo var schema compliance
+    context 'echo var' do
+      let(:echo_opts) do
+        { triggers: [':greet'], replace: '{{msg}}',
+          vars: [{ name: 'msg', type: 'echo', params: { echo: 'Hello!' } }] }
+      end
+
+      it 'renders the echo param as a scalar under params:' do
+        yaml = build(**echo_opts)
+        expect(yaml).to include('type: echo')
+        expect(yaml).to include("echo: 'Hello!'")
+      end
+
+      # AC #5 — invalid echo input is prevented before output
+      it 'raises ValidationError when echo param is missing' do
+        bad_opts = { triggers: [':x'], replace: '{{v}}',
+                     vars: [{ name: 'v', type: 'echo', params: {} }] }
+        expect { build(**bad_opts) }.to raise_error(SnippetCli::ValidationError)
+      end
+
+      it 'raises ValidationError when echo value is not a string' do
+        bad_opts = { triggers: [':x'], replace: '{{v}}',
+                     vars: [{ name: 'v', type: 'echo', params: { echo: 42 } }] }
+        expect { build(**bad_opts) }.to raise_error(SnippetCli::ValidationError)
+      end
+
+      it 'raises ValidationError when echo params contain unknown keys' do
+        bad_opts = { triggers: [':x'], replace: '{{v}}',
+                     vars: [{ name: 'v', type: 'echo', params: { echo: 'hi', bogus: true } }] }
+        expect { build(**bad_opts) }.to raise_error(SnippetCli::ValidationError)
+      end
+
+      # AC #4 + AC #6 — input → YAML → FileValidator round-trip
+      it 'produces YAML that passes FileValidator when wrapped as a matchfile' do
+        yaml_entry = build(**echo_opts)
+        # build returns a YAML list item ("- trigger: ..."), so safe_load gives an array
+        match_data = YAML.safe_load(yaml_entry).first
+        matchfile = { 'matches' => [match_data] }
+        errors = SnippetCli::FileValidator.errors(matchfile)
+        expect(errors).to be_empty,
+                          "FileValidator rejected built echo snippet: #{errors.inspect}"
       end
     end
 
