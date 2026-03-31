@@ -11,23 +11,43 @@ RSpec.describe SnippetCli::Commands::Vars do
   end
 
   before do
-    allow(SnippetCli::VarBuilder).to receive(:run).and_return(vars)
+    allow(SnippetCli::VarBuilder).to receive(:run).with(skip_initial_prompt: true).and_return(vars)
+  end
+
+  it 'calls VarBuilder.run with skip_initial_prompt: true' do
+    expect(SnippetCli::VarBuilder).to receive(:run).with(skip_initial_prompt: true).and_return(vars)
+    command.call(no_clipboard: true)
   end
 
   context 'with --no-clipboard (stdout mode)' do
-    it 'prints the vars YAML block to stdout' do
-      expect { command.call(no_clipboard: true) }
-        .to output(/vars:/).to_stdout
+    let(:captured_display_input) { [] }
+
+    before do
+      allow(Gum::Command).to receive(:run_display_only) do |*, input: nil, **|
+        captured_display_input << input
+        true
+      end
+    end
+
+    it 'syntax-highlights the YAML output via Gum::Command.run_display_only' do
+      command.call(no_clipboard: true)
+      expect(Gum::Command).to have_received(:run_display_only)
+        .with('format', '--type=code', '--language=yaml', input: anything)
+    end
+
+    it 'passes the vars YAML block for display' do
+      command.call(no_clipboard: true)
+      expect(captured_display_input.join).to match(/vars:/)
     end
 
     it 'includes the var name' do
-      expect { command.call(no_clipboard: true) }
-        .to output(/name: dt/).to_stdout
+      command.call(no_clipboard: true)
+      expect(captured_display_input.join).to match(/name: dt/)
     end
 
     it 'includes the var type' do
-      expect { command.call(no_clipboard: true) }
-        .to output(/type: date/).to_stdout
+      command.call(no_clipboard: true)
+      expect(captured_display_input.join).to match(/type: date/)
     end
   end
 
@@ -49,9 +69,14 @@ RSpec.describe SnippetCli::Commands::Vars do
   context 'when no vars are added' do
     before { allow(SnippetCli::VarBuilder).to receive(:run).and_return([]) }
 
-    it 'outputs an empty vars block in stdout mode' do
-      expect { command.call(no_clipboard: true) }
-        .to output(/vars/).to_stdout
+    it 'passes an empty vars block for display' do
+      captured = []
+      allow(Gum::Command).to receive(:run_display_only) do |*, input: nil, **|
+        captured << input
+        true
+      end
+      command.call(no_clipboard: true)
+      expect(captured.join).to match(/vars/)
     end
   end
 

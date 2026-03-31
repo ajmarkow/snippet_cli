@@ -30,7 +30,7 @@ module SnippetCli
         yaml = build_snippet(opts)
         output_result(yaml, opts[:no_clipboard])
       rescue ValidationError => e
-        warn e.message
+        UI.info(e.message)
         exit 1
       rescue WizardInterrupted
         puts
@@ -61,34 +61,22 @@ module SnippetCli
       end
 
       def output_result(yaml, no_clipboard)
-        if no_clipboard
-          puts
-          puts 'Snippet YAML below.'
-          puts
-          puts yaml
-        else
-          UI.preview(yaml)
-          copy_to_clipboard(yaml)
-        end
+        UI.info('Snippet YAML below.')
+        UI.format_code(yaml)
+        copy_to_clipboard(yaml) unless no_clipboard
       end
 
       def copy_to_clipboard(yaml)
         if confirm!('Copy to clipboard?')
           require 'clipboard'
           Clipboard.copy(yaml)
-          UI.success('✓ Copied to clipboard')
+          UI.success('Copied to clipboard.')
         else
-          puts
-          puts 'Snippet YAML printed above, not copied.'
+          UI.info('Not copied to clipboard.')
         end
       end
 
-      def collect_replace(vars)
-        if vars.any?
-          names = vars.map { |v| "{{#{v[:name]}}}" }.join(', ')
-          UI.hint("Hint: use {{var_name}} to insert a variable\nDefined: #{names}")
-        end
-
+      def collect_replace(_vars)
         if confirm!('Multi-line replacement?')
           prompt!(Gum.write(header: 'Replacement', placeholder: 'Type expansion text...'))
         else
@@ -97,11 +85,9 @@ module SnippetCli
       end
 
       def collect_advanced
-        return [nil, nil] unless confirm!('Add label or comment?')
-
-        label   = prompt!(Gum.input(placeholder: 'Label (optional, press Enter to skip)'))
-        comment = prompt!(Gum.input(placeholder: 'Comment (optional, press Enter to skip)'))
-        [label.empty? ? nil : label, comment.empty? ? nil : comment]
+        label   = confirm!('Add a label?')   ? prompt!(Gum.input(placeholder: 'Label'))   : nil
+        comment = confirm!('Add a comment?') ? prompt!(Gum.input(placeholder: 'Comment')) : nil
+        [label, comment]
       end
     end
   end

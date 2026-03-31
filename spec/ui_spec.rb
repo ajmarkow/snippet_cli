@@ -48,6 +48,24 @@ RSpec.describe SnippetCli::UI do
     end
   end
 
+  describe '.format_code' do
+    it 'uses Gum::Command.run_display_only so gum writes directly to the TTY (enabling color)' do
+      allow(Gum::Command).to receive(:run_display_only).and_return(true)
+
+      described_class.format_code('vars: []', language: 'yaml')
+
+      expect(Gum::Command).to have_received(:run_display_only)
+        .with('format', '--type=code', '--language=yaml', input: 'vars: []')
+    end
+
+    it 'falls back to puts when run_display_only raises' do
+      allow(Gum::Command).to receive(:run_display_only).and_raise(Gum::Error)
+
+      expect { described_class.format_code('vars: []', language: 'yaml') }
+        .to output("vars: []\n\n").to_stdout
+    end
+  end
+
   describe '.preview' do
     include_examples 'passes text via stdin', :preview
     include_examples 'handles YAML-prefixed text without error', :preview

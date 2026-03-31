@@ -24,6 +24,14 @@ module SnippetCli
       gum_style(text, '--border=double', '--padding=0 1')
     end
 
+    def self.format_code(text, language: 'yaml')
+      Gum::Command.run_display_only('format', '--type=code', "--language=#{language}", input: text)
+      puts
+    rescue Gum::Error
+      puts text
+      puts
+    end
+
     # Pass text via stdin instead of as a positional CLI argument.
     # Gum's arg parser interprets leading `-` characters (e.g. YAML list
     # markers like `- triggers:`) as unknown flags when passed positionally.
