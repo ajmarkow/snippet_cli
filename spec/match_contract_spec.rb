@@ -116,6 +116,24 @@ RSpec.describe SnippetCli::MatchValidator do
       expect(valid?(data)).to be false
     end
 
+    it 'accepts echo var with optional trim: true' do
+      data = { trigger: ':x', replace: '{{out}}',
+               vars: [{ name: 'out', type: 'echo', params: { echo: 'hello', trim: true } }] }
+      expect(valid?(data)).to be(true)
+    end
+
+    it 'accepts echo var with optional trim: false' do
+      data = { trigger: ':x', replace: '{{out}}',
+               vars: [{ name: 'out', type: 'echo', params: { echo: 'hello', trim: false } }] }
+      expect(valid?(data)).to be(true)
+    end
+
+    it 'rejects echo var with non-boolean trim' do
+      data = { trigger: ':x', replace: '{{out}}',
+               vars: [{ name: 'out', type: 'echo', params: { echo: 'hello', trim: 'yes' } }] }
+      expect(valid?(data)).to be(false)
+    end
+
     it 'accepts all valid var types with appropriate params' do
       type_params = {
         'clipboard' => {},
