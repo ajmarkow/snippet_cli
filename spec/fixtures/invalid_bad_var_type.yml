@@ -1,0 +1,9 @@
+# Var has an unknown type — must fail
+matches:
+  - trigger: ":test"
+    replace: "{{x}}"
+    vars:
+      - name: x
+        type: magic
+        params:
+          foo: bar

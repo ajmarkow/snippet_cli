@@ -4,14 +4,14 @@ title: Refine form-based snippet creation flow for clarity and usability
 status: To Do
 assignee: []
 created_date: '2026-03-30 04:13'
-updated_date: '2026-03-31 03:08'
+updated_date: '2026-03-31 03:55'
 labels:
   - ux
   - wizard
 milestone: none
 dependencies: []
 priority: medium
-ordinal: 0
+ordinal: 5000
 ---
 
 ## Description

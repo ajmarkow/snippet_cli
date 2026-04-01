@@ -7,7 +7,7 @@ module SnippetCli
   # Raised when the match data fails schema validation.
   class ValidationError < StandardError; end
 
-  module SnippetBuilder
+  module SnippetBuilder # rubocop:disable Metrics/ModuleLength
     # Builds an Espanso match YAML entry from the given parameters.
     # Validates against the Espanso match JSON schema before generating YAML.
     # Raises ValidationError on failure.
@@ -27,11 +27,31 @@ module SnippetCli
     def self.render_yaml(opts)
       lines = trigger_lines(opts[:triggers], opts[:is_regex], opts[:single_trigger])
       lines.concat(vars_lines(opts[:vars])) if opts[:vars]&.any?
-      lines.concat(replace_lines(opts[:replace]))
+      lines.concat(replacement_lines(opts))
       append_optional_fields(lines, opts)
       "#{lines.join("\n")}\n"
     end
     private_class_method :render_yaml
+
+    def self.replacement_lines(opts)
+      return replace_lines(opts[:replace]) if opts[:replace]
+      return ["  image_path: #{YamlScalar.quote(opts[:image_path])}"] if opts[:image_path]
+      return block_scalar_lines('html', opts[:html]) if opts[:html]
+      return block_scalar_lines('markdown', opts[:markdown]) if opts[:markdown]
+
+      []
+    end
+    private_class_method :replacement_lines
+
+    def self.block_scalar_lines(key, val)
+      if val.include?("\n")
+        indented = val.lines.map { |line| "    #{line.chomp}" }.join("\n")
+        ["  #{key}: |", indented]
+      else
+        ["  #{key}: #{YamlScalar.quote(val)}"]
+      end
+    end
+    private_class_method :block_scalar_lines
 
     def self.append_optional_fields(lines, opts)
       lines << "  label: #{YamlScalar.quote(opts[:label])}" if opts[:label]&.then { !it.empty? }
@@ -86,8 +106,7 @@ module SnippetCli
 
     def self.to_match_hash(opts)
       hash = build_trigger_hash(opts)
-      hash[:replace] = opts[:replace]
-      merge_optional(hash, opts, :vars, :label, :comment)
+      merge_optional(hash, opts, :replace, :image_path, :html, :markdown, :vars, :label, :comment)
     end
     private_class_method :to_match_hash
 

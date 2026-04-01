@@ -1,0 +1,3 @@
+# Match has no trigger, triggers, or regex — must fail
+matches:
+  - replace: "Hello!"

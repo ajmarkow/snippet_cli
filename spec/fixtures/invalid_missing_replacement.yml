@@ -1,0 +1,4 @@
+# Match has trigger but no replace/form/image_path/html/markdown — must fail
+matches:
+  - trigger: ":hello"
+    label: "no replacement here"

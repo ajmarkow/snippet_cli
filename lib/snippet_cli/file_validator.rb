@@ -4,11 +4,11 @@ require 'json'
 require 'json_schemer'
 
 module SnippetCli
-  # Validates a full Espanso match file (matches array + imports + global_vars)
-  # against the vendored Espanso_Matches_File_Schema.json.
+  # Validates a full Espanso match file (matches array + global_vars + imports + anchors)
+  # against the vendored merged schema (official + custom extensions).
   module FileValidator
     SCHEMA_PATH = File.expand_path(
-      '../../vendor/espanso-schema-json/schemas/Espanso_Matches_File_Schema.json', __dir__
+      '../../vendor/espanso-schema-json/schemas/Espanso_Merged_Matchfile_Schema.json', __dir__
     ).freeze
 
     # Returns true if the data hash is valid against the matchfile schema.

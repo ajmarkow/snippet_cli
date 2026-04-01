@@ -4,7 +4,7 @@ title: Ensure schema enforces all required fields for valid snippet definitions
 status: To Do
 assignee: []
 created_date: '2026-03-30 04:13'
-updated_date: '2026-03-30 22:02'
+updated_date: '2026-03-31 03:55'
 labels:
   - validation
   - schema
@@ -12,7 +12,7 @@ milestone: none
 dependencies:
   - TASK-12
 priority: high
-ordinal: 0
+ordinal: 3000
 ---
 
 ## Description

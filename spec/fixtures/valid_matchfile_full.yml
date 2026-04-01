@@ -1,0 +1,80 @@
+matches:
+  - trigger: ":hello"
+    replace: "Hello, World!"
+  - triggers:
+      - ":bye"
+      - ":goodbye"
+    replace: "Goodbye!"
+  - regex: ":(hi|hey)"
+    replace: "Hey there!"
+  - trigger: ":form"
+    form: "Name: [[name]], Age: [[age]]"
+    form_fields:
+      age:
+        type: choice
+        values:
+          - "18-25"
+          - "26-35"
+          - "36+"
+  - trigger: ":img"
+    image_path: "/path/to/image.png"
+  - trigger: ":html"
+    html: "<b>Bold text</b>"
+  - trigger: ":md"
+    markdown: "**Bold text**"
+    paragraph: true
+  - trigger: ":date"
+    replace: "Today is {{today}}"
+    vars:
+      - name: today
+        type: date
+        params:
+          format: "%Y-%m-%d"
+  - trigger: ":sh"
+    replace: "User: {{user}}"
+    vars:
+      - name: user
+        type: shell
+        params:
+          cmd: "whoami"
+          trim: true
+  - trigger: ":echo"
+    replace: "{{greeting}}"
+    vars:
+      - name: greeting
+        type: echo
+        params:
+          echo: "Hello!"
+  - trigger: ":rand"
+    replace: "{{pick}}"
+    vars:
+      - name: pick
+        type: random
+        params:
+          choices:
+            - "Yes"
+            - "No"
+            - "Maybe"
+  - trigger: ":word"
+    replace: "replacement"
+    word: true
+    label: "Word trigger example"
+    propagate_case: true
+    uppercase_style: capitalize
+  - trigger: ":force"
+    replace: "clipboard inject"
+    force_mode: clipboard
+  - trigger: ":search"
+    replace: "findable snippet"
+    search_terms:
+      - ruby
+      - snippet
+
+global_vars:
+  - name: sig
+    type: echo
+    params:
+      echo: "-- AJ"
+
+imports:
+  - "/path/to/other/matches.yml"

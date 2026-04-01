@@ -217,6 +217,74 @@ RSpec.describe SnippetCli::SnippetBuilder do
       end
     end
 
+    context 'html replacement' do
+      it 'emits html: key' do
+        yaml = build(triggers: [':t'], html: '<b>Bold</b>')
+        expect(yaml).to include('html:')
+      end
+
+      it 'does not emit replace: key' do
+        yaml = build(triggers: [':t'], html: '<b>Bold</b>')
+        expect(yaml).not_to include('replace:')
+      end
+
+      it 'uses literal block scalar for multiline html' do
+        yaml = build(triggers: [':t'], html: "<p>line1</p>\n<p>line2</p>")
+        expect(yaml).to include("html: |\n")
+      end
+
+      it 'produces YAML that passes FileValidator' do
+        yaml = build(triggers: [':t'], single_trigger: true, html: '<b>Bold</b>')
+        match_data = YAML.safe_load(yaml).first
+        errors = SnippetCli::FileValidator.errors({ 'matches' => [match_data] })
+        expect(errors).to be_empty, "FileValidator errors: #{errors.inspect}"
+      end
+    end
+
+    context 'markdown replacement' do
+      it 'emits markdown: key' do
+        yaml = build(triggers: [':t'], markdown: '**Bold**')
+        expect(yaml).to include('markdown:')
+      end
+
+      it 'does not emit replace: key' do
+        yaml = build(triggers: [':t'], markdown: '**Bold**')
+        expect(yaml).not_to include('replace:')
+      end
+
+      it 'uses literal block scalar for multiline markdown' do
+        yaml = build(triggers: [':t'], markdown: "line1\nline2")
+        expect(yaml).to include("markdown: |\n")
+      end
+
+      it 'produces YAML that passes FileValidator' do
+        yaml = build(triggers: [':t'], single_trigger: true, markdown: '**Bold**')
+        match_data = YAML.safe_load(yaml).first
+        errors = SnippetCli::FileValidator.errors({ 'matches' => [match_data] })
+        expect(errors).to be_empty, "FileValidator errors: #{errors.inspect}"
+      end
+    end
+
+    context 'image_path replacement' do
+      it 'emits image_path: key' do
+        yaml = build(triggers: [':t'], image_path: '/img/logo.png')
+        expect(yaml).to include('image_path:')
+        expect(yaml).to include('/img/logo.png')
+      end
+
+      it 'does not emit replace: key' do
+        yaml = build(triggers: [':t'], image_path: '/img/logo.png')
+        expect(yaml).not_to include('replace:')
+      end
+
+      it 'produces YAML that passes FileValidator' do
+        yaml = build(triggers: [':t'], single_trigger: true, image_path: '/img/logo.png')
+        match_data = YAML.safe_load(yaml).first
+        errors = SnippetCli::FileValidator.errors({ 'matches' => [match_data] })
+        expect(errors).to be_empty, "FileValidator errors: #{errors.inspect}"
+      end
+    end
+
     context 'output structure' do
       it 'starts with a YAML list item dash' do
         yaml = build(triggers: [':hello'], replace: 'Hi')

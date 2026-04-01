@@ -1,0 +1,6 @@
+# Unknown top-level key — additionalProperties: false must reject this
+matches:
+  - trigger: ":hello"
+    replace: "Hello!"
+global_config:
+  some_setting: true
