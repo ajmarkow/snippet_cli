@@ -4,6 +4,7 @@ require 'dry/cli'
 require 'gum'
 require_relative '../var_builder'
 require_relative '../snippet_builder'
+require_relative '../var_usage_checker'
 require_relative '../ui'
 require_relative '../wizard_helpers'
 require_relative '../trigger_resolver'
@@ -41,23 +42,60 @@ module SnippetCli
 
       def build_snippet(opts)
         trigger_list, is_regex, single = resolve_triggers(opts)
-        replace, vars, label, comment = resolve_replacement(opts[:replace])
+        rep = resolve_replacement(opts[:replace])
 
         SnippetBuilder.build(
-          triggers: trigger_list, replace: replace, is_regex: is_regex,
-          single_trigger: single, vars: vars, label: label, comment: comment
+          triggers: trigger_list, is_regex: is_regex, single_trigger: single, **rep
         )
       end
 
       def resolve_replacement(replace_opt)
-        if replace_opt
-          [replace_opt, [], nil, nil]
+        return { replace: replace_opt, vars: [], label: nil, comment: nil } if replace_opt
+
+        vars = VarBuilder.run
+        replacement = collect_replacement(vars)
+        label, comment = collect_advanced
+        { vars: vars, label: label, comment: comment }.merge(replacement)
+      end
+
+      def collect_replacement(vars)
+        if confirm!('Alternative (non-plaintext) replacement type?')
+          type = prompt!(Gum.filter('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type'))
+          collect_alt_with_check(type.to_sym, vars)
         else
-          vars = VarBuilder.run
-          replace = collect_replace(vars)
-          label, comment = collect_advanced
-          [replace, vars, label, comment]
+          collect_replace_with_check(vars)
         end
+      end
+
+      def collect_replace_with_check(vars)
+        loop do
+          replacement = { replace: collect_replace(vars) }
+          return replacement if var_warnings_cleared?(vars, replacement)
+        end
+      end
+
+      def collect_alt_with_check(type, vars)
+        loop do
+          replacement = { type => collect_alt_value(type) }
+          return replacement if var_warnings_cleared?(vars, replacement)
+        end
+      end
+
+      def collect_alt_value(type)
+        case type
+        when :image_path
+          prompt!(Gum.input(placeholder: '/path/to/image.png'))
+        else
+          prompt!(Gum.write(header: type.to_s.capitalize, placeholder: "Enter #{type}..."))
+        end
+      end
+
+      def var_warnings_cleared?(vars, replacement)
+        warnings = VarUsageChecker.match_warnings(vars, replacement)
+        return true if warnings.empty?
+
+        warnings.each { |w| UI.info("Warning: #{w}") }
+        confirm!('Are you sure you want to continue?')
       end
 
       def output_result(yaml, no_clipboard)

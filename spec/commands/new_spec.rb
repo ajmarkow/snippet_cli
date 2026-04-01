@@ -25,6 +25,7 @@ RSpec.describe SnippetCli::Commands::New do
   end
 
   def stub_replace_prompts(replace: 'Test replacement')
+    allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
     allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
     allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return(replace)
     stub_post_replace_prompts
@@ -91,6 +92,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       allow(Gum).to receive(:choose).with('regular', 'regex', header: 'Trigger type?').and_return('regex')
       allow(Gum).to receive(:input).with(placeholder: 'r"^(hello|bye)$"').and_return('(gr|great)ing')
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello')
       allow(Gum).to receive(:confirm).with('Add a label?').and_return(false)
@@ -269,6 +271,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(':test')
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?')).and_return(false)
       allow(SnippetCli::VarBuilder).to receive(:run).and_return([])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return(nil)
 
@@ -281,6 +284,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(':test')
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?')).and_return(false)
       allow(SnippetCli::VarBuilder).to receive(:run).and_return([])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return(nil)
       allow(SnippetCli::SnippetBuilder).to receive(:build)
@@ -309,6 +313,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(':test')
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?')).and_return(false)
       allow(SnippetCli::VarBuilder).to receive(:run).and_return([])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?') do
         system('exit 130')
         false
@@ -337,6 +342,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:choose).with('regular', 'regex', header: 'Trigger type?').and_return('regular')
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(':hello', ':hi')
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?')).and_return(true, false)
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hey!')
       allow(Gum).to receive(:confirm).with('Add a label?').and_return(false)
@@ -420,6 +426,7 @@ RSpec.describe SnippetCli::Commands::New do
       # First input empty, second valid
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return('', ':hello')
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?')).and_return(false)
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hi')
       allow(Gum).to receive(:confirm).with('Add a label?').and_return(false)
@@ -447,6 +454,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:choose).with('regular', 'regex', header: 'Trigger type?').and_return('regex')
       # First input empty, second valid
       allow(Gum).to receive(:input).with(placeholder: 'r"^(hello|bye)$"').and_return('', '(gr|great)ing')
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hi')
       allow(Gum).to receive(:confirm).with('Add a label?').and_return(false)
@@ -494,6 +502,7 @@ RSpec.describe SnippetCli::Commands::New do
 
   context '--trigger flag without --replace (partial wizard)' do
     before do
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Thank you')
       allow(Gum).to receive(:confirm).with('Add a label?').and_return(false)
@@ -514,6 +523,210 @@ RSpec.describe SnippetCli::Commands::New do
       expect(captured.join).to match(/trigger:/)
       expect(Gum).not_to have_received(:choose)
       expect(SnippetCli::VarBuilder).to have_received(:run)
+    end
+  end
+
+  # ── alternative replacement types ──────────────────────────────────────────
+
+  def stub_alt_type_prompts(type:)
+    stub_trigger_prompts
+    stub_alt_gate(type)
+    yield if block_given?
+    stub_post_replace_prompts
+    stub_gum_preview
+  end
+
+  def stub_alt_gate(type)
+    allow(SnippetCli::VarBuilder).to receive(:run).and_return([])
+    allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(true)
+    allow(Gum).to receive(:filter)
+      .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
+      .and_return(type)
+  end
+
+  context 'alternative replacement type: image_path' do
+    before do
+      stub_alt_type_prompts(type: 'image_path') do
+        allow(Gum).to receive(:input).with(placeholder: '/path/to/image.png').and_return('/img/logo.png')
+      end
+    end
+
+    it 'emits image_path: key in the YAML' do
+      captured = capture_display_input
+      command.call(no_clipboard: true)
+      expect(captured.join).to include('image_path:')
+    end
+
+    it 'includes the entered path value' do
+      captured = capture_display_input
+      command.call(no_clipboard: true)
+      expect(captured.join).to include('/img/logo.png')
+    end
+
+    it 'does not emit a replace: key' do
+      captured = capture_display_input
+      command.call(no_clipboard: true)
+      expect(captured.join).not_to include('replace:')
+    end
+  end
+
+  context 'alternative replacement type: html' do
+    before do
+      stub_alt_type_prompts(type: 'html') do
+        allow(Gum).to receive(:write)
+          .with(header: 'Html', placeholder: 'Enter html...')
+          .and_return('<b>Bold</b>')
+      end
+    end
+
+    it 'emits html: key in the YAML' do
+      captured = capture_display_input
+      command.call(no_clipboard: true)
+      expect(captured.join).to include('html:')
+    end
+
+    it 'does not emit a replace: key' do
+      captured = capture_display_input
+      command.call(no_clipboard: true)
+      expect(captured.join).not_to include('replace:')
+    end
+  end
+
+  context 'alternative replacement type: markdown' do
+    before do
+      stub_alt_type_prompts(type: 'markdown') do
+        allow(Gum).to receive(:write)
+          .with(header: 'Markdown', placeholder: 'Enter markdown...')
+          .and_return('**Bold**')
+      end
+    end
+
+    it 'emits markdown: key in the YAML' do
+      captured = capture_display_input
+      command.call(no_clipboard: true)
+      expect(captured.join).to include('markdown:')
+    end
+
+    it 'does not emit a replace: key' do
+      captured = capture_display_input
+      command.call(no_clipboard: true)
+      expect(captured.join).not_to include('replace:')
+    end
+  end
+
+  # ── var usage warnings ────────────────────────────────────────────────────
+
+  let(:echo_var) { { name: 'myvar', type: 'echo', params: { echo: 'hi' } } }
+
+  context 'var usage warning: unused var, user confirms yes to proceed' do
+    before do
+      stub_trigger_prompts
+      allow(SnippetCli::VarBuilder).to receive(:run).and_return([echo_var])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
+      allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
+      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('plain text')
+      allow(SnippetCli::UI).to receive(:info)
+      allow(Gum).to receive(:confirm).with('Are you sure you want to continue?').and_return(true)
+      stub_post_replace_prompts
+      stub_gum_preview
+    end
+
+    it 'displays a warning mentioning the unused var' do
+      command.call(no_clipboard: true)
+      expect(SnippetCli::UI).to have_received(:info).with(/myvar/)
+    end
+
+    it 'still outputs the snippet' do
+      captured = capture_display_input
+      command.call(no_clipboard: true)
+      expect(captured.join).to match(/triggers/)
+    end
+  end
+
+  context 'var usage warning: undeclared ref, user confirms yes to proceed' do
+    before do
+      stub_trigger_prompts
+      allow(SnippetCli::VarBuilder).to receive(:run).and_return([])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
+      allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
+      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello {{ghost}}')
+      allow(SnippetCli::UI).to receive(:info)
+      allow(Gum).to receive(:confirm).with('Are you sure you want to continue?').and_return(true)
+      stub_post_replace_prompts
+      stub_gum_preview
+    end
+
+    it 'displays a warning mentioning the undeclared var' do
+      command.call(no_clipboard: true)
+      expect(SnippetCli::UI).to have_received(:info).with(/ghost/)
+    end
+  end
+
+  context 'var usage warning: user says no and re-enters replacement text' do
+    before do
+      stub_trigger_prompts
+      allow(SnippetCli::VarBuilder).to receive(:run).and_return([echo_var])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
+      allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
+      # First: doesn't use {{myvar}}. Second: uses it — no warning → proceeds.
+      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('plain text', '{{myvar}} is great')
+      allow(SnippetCli::UI).to receive(:info)
+      allow(Gum).to receive(:confirm).with('Are you sure you want to continue?').and_return(false)
+      stub_post_replace_prompts
+      stub_gum_preview
+    end
+
+    it 'prompts for replacement text twice' do
+      command.call(no_clipboard: true)
+      expect(Gum).to have_received(:input).with(placeholder: 'Replacement text').twice
+    end
+
+    it 'uses the second (corrected) replacement in the output' do
+      captured = capture_display_input
+      command.call(no_clipboard: true)
+      expect(captured.join).to include('myvar')
+    end
+  end
+
+  context 'var usage warning with image_path: user says no and re-enters path' do
+    before do
+      stub_trigger_prompts
+      allow(SnippetCli::VarBuilder).to receive(:run).and_return([])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(true)
+      allow(Gum).to receive(:filter)
+        .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
+        .and_return('image_path')
+      # First path: undeclared ref → warning. Second path: plain path → no warnings.
+      allow(Gum).to receive(:input).with(placeholder: '/path/to/image.png')
+                                   .and_return('/imgs/{{ghost}}.png', '/imgs/logo.png')
+      allow(SnippetCli::UI).to receive(:info)
+      allow(Gum).to receive(:confirm).with('Are you sure you want to continue?').and_return(false)
+      stub_post_replace_prompts
+      stub_gum_preview
+    end
+
+    it 're-prompts for the image path without re-asking the type gate' do
+      command.call(no_clipboard: true)
+      expect(Gum).to have_received(:input).with(placeholder: '/path/to/image.png').twice
+      expect(Gum).to have_received(:filter).once
+    end
+  end
+
+  context 'no var usage warnings when replacement and vars match' do
+    before do
+      stub_trigger_prompts
+      allow(SnippetCli::VarBuilder).to receive(:run).and_return([echo_var])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
+      allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
+      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello {{myvar}}')
+      stub_post_replace_prompts
+      stub_gum_preview
+    end
+
+    it 'does not show the continue confirmation' do
+      allow(Gum).to receive(:confirm).with('Are you sure you want to continue?')
+      command.call(no_clipboard: true)
+      expect(Gum).not_to have_received(:confirm).with('Are you sure you want to continue?')
     end
   end
 
