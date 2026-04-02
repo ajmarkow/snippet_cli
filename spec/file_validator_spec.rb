@@ -161,6 +161,67 @@ RSpec.describe SnippetCli::FileValidator do
     end
   end
 
+  # ── required var fields ─────────────────────────────────────────────────────
+
+  describe 'required var fields' do
+    it 'rejects a var missing the name field' do
+      expect(described_class.valid?(load('invalid_var_missing_name.yml'))).to be false
+    end
+
+    it 'rejects a var missing the type field' do
+      expect(described_class.valid?(load('invalid_var_missing_type.yml'))).to be false
+    end
+
+    it 'reports an error pointing to the failing var' do
+      errs = described_class.errors(load('invalid_var_missing_name.yml'))
+      expect(errs.join).to match(%r{/matches/0/vars/0})
+    end
+  end
+
+  # ── conditional replacement requirements ────────────────────────────────────
+
+  describe 'conditional replacement requirements' do
+    it 'rejects a match with both replace and form' do
+      data = { 'matches' => [{ 'trigger' => ':t', 'replace' => 'hello', 'form' => 'Name: [[n]]' }] }
+      expect(described_class.valid?(data)).to be false
+    end
+
+    it 'rejects a match with both replace and image_path' do
+      data = { 'matches' => [{ 'trigger' => ':t', 'replace' => 'hello', 'image_path' => '/img.png' }] }
+      expect(described_class.valid?(data)).to be false
+    end
+
+    it 'rejects a match with both html and markdown' do
+      data = { 'matches' => [{ 'trigger' => ':t', 'html' => '<b>hi</b>', 'markdown' => '**hi**' }] }
+      expect(described_class.valid?(data)).to be false
+    end
+  end
+
+  # ── variable name validation ────────────────────────────────────────────────
+
+  describe 'variable name validation' do
+    def match_with_var_name(name)
+      {
+        'matches' => [{
+          'trigger' => ':t', 'replace' => "{{#{name}}}",
+          'vars' => [{ 'name' => name, 'type' => 'echo', 'params' => { 'echo' => 'hi' } }]
+        }]
+      }
+    end
+
+    it 'rejects a var name containing a hyphen' do
+      expect(described_class.valid?(match_with_var_name('bad-name'))).to be false
+    end
+
+    it 'rejects an empty var name' do
+      expect(described_class.valid?(match_with_var_name(''))).to be false
+    end
+
+    it 'accepts a var name with only letters, digits, and underscores' do
+      expect(described_class.valid?(match_with_var_name('good_name_2'))).to be true
+    end
+  end
+
   # ── error messages ──────────────────────────────────────────────────────────
 
   describe '#errors' do
@@ -173,6 +234,11 @@ RSpec.describe SnippetCli::FileValidator do
     it 'includes pointer context in error messages for nested failures' do
       errs = described_class.errors(load('invalid_missing_trigger.yml'))
       expect(errs.join).to match(/matches/)
+    end
+
+    it 'includes the json pointer path to a failing var' do
+      errs = described_class.errors(load('invalid_var_missing_name.yml'))
+      expect(errs.join).to match(%r{/matches/0/vars/0})
     end
   end
 end

@@ -46,6 +46,10 @@ These guides cover:
 
 You MUST read the overview resource to understand the complete workflow. The information is NOT summarized here.
 
+### Completing tasks
+
+`mcp__backlog__task_complete` requires status to be "Done" first. Always call `mcp__backlog__task_edit` with `status: "Done"` before calling `mcp__backlog__task_complete`, or it will error.
+
 </CRITICAL_INSTRUCTION>
 
 <!-- BACKLOG.MD MCP GUIDELINES END -->

@@ -427,6 +427,76 @@ RSpec.describe SnippetCli::VarBuilder do
     end
   end
 
+  describe 'prohibited character validation' do
+    context 'when user enters a name containing a hyphen' do
+      before do
+        # After rejecting the bad name, vars is still empty so the loop
+        # re-asks "Add a variable?" (not "Add another variable?")
+        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true, false)
+        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('bad-name')
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'warns about the prohibited character' do
+        expect { described_class.run }.to output(/prohibited/i).to_stderr
+      end
+
+      it 'does not add the invalid variable' do
+        vars = described_class.run
+        expect(vars).to be_empty
+      end
+
+      it 'mentions the hyphen in the warning' do
+        expect { described_class.run }.to output(/-/).to_stderr
+      end
+    end
+
+    context 'when user enters a valid name (letters, digits, underscores)' do
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('my_var_2')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type').and_return('echo')
+        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
+        allow(Gum).to receive(:table)
+        allow(SnippetCli::UI).to receive(:info)
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'accepts the variable without warnings' do
+        expect { described_class.run }.not_to output.to_stderr
+      end
+
+      it 'adds the variable to the result' do
+        vars = described_class.run
+        expect(vars.first[:name]).to eq('my_var_2')
+      end
+    end
+
+    context 'when user enters an invalid name then a valid one' do
+      before do
+        # First "Add a variable?" → true (bad name), second → true (good name re-prompts),
+        # then "Add another variable?" → false
+        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true, true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('bad-name', 'good_name')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type').and_return('echo')
+        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
+        allow(Gum).to receive(:table)
+        allow(SnippetCli::UI).to receive(:info)
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'only adds the valid variable' do
+        vars = described_class.run
+        expect(vars.size).to eq(1)
+        expect(vars.first[:name]).to eq('good_name')
+      end
+    end
+  end
+
   describe '.platform_shells' do
     it 'returns an Array of strings' do
       expect(described_class.platform_shells).to be_an(Array)

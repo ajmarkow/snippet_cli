@@ -1,0 +1,7 @@
+matches:
+  - trigger: ":test"
+    replace: "{{v}}"
+    vars:
+      - type: echo
+        params:
+          echo: "hi"
