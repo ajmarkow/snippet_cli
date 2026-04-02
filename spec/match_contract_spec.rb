@@ -82,6 +82,15 @@ RSpec.describe SnippetCli::MatchValidator do
     it 'fails when both replace and image_path are provided' do
       expect(valid?(trigger: ':ty', replace: 'Thank you', image_path: '/tmp/img.png')).to be false
     end
+
+    it 'fails when image_path and vars are provided together' do
+      data = {
+        trigger: ':img',
+        image_path: '/img/logo.png',
+        vars: [{ name: 'x', type: 'echo', params: { echo: 'hi' } }]
+      }
+      expect(valid?(data)).to be false
+    end
   end
 
   context 'triggers validation' do
