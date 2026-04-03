@@ -541,14 +541,14 @@ RSpec.describe SnippetCli::VarBuilder do
 
     context 'after run with vars' do
       before do
+        allow($stdout).to receive(:tty?).and_return(true)
+        allow($stdout).to receive(:print)
         allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
         allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
-        allow(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
-        allow(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
-        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('dt')
+        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('myvar')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
-                                                                         header: 'Variable type').and_return('date')
-        allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
+                                                                         header: 'Variable type').and_return('echo')
+        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hi')
         allow(Gum).to receive(:table)
         allow(SnippetCli::UI).to receive(:info)
         allow($stdout).to receive(:puts)
@@ -557,6 +557,16 @@ RSpec.describe SnippetCli::VarBuilder do
       it 'returns a callable that can erase the summary' do
         described_class.run
         expect(described_class.summary_clear).to respond_to(:call)
+      end
+
+      it 'summary_clear moves cursor up past info box AND table (not just info box)' do
+        # text = "Reference your variables...\n{{myvar}}" → 2 lines
+        # total = (2 + 2) info + (1 + 4) table + 1 blank = 10
+        described_class.run
+        printed = []
+        allow($stdout).to receive(:print) { |arg| printed << arg }
+        described_class.summary_clear.call
+        expect(printed).to include(TTY::Cursor.up(10))
       end
     end
   end

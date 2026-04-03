@@ -108,11 +108,28 @@ module SnippetCli
 
     def self.show_summary(vars)
       names = vars.map { |v| "{{#{v[:name]}}}" }.join(', ')
-      @summary_clear = UI.transient_info("Reference your variables in the replacement using {{var}} syntax:\n#{names}")
+      text = "Reference your variables in the replacement using {{var}} syntax:\n#{names}"
+      UI.info(text)
       rows = vars.map { |var| [var[:name], var[:type]] }
       Gum.table(rows, columns: %w[Name Type], print: true)
       puts
+      @summary_clear = build_summary_erase(text, vars)
     end
     private_class_method :show_summary
+
+    def self.build_summary_erase(text, vars)
+      return -> {} unless $stdout.tty?
+
+      # info box: text lines + top/bottom borders
+      # table: top border + header + separator + data rows + bottom border
+      # blank line: from trailing puts
+      total = text.lines.count + 2 + vars.length + 4 + 1
+      lambda {
+        $stdout.print TTY::Cursor.up(total)
+        $stdout.print "\r"
+        $stdout.print TTY::Cursor.clear_screen_down
+      }
+    end
+    private_class_method :build_summary_erase
   end
 end
