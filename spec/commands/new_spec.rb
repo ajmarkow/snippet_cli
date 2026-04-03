@@ -712,6 +712,89 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
+  # ── image_path + vars discard gate (TASK-33) ─────────────────────────────
+
+  context 'image_path selected with vars defined: user confirms discard' do
+    before do
+      stub_trigger_prompts
+      allow(SnippetCli::VarBuilder).to receive(:run).and_return([echo_var])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(true)
+      allow(Gum).to receive(:filter)
+        .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
+        .and_return('image_path')
+      allow(SnippetCli::UI).to receive(:info)
+      allow(Gum).to receive(:confirm).with('Discard vars and continue with image_path?').and_return(true)
+      allow(Gum).to receive(:input).with(placeholder: '/path/to/image.png').and_return('/img/logo.png')
+      stub_post_replace_prompts
+      stub_gum_preview
+    end
+
+    it 'shows the discard warning via UI.info' do
+      command.call(no_clipboard: true)
+      expect(SnippetCli::UI).to have_received(:info)
+        .with('image_path replacements do not support vars — they will be discarded.')
+    end
+
+    it 'emits image_path: key in the YAML' do
+      captured = capture_display_input
+      command.call(no_clipboard: true)
+      expect(captured.join).to include('image_path:')
+    end
+
+    it 'does not emit vars: key in the YAML' do
+      captured = capture_display_input
+      command.call(no_clipboard: true)
+      expect(captured.join).not_to include('vars:')
+    end
+  end
+
+  context 'image_path selected with vars defined: user declines, then picks markdown' do
+    before do
+      stub_trigger_prompts
+      allow(SnippetCli::VarBuilder).to receive(:run).and_return([echo_var])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(true)
+      allow(Gum).to receive(:filter)
+        .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
+        .and_return('image_path', 'markdown')
+      allow(SnippetCli::UI).to receive(:info)
+      allow(Gum).to receive(:confirm).with('Discard vars and continue with image_path?').and_return(false)
+      allow(Gum).to receive(:write)
+        .with(header: 'Markdown', placeholder: 'Enter markdown...')
+        .and_return('**bold**')
+      allow(SnippetCli::UI).to receive(:warning)
+      allow(Gum).to receive(:confirm).with('Are you sure you want to continue?').and_return(true)
+      stub_post_replace_prompts
+      stub_gum_preview
+    end
+
+    it 'prompts for replacement type twice' do
+      command.call(no_clipboard: true)
+      expect(Gum).to have_received(:filter)
+        .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
+        .twice
+    end
+
+    it 'emits markdown: key in the final YAML' do
+      captured = capture_display_input
+      command.call(no_clipboard: true)
+      expect(captured.join).to include('markdown:')
+    end
+  end
+
+  context 'image_path selected with no vars: no discard gate shown' do
+    before do
+      stub_alt_type_prompts(type: 'image_path') do
+        allow(Gum).to receive(:input).with(placeholder: '/path/to/image.png').and_return('/img/logo.png')
+      end
+      allow(SnippetCli::UI).to receive(:info)
+    end
+
+    it 'does not show the discard confirmation' do
+      command.call(no_clipboard: true)
+      expect(Gum).not_to have_received(:confirm).with('Discard vars and continue with image_path?')
+    end
+  end
+
   context 'no var usage warnings when replacement and vars match' do
     before do
       stub_trigger_prompts

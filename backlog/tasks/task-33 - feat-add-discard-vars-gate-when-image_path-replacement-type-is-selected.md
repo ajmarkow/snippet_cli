@@ -1,9 +1,10 @@
 ---
 id: TASK-33
 title: 'feat: add discard-vars gate when image_path replacement type is selected'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-01 22:21'
+updated_date: '2026-04-03 02:33'
 labels:
   - ux
   - validation
@@ -50,10 +51,16 @@ end
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 After selecting image_path with vars defined, a warning message is shown and user must confirm to discard vars
-- [ ] #2 Confirming the discard proceeds with image_path and vars are absent from the output YAML
-- [ ] #3 Declining the discard re-prompts the replacement type selection (loop back, not exit)
-- [ ] #4 When no vars are defined, image_path selection proceeds without any gate
-- [ ] #5 Tests added for: confirm-discard path (YAML has image_path, no vars) and decline-then-pick-other-type path (type filter shown twice)
-- [ ] #6 All existing image_path and vars specs continue to pass
+- [x] #1 After selecting image_path with vars defined, a warning message is shown and user must confirm to discard vars
+- [x] #2 Confirming the discard proceeds with image_path and vars are absent from the output YAML
+- [x] #3 Declining the discard re-prompts the replacement type selection (loop back, not exit)
+- [x] #4 When no vars are defined, image_path selection proceeds without any gate
+- [x] #5 Tests added for: confirm-discard path (YAML has image_path, no vars) and decline-then-pick-other-type path (type filter shown twice)
+- [x] #6 All existing image_path and vars specs continue to pass
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Implemented the discard-vars gate for `image_path` selection in `collect_replacement`. Wrapped the alt-type prompt in a loop; when `image_path` is chosen and vars are present, `UI.info` shows the warning and `confirm!` asks to discard — declining loops back to re-prompt the type filter, confirming returns `image_path` with `vars: []` overriding the original vars via the merge in `resolve_replacement`. Added 7 new specs covering: confirm-discard path (warning shown, YAML has image_path, no vars key), decline-then-pick-other-type path (filter called twice, markdown emitted), and no-gate path when no vars defined. All 61 examples pass.
+<!-- SECTION:FINAL_SUMMARY:END -->

@@ -42,10 +42,8 @@ module SnippetCli
 
       def build_snippet(opts)
         trigger_list, is_regex, single = resolve_triggers(opts)
-        rep = resolve_replacement(opts[:replace])
-
         SnippetBuilder.build(
-          triggers: trigger_list, is_regex: is_regex, single_trigger: single, **rep
+          triggers: trigger_list, is_regex: is_regex, single_trigger: single, **resolve_replacement(opts[:replace])
         )
       end
 
@@ -59,11 +57,21 @@ module SnippetCli
       end
 
       def collect_replacement(vars)
-        if confirm!('Alternative (non-plaintext) replacement type?')
+        return select_alt_type(vars) if confirm!('Alternative (non-plaintext) replacement type?')
+
+        collect_replace_with_check(vars)
+      end
+
+      def select_alt_type(vars)
+        loop do
           type = prompt!(Gum.filter('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type'))
-          collect_alt_with_check(type.to_sym, vars)
-        else
-          collect_replace_with_check(vars)
+          if type == 'image_path' && vars.any?
+            UI.info('image_path replacements do not support vars — they will be discarded.')
+            next unless confirm!('Discard vars and continue with image_path?')
+
+            return collect_alt_with_check(:image_path, []).merge(vars: [])
+          end
+          return collect_alt_with_check(type.to_sym, vars)
         end
       end
 
@@ -82,12 +90,9 @@ module SnippetCli
       end
 
       def collect_alt_value(type)
-        case type
-        when :image_path
-          prompt!(Gum.input(placeholder: '/path/to/image.png'))
-        else
-          prompt!(Gum.write(header: type.to_s.capitalize, placeholder: "Enter #{type}..."))
-        end
+        return prompt!(Gum.input(placeholder: '/path/to/image.png')) if type == :image_path
+
+        prompt!(Gum.write(header: type.to_s.capitalize, placeholder: "Enter #{type}..."))
       end
 
       def var_warnings_cleared?(vars, replacement)
@@ -118,11 +123,10 @@ module SnippetCli
       end
 
       def collect_replace(_vars)
-        if confirm!('Multi-line replacement?')
-          prompt!(Gum.write(header: 'Replacement', placeholder: 'Type expansion text...'))
-        else
-          prompt!(Gum.input(placeholder: 'Replacement text'))
-        end
+        use_multiline = confirm!('Multi-line replacement?')
+        return prompt!(Gum.write(header: 'Replacement', placeholder: 'Type expansion text...')) if use_multiline
+
+        prompt!(Gum.input(placeholder: 'Replacement text'))
       end
 
       def collect_advanced
