@@ -534,6 +534,33 @@ RSpec.describe SnippetCli::VarBuilder do
     end
   end
 
+  describe '.summary_clear' do
+    it 'returns a callable before any run' do
+      expect(described_class.summary_clear).to respond_to(:call)
+    end
+
+    context 'after run with vars' do
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
+        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('dt')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type').and_return('date')
+        allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
+        allow(Gum).to receive(:table)
+        allow(SnippetCli::UI).to receive(:info)
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'returns a callable that can erase the summary' do
+        described_class.run
+        expect(described_class.summary_clear).to respond_to(:call)
+      end
+    end
+  end
+
   describe '.platform_shells' do
     it 'returns an Array of strings' do
       expect(described_class.platform_shells).to be_an(Array)

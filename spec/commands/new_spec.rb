@@ -795,6 +795,29 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
+  context 'var summary cleared before YAML output' do
+    before do
+      stub_trigger_prompts
+      allow(SnippetCli::VarBuilder).to receive(:run).and_return([echo_var])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
+      allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
+      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello {{myvar}}')
+      stub_post_replace_prompts
+      stub_gum_preview
+    end
+
+    it 'invokes VarBuilder.summary_clear before rendering the final YAML' do
+      order = []
+      allow(SnippetCli::VarBuilder).to receive(:summary_clear).and_return(-> { order << :cleared })
+      allow(Gum::Command).to receive(:run_display_only) do |*|
+        order << :yaml
+        true
+      end
+      command.call(no_clipboard: true)
+      expect(order).to eq(%i[cleared yaml])
+    end
+  end
+
   context 'no var usage warnings when replacement and vars match' do
     before do
       stub_trigger_prompts

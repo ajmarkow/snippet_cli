@@ -29,6 +29,7 @@ module SnippetCli
 
       def call(**opts)
         yaml = build_snippet(opts)
+        VarBuilder.summary_clear.call
         output_result(yaml, opts[:no_clipboard])
       rescue ValidationError => e
         UI.error(e.message)

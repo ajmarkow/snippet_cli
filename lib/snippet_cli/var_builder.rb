@@ -22,10 +22,16 @@ module SnippetCli
 
     # Collects Espanso variable definitions interactively. Raises WizardInterrupted on cancel.
     # skip_initial_prompt: true skips "Add a variable?" and goes straight to collecting the first var.
+    @summary_clear = -> {}
+
     def self.run(skip_initial_prompt: false)
       interactive_session(skip_initial_prompt: skip_initial_prompt)
     rescue Interrupt
       raise WizardInterrupted
+    end
+
+    def self.summary_clear
+      @summary_clear
     end
 
     def self.platform_shells
@@ -102,7 +108,7 @@ module SnippetCli
 
     def self.show_summary(vars)
       names = vars.map { |v| "{{#{v[:name]}}}" }.join(', ')
-      UI.info("Reference your variables in the replacement using {{var}} syntax:\n#{names}")
+      @summary_clear = UI.transient_info("Reference your variables in the replacement using {{var}} syntax:\n#{names}")
       rows = vars.map { |var| [var[:name], var[:type]] }
       Gum.table(rows, columns: %w[Name Type], print: true)
       puts
