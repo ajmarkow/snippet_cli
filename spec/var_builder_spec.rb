@@ -7,7 +7,7 @@ RSpec.describe SnippetCli::VarBuilder do
   describe '.run' do
     context 'when user declines to add any variable' do
       before do
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(false)
         allow($stdout).to receive(:puts)
       end
 
@@ -18,8 +18,9 @@ RSpec.describe SnippetCli::VarBuilder do
 
     context 'when user adds an echo variable' do
       before do
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('greeting')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
@@ -41,10 +42,11 @@ RSpec.describe SnippetCli::VarBuilder do
     context 'when user adds a shell variable' do
       before do
         # First loop: "Add a variable?" → vars empty; after add: "Add another variable?"
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
-        allow(Gum).to receive(:confirm).with('Enable debug mode?').and_return(false)
-        allow(Gum).to receive(:confirm).with('Trim whitespace from output?').and_return(true)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Enable debug mode?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Trim whitespace from output?', prompt_style: anything).and_return(true)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('myvar')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('shell')
@@ -79,10 +81,11 @@ RSpec.describe SnippetCli::VarBuilder do
 
     context 'when user adds a script variable' do
       before do
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
-        allow(Gum).to receive(:confirm).with('Enable debug mode?').and_return(true)
-        allow(Gum).to receive(:confirm).with('Trim whitespace from output?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Enable debug mode?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with('Trim whitespace from output?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('result')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('script')
@@ -108,10 +111,11 @@ RSpec.describe SnippetCli::VarBuilder do
 
     context 'when user adds a date variable' do
       before do
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
-        allow(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
-        allow(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('dt')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('date')
@@ -120,12 +124,12 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'prompts for offset (date-specific)' do
-        expect(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
+        expect(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
         described_class.run
       end
 
       it 'prompts for locale (date-specific)' do
-        expect(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
+        expect(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
         described_class.run
       end
 
@@ -146,7 +150,7 @@ RSpec.describe SnippetCli::VarBuilder do
 
       context 'when user adds an offset' do
         before do
-          allow(Gum).to receive(:confirm).with('Add an offset?').and_return(true)
+          allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(true)
           allow(Gum).to receive(:input).with(placeholder: 'offset in seconds (e.g. 86400)').and_return('86400')
         end
 
@@ -158,7 +162,7 @@ RSpec.describe SnippetCli::VarBuilder do
 
       context 'when user adds a locale' do
         before do
-          allow(Gum).to receive(:confirm).with('Add a locale?').and_return(true)
+          allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(true)
           allow(Gum).to receive(:input).with(placeholder: 'BCP47 locale (e.g. en-US, ja-JP)').and_return('ja-JP')
         end
 
@@ -171,8 +175,9 @@ RSpec.describe SnippetCli::VarBuilder do
 
     context 'when user adds a non-date variable (echo)' do
       before do
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('greeting')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
@@ -181,20 +186,21 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'does not prompt for offset' do
-        expect(Gum).not_to receive(:confirm).with('Add an offset?')
+        expect(Gum).not_to receive(:confirm).with('Add an offset?', prompt_style: anything)
         described_class.run
       end
 
       it 'does not prompt for locale' do
-        expect(Gum).not_to receive(:confirm).with('Add a locale?')
+        expect(Gum).not_to receive(:confirm).with('Add a locale?', prompt_style: anything)
         described_class.run
       end
     end
 
     context 'when user adds a form variable' do
       before do
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('myform')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('form')
@@ -223,10 +229,12 @@ RSpec.describe SnippetCli::VarBuilder do
     context 'duplicate name detection' do
       before do
         # Flow: add 'myvar' → try 'myvar' again (dup, next) → stop
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(true, false)
-        allow(Gum).to receive(:confirm).with('Enable debug mode?').and_return(false)
-        allow(Gum).to receive(:confirm).with('Trim whitespace from output?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm)
+          .with(a_string_including('Add another variable?'), prompt_style: anything)
+          .and_return(true, false)
+        allow(Gum).to receive(:confirm).with('Enable debug mode?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Trim whitespace from output?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('myvar', 'myvar')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('shell')
@@ -248,10 +256,11 @@ RSpec.describe SnippetCli::VarBuilder do
 
     context 'summary display' do
       before do
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
-        allow(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
-        allow(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('dt')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('date')
@@ -274,7 +283,7 @@ RSpec.describe SnippetCli::VarBuilder do
         described_class.run
       end
 
-      it 'calls UI.info showing the actual variable name in double braces' do
+      it 'calls UI.info showing the actual variable name in normal braces' do
         expect(SnippetCli::UI).to receive(:info).with(a_string_including('{{dt}}'))
         described_class.run
       end
@@ -287,10 +296,12 @@ RSpec.describe SnippetCli::VarBuilder do
 
     context 'summary display with multiple vars' do
       before do
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(true, false)
-        allow(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
-        allow(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm)
+          .with(a_string_including('Add another variable?'), prompt_style: anything)
+          .and_return(true, false)
+        allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('dt', 'cmd')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1, header: 'Variable type').and_return(
           'date', 'shell'
@@ -299,8 +310,8 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:filter).with(*described_class.platform_shells, limit: 1,
                                                                               header: 'Select shell').and_return('bash')
         allow(Gum).to receive(:input).with(placeholder: 'shell command').and_return('whoami')
-        allow(Gum).to receive(:confirm).with('Enable debug mode?').and_return(false)
-        allow(Gum).to receive(:confirm).with('Trim whitespace from output?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Enable debug mode?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Trim whitespace from output?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:table)
         allow($stdout).to receive(:puts)
       end
@@ -317,11 +328,29 @@ RSpec.describe SnippetCli::VarBuilder do
     end
   end
 
+  describe '.confirm! styling' do
+    before { allow($stdout).to receive(:puts) }
+
+    it 'passes prompt_style with a normal border to Gum.confirm' do
+      allow(Gum).to receive(:confirm).and_return(false)
+      described_class.run
+      expect(Gum).to have_received(:confirm)
+        .with(anything, prompt_style: a_hash_including(border: 'normal'))
+    end
+
+    it 'passes border-foreground 075 via prompt_style for accent color' do
+      allow(Gum).to receive(:confirm).and_return(false)
+      described_class.run
+      expect(Gum).to have_received(:confirm)
+        .with(anything, prompt_style: a_hash_including('border-foreground': '075'))
+    end
+  end
+
   describe 'Ctrl+C interrupt' do
     before { allow($stdout).to receive(:puts) }
 
     it 'raises WizardInterrupted when Gum.confirm exits with 130 (Ctrl+C)' do
-      allow(Gum).to receive(:confirm).with('Add a variable?') do
+      allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything) do
         system('exit 130')
         false
       end
@@ -330,20 +359,20 @@ RSpec.describe SnippetCli::VarBuilder do
     end
 
     it 'raises WizardInterrupted when Ruby raises Interrupt (SIGINT during Gum.confirm)' do
-      allow(Gum).to receive(:confirm).with('Add a variable?').and_raise(Interrupt)
+      allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_raise(Interrupt)
 
       expect { described_class.run }.to raise_error(SnippetCli::WizardInterrupted)
     end
 
     it 'raises WizardInterrupted when Gum.input returns nil mid-variable' do
-      allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
+      allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
       allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return(nil)
 
       expect { described_class.run }.to raise_error(SnippetCli::WizardInterrupted)
     end
 
     it 'raises WizardInterrupted when Gum.filter returns nil' do
-      allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
+      allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
       allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('myvar')
       allow(Gum).to receive(:filter).and_return(nil)
 
@@ -351,7 +380,7 @@ RSpec.describe SnippetCli::VarBuilder do
     end
 
     it 'raises WizardInterrupted when Gum.input returns nil during choice value collection' do
-      allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
+      allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
       allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('myvar')
       allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                        header: 'Variable type').and_return('choice')
@@ -368,15 +397,16 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('date')
         allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
-        allow(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
-        allow(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add an additional variable?')).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add an additional variable?'),
+                                             prompt_style: anything).and_return(false)
         allow(Gum).to receive(:table)
         allow($stdout).to receive(:puts)
       end
 
       it 'does not ask "Add a variable?" before collecting the first variable' do
-        expect(Gum).not_to receive(:confirm).with('Add a variable?')
+        expect(Gum).not_to receive(:confirm).with('Add a variable?', prompt_style: anything)
         described_class.run(skip_initial_prompt: true)
       end
 
@@ -386,7 +416,8 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'asks "Add an additional variable?" after the first variable' do
-        expect(Gum).to receive(:confirm).with(a_string_including('Add an additional variable?')).and_return(false)
+        expect(Gum).to receive(:confirm).with(a_string_including('Add an additional variable?'),
+                                              prompt_style: anything).and_return(false)
         described_class.run(skip_initial_prompt: true)
       end
 
@@ -403,14 +434,16 @@ RSpec.describe SnippetCli::VarBuilder do
           .with(*described_class::VAR_TYPES, limit: 1, header: 'Variable type')
           .and_return('date', 'shell')
         allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
-        allow(Gum).to receive(:confirm).with('Add an offset?').and_return(false)
-        allow(Gum).to receive(:confirm).with('Add a locale?').and_return(false)
+        allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:filter).with(*described_class.platform_shells, limit: 1,
                                                                               header: 'Select shell').and_return('bash')
         allow(Gum).to receive(:input).with(placeholder: 'shell command').and_return('date')
-        allow(Gum).to receive(:confirm).with('Enable debug mode?').and_return(false)
-        allow(Gum).to receive(:confirm).with('Trim whitespace from output?').and_return(false)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add an additional variable?')).and_return(true, false)
+        allow(Gum).to receive(:confirm).with('Enable debug mode?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Trim whitespace from output?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm)
+          .with(a_string_including('Add an additional variable?'), prompt_style: anything)
+          .and_return(true, false)
         allow(Gum).to receive(:table)
         allow($stdout).to receive(:puts)
       end
@@ -421,7 +454,7 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'does not ask "Add another variable?" (old prompt text)' do
-        expect(Gum).not_to receive(:confirm).with('Add another variable?')
+        expect(Gum).not_to receive(:confirm).with('Add another variable?', prompt_style: anything)
         described_class.run(skip_initial_prompt: true)
       end
     end
@@ -430,8 +463,9 @@ RSpec.describe SnippetCli::VarBuilder do
   describe 'empty name validation' do
     context 'when user enters an empty name' do
       before do
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('', 'good_name')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
@@ -459,8 +493,9 @@ RSpec.describe SnippetCli::VarBuilder do
       before do
         # collect_one_var now loops internally on prohibited char — re-prompts immediately.
         # Provide a valid second name so the loop can exit.
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('bad-name', 'good_name')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
@@ -489,8 +524,9 @@ RSpec.describe SnippetCli::VarBuilder do
 
     context 'when user enters a valid name (letters, digits, underscores)' do
       before do
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('my_var_2')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
@@ -514,8 +550,9 @@ RSpec.describe SnippetCli::VarBuilder do
       before do
         # collect_one_var loops internally after prohibited char — only one "Add a variable?"
         # confirm is needed before the valid name is accepted.
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('bad-name', 'good_name')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
@@ -543,8 +580,9 @@ RSpec.describe SnippetCli::VarBuilder do
       before do
         allow($stdout).to receive(:tty?).and_return(true)
         allow($stdout).to receive(:print)
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('myvar')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')

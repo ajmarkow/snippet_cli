@@ -136,14 +136,14 @@ RSpec.describe SnippetCli::SnippetBuilder do
     end
 
     context 'replace with single quotes' do
-      it 'uses a double-quoted string' do
+      it 'uses a normal-quoted string' do
         yaml = build(triggers: [':q'], replace: "it's a test")
         expect(yaml).to include(%("it's a test"))
       end
     end
 
-    context 'replace with double quotes inside' do
-      it 'escapes the inner double quotes' do
+    context 'replace with normal quotes inside' do
+      it 'escapes the inner normal quotes' do
         yaml = build(triggers: [':q'], replace: 'say "hello"')
         expect(yaml).to include('replace:')
         expect(yaml).to include('say')

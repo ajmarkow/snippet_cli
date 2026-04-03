@@ -62,7 +62,7 @@ RSpec.describe SnippetCli::TriggerResolver do
       before do
         allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(':foo')
         allow(Gum).to receive(:confirm)
-          .with(a_string_including('Add another trigger?'))
+          .with(a_string_including('Add another trigger?'), prompt_style: anything)
           .and_return(false)
         allow($stdout).to receive(:puts)
         allow(SnippetCli::UI).to receive(:info)
@@ -85,12 +85,13 @@ RSpec.describe SnippetCli::TriggerResolver do
       end
 
       it 'includes current triggers table in the confirm prompt' do
-        expect(Gum).to receive(:confirm).with(a_string_including(':foo')).and_return(false)
+        expect(Gum).to receive(:confirm).with(a_string_including(':foo'), prompt_style: anything).and_return(false)
         host.prompt_trigger_loop
       end
 
       it 'includes "Current triggers:" label in the confirm prompt' do
-        expect(Gum).to receive(:confirm).with(a_string_including('Current triggers:')).and_return(false)
+        expect(Gum).to receive(:confirm).with(a_string_including('Current triggers:'),
+                                              prompt_style: anything).and_return(false)
         host.prompt_trigger_loop
       end
     end
@@ -99,7 +100,7 @@ RSpec.describe SnippetCli::TriggerResolver do
       before do
         allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(':foo', ':bar')
         allow(Gum).to receive(:confirm)
-          .with(a_string_including('Add another trigger?'))
+          .with(a_string_including('Add another trigger?'), prompt_style: anything)
           .and_return(true, false)
         allow($stdout).to receive(:puts)
         allow(SnippetCli::UI).to receive(:info)

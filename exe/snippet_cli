@@ -8,6 +8,7 @@ begin
   require 'snippet_cli/banner'
 
   puts SnippetCli.banner
+  puts
 
   Dry::CLI.new(SnippetCli::CLI).call
 rescue Interrupt

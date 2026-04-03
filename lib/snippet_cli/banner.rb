@@ -1,21 +1,16 @@
 # frozen_string_literal: true
 
-require_relative 'version'
+require 'gum'
 
 module SnippetCli
-  INNER_WIDTH = 35
+  FIGLET_ART = "┏━┓┏┓╻╻┏━┓┏━┓┏━╸╺┳╸   ┏━╸╻  ╻\n" \
+               "┗━┓┃┗┫┃┣━┛┣━┛┣╸  ┃    ┃  ┃  ┃\n" \
+               '┗━┛╹ ╹╹╹  ╹  ┗━╸ ╹    ┗━╸┗━╸╹'
 
   def self.banner
-    art = [
-      '┏━┓┏┓╻╻┏━┓┏━┓┏━╸╺┳╸   ┏━╸╻  ╻',
-      '┗━┓┃┗┫┃┣━┛┣━┛┣╸  ┃    ┃  ┃  ┃',
-      '┗━┛╹ ╹╹╹  ╹  ┗━╸ ╹    ┗━╸┗━╸╹'
-    ]
-
-    top       = "╔#{'═' * INNER_WIDTH}╗"
-    bottom    = "╚#{'═' * INNER_WIDTH}╝"
-    art_lines = art.map { |l| "║  #{l.ljust(INNER_WIDTH - 2)}║" }
-
-    [top, *art_lines, bottom, '', ''].join("\n")
+    Gum::Command.run_non_interactive(
+      'style', '--border=thick', '--padding=1 2', '--align=center', '--border-foreground=075',
+      input: FIGLET_ART
+    )
   end
 end

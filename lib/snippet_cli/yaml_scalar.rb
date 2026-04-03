@@ -8,8 +8,8 @@ module SnippetCli
 
     # Quote a scalar value for YAML output.
     # Strategy (per yaml-multiline.info):
-    #   - string containing '  → double-quoted with escaped inner content
-    #   - string matching special YAML patterns → double-quoted
+    #   - string containing '  → normal-quoted with escaped inner content
+    #   - string matching special YAML patterns → normal-quoted
     #   - all other strings → single-quoted
     def self.quote(str)
       return "''" if str.nil? || str.empty?
@@ -19,17 +19,17 @@ module SnippetCli
         return "\"#{escaped}\""
       end
 
-      return "\"#{str.gsub('"', '\\"')}\"" if needs_double_quote?(str)
+      return "\"#{str.gsub('"', '\\"')}\"" if needs_normal_quote?(str)
 
       "'#{str}'"
     end
 
-    def self.needs_double_quote?(str)
+    def self.needs_normal_quote?(str)
       LEADING_SPECIAL.match?(str) ||
         BOOLEAN_LIKE.match?(str) ||
         str.include?(': ') ||
         str.include?(' #')
     end
-    private_class_method :needs_double_quote?
+    private_class_method :needs_normal_quote?
   end
 end

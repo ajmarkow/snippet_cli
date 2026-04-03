@@ -48,7 +48,7 @@ The layout is a static pre-render that prints above the interactive gum prompt. 
 ### 1. Banner — convert to `gum style`
 Replace the current hand-drawn Ruby string banner (`banner.rb`) with a `gum style` call:
 ```
-gum style --border=double --padding="1 4" --border-foreground=212 "SNIPPET CLI"
+gum style --border=double --padding="1 4" --border-foreground=075 "SNIPPET CLI"
 ```
 This makes the banner consistent with the rest of the styled UI and removes the hardcoded `INNER_WIDTH` constant.
 

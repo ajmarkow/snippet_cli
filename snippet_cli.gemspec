@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.metadata['github_repo']     = 'ssh://github.com/ajmarkow/snippet_cli'
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+    `git ls-files -z`.force_encoding('UTF-8').split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   end
 
   spec.bindir        = 'exe'

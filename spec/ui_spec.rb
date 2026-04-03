@@ -158,7 +158,7 @@ RSpec.describe SnippetCli::UI do
     include_examples 'passes text via stdin', :preview
     include_examples 'handles YAML-prefixed text without error', :preview
 
-    it 'passes --border=double flag' do
+    it 'passes --border=normal flag' do
       received_args = nil
       allow(Gum::Command).to receive(:run_non_interactive) do |*args, **|
         received_args = args
@@ -168,7 +168,7 @@ RSpec.describe SnippetCli::UI do
 
       described_class.preview('text')
 
-      expect(received_args).to include('--border=double')
+      expect(received_args).to include('--border=normal')
     end
   end
 

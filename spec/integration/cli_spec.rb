@@ -10,7 +10,7 @@ RSpec.describe 'snippet_cli binary', type: :aruba do
       expect(last_command_stopped).to have_output(/┏━┓┏┓╻╻/)
     end
 
-    it 'displays a double-line box border' do
+    it 'displays a normal-line box border' do
       expect(last_command_stopped).to have_output(/╔═+╗/)
     end
   end
@@ -22,7 +22,7 @@ RSpec.describe 'snippet_cli binary', type: :aruba do
       expect(last_command_stopped).to be_successfully_executed
     end
 
-    it 'prints the version in a double-line box' do
+    it 'prints the version in a normal-line box' do
       expect(last_command_stopped).to have_output(/║.*VERSION \d+\.\d+\.\d+.*║/)
     end
   end

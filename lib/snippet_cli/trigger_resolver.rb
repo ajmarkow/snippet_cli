@@ -88,7 +88,7 @@ module SnippetCli
     def trigger_input_opts(placeholder, header)
       opts = { placeholder: placeholder }
       opts[:header] = header if header
-      opts[:header_style] = { foreground: '212' } if header
+      opts[:header_style] = { foreground: '075' } if header
       opts
     end
 

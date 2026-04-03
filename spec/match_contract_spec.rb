@@ -233,6 +233,18 @@ RSpec.describe SnippetCli::MatchValidator do
       it 'rejects unknown params' do
         expect(valid?(var('shell', { cmd: 'date', unknown: true }))).to be false
       end
+
+      it 'accepts trim: true' do
+        expect(valid?(var('shell', { cmd: 'date', trim: true }))).to be true
+      end
+
+      it 'accepts trim: false' do
+        expect(valid?(var('shell', { cmd: 'date', trim: false }))).to be true
+      end
+
+      it 'rejects non-boolean trim' do
+        expect(valid?(var('shell', { cmd: 'date', trim: 'yes' }))).to be false
+      end
     end
 
     context 'script' do
@@ -246,6 +258,18 @@ RSpec.describe SnippetCli::MatchValidator do
 
       it 'rejects unknown params' do
         expect(valid?(var('script', { args: ['/bin/echo'], unknown: true }))).to be false
+      end
+
+      it 'accepts trim: true' do
+        expect(valid?(var('script', { args: ['/bin/echo'], trim: true }))).to be true
+      end
+
+      it 'accepts trim: false' do
+        expect(valid?(var('script', { args: ['/bin/echo'], trim: false }))).to be true
+      end
+
+      it 'rejects non-boolean trim' do
+        expect(valid?(var('script', { args: ['/bin/echo'], trim: 'yes' }))).to be false
       end
     end
 
