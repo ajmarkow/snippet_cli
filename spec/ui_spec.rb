@@ -48,15 +48,91 @@ RSpec.describe SnippetCli::UI do
     end
   end
 
-  describe '.cursor_checkpoint' do
-    it 'returns a callable' do
-      expect(described_class.cursor_checkpoint).to respond_to(:call)
+  describe '.transient_warning' do
+    it 'always calls UI.warning with the text regardless of TTY' do
+      allow($stdout).to receive(:tty?).and_return(false)
+      expect(described_class).to receive(:warning).with('something went wrong')
+      described_class.transient_warning('something went wrong')
     end
 
-    it 'returns a no-op when stdout is not a TTY' do
+    it 'returns a callable' do
+      allow(described_class).to receive(:warning)
+      expect(described_class.transient_warning('text')).to respond_to(:call)
+    end
+
+    it 'returned lambda is a no-op when stdout is not a TTY' do
       allow($stdout).to receive(:tty?).and_return(false)
-      clear = described_class.cursor_checkpoint
+      allow(described_class).to receive(:warning)
+      clear = described_class.transient_warning('text')
       expect { clear.call }.not_to output.to_stdout
+    end
+
+    it 'returned lambda moves cursor up by text line count + 2 borders' do
+      allow($stdout).to receive(:tty?).and_return(true)
+      allow(described_class).to receive(:warning)
+      printed = []
+      allow($stdout).to receive(:print) { |arg| printed << arg }
+
+      clear = described_class.transient_warning("line one\nline two") # 2 lines → up by 4
+      clear.call
+
+      expect(printed).to include(TTY::Cursor.up(4))
+    end
+
+    it 'returned lambda clears screen down after moving cursor up' do
+      allow($stdout).to receive(:tty?).and_return(true)
+      allow(described_class).to receive(:warning)
+      printed = []
+      allow($stdout).to receive(:print) { |arg| printed << arg }
+
+      clear = described_class.transient_warning('one line')
+      clear.call
+
+      expect(printed).to include(TTY::Cursor.clear_screen_down)
+    end
+  end
+
+  describe '.transient_info' do
+    it 'always calls UI.info with the text regardless of TTY' do
+      allow($stdout).to receive(:tty?).and_return(false)
+      expect(described_class).to receive(:info).with('note')
+      described_class.transient_info('note')
+    end
+
+    it 'returns a callable' do
+      allow(described_class).to receive(:info)
+      expect(described_class.transient_info('text')).to respond_to(:call)
+    end
+
+    it 'returned lambda is a no-op when stdout is not a TTY' do
+      allow($stdout).to receive(:tty?).and_return(false)
+      allow(described_class).to receive(:info)
+      clear = described_class.transient_info('note')
+      expect { clear.call }.not_to output.to_stdout
+    end
+
+    it 'returned lambda moves cursor up by text line count + 2 borders' do
+      allow($stdout).to receive(:tty?).and_return(true)
+      allow(described_class).to receive(:info)
+      printed = []
+      allow($stdout).to receive(:print) { |arg| printed << arg }
+
+      clear = described_class.transient_info('one line') # 1 line → up by 3
+      clear.call
+
+      expect(printed).to include(TTY::Cursor.up(3))
+    end
+
+    it 'returned lambda clears screen down' do
+      allow($stdout).to receive(:tty?).and_return(true)
+      allow(described_class).to receive(:info)
+      printed = []
+      allow($stdout).to receive(:print) { |arg| printed << arg }
+
+      clear = described_class.transient_info('text')
+      clear.call
+
+      expect(printed).to include(TTY::Cursor.clear_screen_down)
     end
   end
 

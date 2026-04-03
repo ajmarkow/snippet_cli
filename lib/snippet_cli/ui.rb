@@ -25,20 +25,30 @@ module SnippetCli
       gum_style(text, '--border=rounded', '--padding=0 1', '--border-foreground=196', '--foreground=196', '--bold')
     end
 
-    # Saves the current cursor position and returns a lambda that restores it
-    # and clears everything below — call it to erase a transient warning block.
-    # Returns a no-op lambda when stdout is not a TTY (e.g. in tests).
-    def self.cursor_checkpoint
+    # Renders a warning and returns a lambda that erases it via line-count tracking.
+    # The warning is always rendered; the clear lambda is a no-op when not a TTY.
+    def self.transient_warning(text)
+      warning(text)
+      erase_lambda(text.lines.count + 2)
+    end
+
+    # Renders an info box and returns a lambda that erases it via line-count tracking.
+    # The info box is always rendered; the clear lambda is a no-op when not a TTY.
+    def self.transient_info(text)
+      info(text)
+      erase_lambda(text.lines.count + 2)
+    end
+
+    def self.erase_lambda(line_count)
       return -> {} unless $stdout.tty?
 
-      $stdout.print "\r" # Ensure column 0 before saving
-      $stdout.print TTY::Cursor.save
       lambda {
-        $stdout.print TTY::Cursor.restore
-        $stdout.print "\r" # Ensure column 0 before clearing
+        $stdout.print TTY::Cursor.up(line_count)
+        $stdout.print "\r"
         $stdout.print TTY::Cursor.clear_screen_down
       }
     end
+    private_class_method :erase_lambda
 
     def self.preview(text)
       gum_style(text, '--border=double', '--padding=0 1')

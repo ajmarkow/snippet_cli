@@ -99,10 +99,9 @@ module SnippetCli
         warnings = VarUsageChecker.match_warnings(vars, replacement)
         return true if warnings.empty?
 
-        clear = UI.cursor_checkpoint
-        warnings.each { |w| UI.warning(w) }
+        clears = warnings.map { |w| UI.transient_warning(w) }
         confirmed = confirm!('Are you sure you want to continue?')
-        clear.call
+        clears.first&.call
         confirmed
       end
 

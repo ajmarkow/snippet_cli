@@ -81,8 +81,7 @@ module SnippetCli
         clear&.call
         return t unless t.strip.empty?
 
-        clear = UI.cursor_checkpoint
-        UI.warning('Trigger cannot be empty. Please enter a trigger string.')
+        clear = UI.transient_warning('Trigger cannot be empty. Please enter a trigger string.')
       end
     end
 
@@ -95,9 +94,8 @@ module SnippetCli
 
     def prompt_trigger_loop
       triggers = []
-      clear = UI.cursor_checkpoint
-      UI.info("Multiple triggers can share one replacement.\n" \
-              "Enter them one at a time, you'll be asked to add another after each.")
+      clear = UI.transient_info("Multiple triggers can share one replacement.\n" \
+                                "Enter them one at a time, you'll be asked to add another after each.")
       loop do
         triggers << prompt_non_empty_trigger(':trigger')
         break unless confirm!(build_trigger_confirm_prompt(triggers))

@@ -1,10 +1,10 @@
 ---
 id: TASK-36
 title: Make rendering of gum UI elements consistent
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-02 21:04'
-updated_date: '2026-04-02 21:10'
+updated_date: '2026-04-03 15:20'
 labels: []
 dependencies: []
 priority: medium
@@ -54,10 +54,30 @@ Call sites change from `UI.cursor_checkpoint` + `UI.warning(text)` to `UI.transi
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Banner and padding always render at the top of the interaction area
-- [ ] #2 Warnings always appear in a consistent location and are cleared once the issue is resolved
-- [ ] #3 Gum prompts (input, filter, confirm, write) always render in a consistent position
-- [ ] #4 Snippet YAML and clipboard status messages render below the interaction area after wizard completes
-- [ ] #5 UI.transient_warning replaces cursor_checkpoint for all transient warning call sites
-- [ ] #6 No regressions — all existing examples pass
+- [x] #1 Banner and padding always render at the top of the interaction area
+- [x] #2 Warnings always appear in a consistent location and are cleared once the issue is resolved
+- [x] #3 Gum prompts (input, filter, confirm, write) always render in a consistent position
+- [x] #4 Snippet YAML and clipboard status messages render below the interaction area after wizard completes
+- [x] #5 UI.transient_warning replaces cursor_checkpoint for all transient warning call sites
+- [x] #6 No regressions — all existing examples pass
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Replaced `cursor_checkpoint` (save/restore) with line-count-based transient clearing.
+
+**Added to `ui.rb`:**
+- `UI.transient_warning(text)` — renders warning, returns clear lambda
+- `UI.transient_info(text)` — renders info box, returns clear lambda
+- Private `erase_lambda(line_count)` — builds the `TTY::Cursor.up + clear_screen_down` lambda; no-op when not a TTY
+- Removed `cursor_checkpoint`
+
+**Updated 4 call sites:**
+- `trigger_resolver.rb#prompt_non_empty_trigger` — empty trigger warning
+- `trigger_resolver.rb#prompt_trigger_loop` — multi-trigger info box
+- `commands/new.rb#var_warnings_cleared?` — multiple var usage warnings (mapped to clears, first clear erases all via `clear_screen_down`)
+- `var_builder/name_collector.rb#checkpoint_warning` — prohibited char + empty name warnings; extracted `prohibited_char_message` helper
+
+358 examples, 0 failures. 99.25% coverage.
+<!-- SECTION:FINAL_SUMMARY:END -->

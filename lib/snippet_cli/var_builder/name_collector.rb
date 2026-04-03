@@ -36,19 +36,15 @@ module SnippetCli
       end
 
       def invalid_name_clear(name, clear)
-        if name.strip.empty?
-          return checkpoint_warning(clear) { UI.warning('Variable name cannot be empty. Please enter a name.') }
-        end
-        return checkpoint_warning(clear) { warn_prohibited_char(name) } if prohibited_char?(name)
+        return checkpoint_warning(clear, 'Variable name cannot be empty. Please enter a name.') if name.strip.empty?
+        return checkpoint_warning(clear, prohibited_char_message(name)) if prohibited_char?(name)
 
         nil
       end
 
-      def checkpoint_warning(clear, &block)
+      def checkpoint_warning(clear, text)
         clear&.call
-        new_clear = UI.cursor_checkpoint
-        block.call
-        new_clear
+        UI.transient_warning(text)
       end
 
       def duplicate?(name)
@@ -68,10 +64,10 @@ module SnippetCli
         PROHIBITED_CHARS.any? { |char| name.include?(char) }
       end
 
-      def warn_prohibited_char(name)
+      def prohibited_char_message(name)
         prohibited = PROHIBITED_CHARS.map { |c| "'#{c}'" }.join(', ')
-        UI.warning("Variable name '#{name}' contains a prohibited character " \
-                   "(#{prohibited}) — use only letters, digits, and underscores")
+        "Variable name '#{name}' contains a prohibited character " \
+          "(#{prohibited}) — use only letters, digits, and underscores"
       end
     end
     private_constant :NameCollector
