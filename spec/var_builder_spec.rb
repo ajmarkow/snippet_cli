@@ -427,27 +427,63 @@ RSpec.describe SnippetCli::VarBuilder do
     end
   end
 
-  describe 'prohibited character validation' do
-    context 'when user enters a name containing a hyphen' do
+  describe 'empty name validation' do
+    context 'when user enters an empty name' do
       before do
-        # After rejecting the bad name, vars is still empty so the loop
-        # re-asks "Add a variable?" (not "Add another variable?")
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true, false)
-        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('bad-name')
+        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('', 'good_name')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type').and_return('echo')
+        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
+        allow(Gum).to receive(:table)
+        allow(SnippetCli::UI).to receive(:info)
+        allow(SnippetCli::UI).to receive(:warning)
         allow($stdout).to receive(:puts)
       end
 
-      it 'warns about the prohibited character' do
-        expect { described_class.run }.to output(/prohibited/i).to_stderr
+      it 'warns that the name cannot be empty via UI.warning' do
+        described_class.run
+        expect(SnippetCli::UI).to have_received(:warning).with(/cannot be empty/i)
       end
 
-      it 'does not add the invalid variable' do
+      it 're-prompts and accepts the next non-empty name' do
         vars = described_class.run
-        expect(vars).to be_empty
+        expect(vars.first[:name]).to eq('good_name')
+      end
+    end
+  end
+
+  describe 'prohibited character validation' do
+    context 'when user enters a name containing a hyphen' do
+      before do
+        # collect_one_var now loops internally on prohibited char — re-prompts immediately.
+        # Provide a valid second name so the loop can exit.
+        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
+        allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('bad-name', 'good_name')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type').and_return('echo')
+        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
+        allow(Gum).to receive(:table)
+        allow(SnippetCli::UI).to receive(:info)
+        allow(SnippetCli::UI).to receive(:warning)
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'warns about the prohibited character via UI.warning' do
+        described_class.run
+        expect(SnippetCli::UI).to have_received(:warning).with(/prohibited/i)
+      end
+
+      it 'does not add bad-name to the collected variables' do
+        vars = described_class.run
+        expect(vars.map { |v| v[:name] }).not_to include('bad-name')
       end
 
       it 'mentions the hyphen in the warning' do
-        expect { described_class.run }.to output(/-/).to_stderr
+        described_class.run
+        expect(SnippetCli::UI).to have_received(:warning).with(/-/)
       end
     end
 
@@ -476,9 +512,9 @@ RSpec.describe SnippetCli::VarBuilder do
 
     context 'when user enters an invalid name then a valid one' do
       before do
-        # First "Add a variable?" → true (bad name), second → true (good name re-prompts),
-        # then "Add another variable?" → false
-        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true, true)
+        # collect_one_var loops internally after prohibited char — only one "Add a variable?"
+        # confirm is needed before the valid name is accepted.
+        allow(Gum).to receive(:confirm).with('Add a variable?').and_return(true)
         allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?')).and_return(false)
         allow(Gum).to receive(:input).with(placeholder: 'Your variable name').and_return('bad-name', 'good_name')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
@@ -486,6 +522,7 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
         allow(Gum).to receive(:table)
         allow(SnippetCli::UI).to receive(:info)
+        allow(SnippetCli::UI).to receive(:warning)
         allow($stdout).to receive(:puts)
       end
 

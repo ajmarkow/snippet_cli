@@ -4,6 +4,7 @@ require 'English'
 require 'gum'
 require_relative 'table_formatter'
 require_relative 'ui'
+require_relative 'var_builder/name_collector'
 require_relative 'var_builder/params'
 
 module SnippetCli
@@ -35,37 +36,14 @@ module SnippetCli
       end
     end
 
-    def self.prohibited_char?(name)
-      PROHIBITED_CHARS.any? { |char| name.include?(char) }
-    end
-    private_class_method :prohibited_char?
-
     def self.collect_one_var(existing)
-      name = prompt!(Gum.input(placeholder: 'Your variable name'))
-      return nil if reject_name?(name, existing)
+      name = NameCollector.new(existing).collect
+      return nil if name.nil?
 
       type = prompt!(Gum.filter(*VAR_TYPES, limit: 1, header: 'Variable type'))
       { name: name, type: type, params: Params.collect(self, type) }
     end
-
-    def self.reject_name?(name, existing)
-      if prohibited_char?(name)
-        warn_prohibited_char(name)
-        return true
-      end
-      if existing.any? { |v| v[:name] == name }
-        warn "Variable '#{name}' already defined — skipping"
-        return true
-      end
-      false
-    end
-
-    def self.warn_prohibited_char(name)
-      prohibited = PROHIBITED_CHARS.map { |c| "'#{c}'" }.join(', ')
-      warn "Variable name '#{name}' contains a prohibited character " \
-           "(#{prohibited}) — use only letters, digits, and underscores"
-    end
-    private_class_method :collect_one_var, :reject_name?, :warn_prohibited_char
+    private_class_method :collect_one_var
 
     def self.prompt!(value)
       value.nil? ? raise(WizardInterrupted) : value

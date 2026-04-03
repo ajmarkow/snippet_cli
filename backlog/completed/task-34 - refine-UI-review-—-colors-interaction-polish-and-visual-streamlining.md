@@ -1,10 +1,10 @@
 ---
 id: TASK-34
 title: 'refine: UI review — colors, interaction polish, and visual streamlining'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-01 22:23'
-updated_date: '2026-04-01 22:25'
+updated_date: '2026-04-02 20:41'
 labels:
   - ux
   - polish
@@ -27,11 +27,11 @@ Areas to review:
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 All Gum/UI call sites have been audited and documented with current color/style values
-- [ ] #2 A decision is made on a coherent color palette and style guide for the CLI
-- [ ] #3 Colors and borders are updated to reflect the agreed palette
-- [ ] #4 Interaction points (prompts, confirmations, warnings) feel consistent and intentional
-- [ ] #5 No regressions in existing specs
+- [x] #1 All Gum/UI call sites have been audited and documented with current color/style values
+- [x] #2 A decision is made on a coherent color palette and style guide for the CLI
+- [x] #3 Colors and borders are updated to reflect the agreed palette
+- [x] #4 Interaction points (prompts, confirmations, warnings) feel consistent and intentional
+- [x] #5 No regressions in existing specs
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -60,3 +60,9 @@ Only borders are colored. Adding `--foreground` to warning/error output would ma
 2. Add `--foreground` color to `error` and `warning` text, not just borders
 3. Standardize `Gum.write`/`Gum.filter` header capitalization across all call sites
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Added `UI.warning` method (yellow border + foreground color 220 + bold) as a distinct style for warning messages. Added `--foreground=196` to `UI.error` so error text is colored red, not just the border. Updated all warning call sites: `UI.info("Warning: #{w}")` → `UI.warning(w)` in `new.rb`, `UI.info('Trigger cannot be empty...')` → `UI.warning(...)` in `trigger_resolver.rb`, and `UI.info(e.message)` for `ValidationError` → `UI.error(e.message)` in `new.rb`. Updated all affected specs (TDD-first) — 340 examples, 0 failures.
+<!-- SECTION:FINAL_SUMMARY:END -->

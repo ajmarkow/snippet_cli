@@ -31,7 +31,7 @@ module SnippetCli
         yaml = build_snippet(opts)
         output_result(yaml, opts[:no_clipboard])
       rescue ValidationError => e
-        UI.info(e.message)
+        UI.error(e.message)
         exit 1
       rescue WizardInterrupted
         puts
@@ -94,8 +94,11 @@ module SnippetCli
         warnings = VarUsageChecker.match_warnings(vars, replacement)
         return true if warnings.empty?
 
-        warnings.each { |w| UI.info("Warning: #{w}") }
-        confirm!('Are you sure you want to continue?')
+        clear = UI.cursor_checkpoint
+        warnings.each { |w| UI.warning(w) }
+        confirmed = confirm!('Are you sure you want to continue?')
+        clear.call
+        confirmed
       end
 
       def output_result(yaml, no_clipboard)

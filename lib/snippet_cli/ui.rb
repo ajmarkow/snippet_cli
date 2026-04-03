@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'gum'
+require 'tty-cursor'
 
 module SnippetCli
   module UI
@@ -16,8 +17,27 @@ module SnippetCli
       gum_style(text, '--border=rounded', '--padding=0 1', '--border-foreground=46', '--bold')
     end
 
+    def self.warning(text)
+      gum_style(text, '--border=rounded', '--padding=0 1', '--border-foreground=220', '--foreground=220', '--bold')
+    end
+
     def self.error(text)
-      gum_style(text, '--border=rounded', '--padding=0 1', '--border-foreground=196', '--bold')
+      gum_style(text, '--border=rounded', '--padding=0 1', '--border-foreground=196', '--foreground=196', '--bold')
+    end
+
+    # Saves the current cursor position and returns a lambda that restores it
+    # and clears everything below — call it to erase a transient warning block.
+    # Returns a no-op lambda when stdout is not a TTY (e.g. in tests).
+    def self.cursor_checkpoint
+      return -> {} unless $stdout.tty?
+
+      $stdout.print "\r" # Ensure column 0 before saving
+      $stdout.print TTY::Cursor.save
+      lambda {
+        $stdout.print TTY::Cursor.restore
+        $stdout.print "\r" # Ensure column 0 before clearing
+        $stdout.print TTY::Cursor.clear_screen_down
+      }
     end
 
     def self.preview(text)

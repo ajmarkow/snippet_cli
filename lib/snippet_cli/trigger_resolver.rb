@@ -75,25 +75,34 @@ module SnippetCli
     end
 
     def prompt_non_empty_trigger(placeholder, header: nil)
+      clear = nil
       loop do
-        opts = { placeholder: placeholder }
-        opts[:header] = header if header
-        opts[:header_style] = { foreground: '212' } if header
-        t = prompt!(Gum.input(**opts))
+        t = prompt!(Gum.input(**trigger_input_opts(placeholder, header)))
+        clear&.call
         return t unless t.strip.empty?
 
-        UI.info('Trigger cannot be empty. Please enter a trigger string.')
+        clear = UI.cursor_checkpoint
+        UI.warning('Trigger cannot be empty. Please enter a trigger string.')
       end
+    end
+
+    def trigger_input_opts(placeholder, header)
+      opts = { placeholder: placeholder }
+      opts[:header] = header if header
+      opts[:header_style] = { foreground: '212' } if header
+      opts
     end
 
     def prompt_trigger_loop
       triggers = []
+      clear = UI.cursor_checkpoint
       UI.info("Multiple triggers can share one replacement.\n" \
               "Enter them one at a time, you'll be asked to add another after each.")
       loop do
         triggers << prompt_non_empty_trigger(':trigger')
         break unless confirm!(build_trigger_confirm_prompt(triggers))
       end
+      clear.call
       triggers
     end
 

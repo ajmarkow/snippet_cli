@@ -9,6 +9,7 @@ vendor/bundle
 /doc/
 /pkg/
 /spec/reports/
+/spec/tmp/*
 /tmp/
 
 # Ruby gem convention (lockfile not committed)

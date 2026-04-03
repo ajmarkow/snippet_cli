@@ -146,10 +146,10 @@ RSpec.describe SnippetCli::Commands::New do
         .and_raise(SnippetCli::ValidationError, "Schema validation failed:\n  - bad field")
     end
 
-    it 'renders the error message via UI.info' do
-      allow(SnippetCli::UI).to receive(:info)
+    it 'renders the error message via UI.error' do
+      allow(SnippetCli::UI).to receive(:error)
       expect { command.call(no_clipboard: true) }.to raise_error(SystemExit)
-      expect(SnippetCli::UI).to have_received(:info).with(/Schema validation failed/)
+      expect(SnippetCli::UI).to have_received(:error).with(/Schema validation failed/)
     end
 
     it 'exits with status 1' do
@@ -437,9 +437,9 @@ RSpec.describe SnippetCli::Commands::New do
     end
 
     it 'warns the user that trigger cannot be empty' do
-      allow(SnippetCli::UI).to receive(:info)
+      allow(SnippetCli::UI).to receive(:warning)
       command.call(no_clipboard: false)
-      expect(SnippetCli::UI).to have_received(:info).with(/cannot be empty/i)
+      expect(SnippetCli::UI).to have_received(:warning).with(/cannot be empty/i)
     end
 
     it 're-prompts and accepts the next non-empty input' do
@@ -465,9 +465,9 @@ RSpec.describe SnippetCli::Commands::New do
     end
 
     it 'warns the user that trigger cannot be empty' do
-      allow(SnippetCli::UI).to receive(:info)
+      allow(SnippetCli::UI).to receive(:warning)
       command.call(no_clipboard: false)
-      expect(SnippetCli::UI).to have_received(:info).with(/cannot be empty/i)
+      expect(SnippetCli::UI).to have_received(:warning).with(/cannot be empty/i)
     end
 
     it 're-prompts and accepts the next non-empty input' do
@@ -625,7 +625,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('plain text')
-      allow(SnippetCli::UI).to receive(:info)
+      allow(SnippetCli::UI).to receive(:warning)
       allow(Gum).to receive(:confirm).with('Are you sure you want to continue?').and_return(true)
       stub_post_replace_prompts
       stub_gum_preview
@@ -633,7 +633,7 @@ RSpec.describe SnippetCli::Commands::New do
 
     it 'displays a warning mentioning the unused var' do
       command.call(no_clipboard: true)
-      expect(SnippetCli::UI).to have_received(:info).with(/myvar/)
+      expect(SnippetCli::UI).to have_received(:warning).with(/myvar/)
     end
 
     it 'still outputs the snippet' do
@@ -650,7 +650,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?').and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello {{ghost}}')
-      allow(SnippetCli::UI).to receive(:info)
+      allow(SnippetCli::UI).to receive(:warning)
       allow(Gum).to receive(:confirm).with('Are you sure you want to continue?').and_return(true)
       stub_post_replace_prompts
       stub_gum_preview
@@ -658,7 +658,7 @@ RSpec.describe SnippetCli::Commands::New do
 
     it 'displays a warning mentioning the undeclared var' do
       command.call(no_clipboard: true)
-      expect(SnippetCli::UI).to have_received(:info).with(/ghost/)
+      expect(SnippetCli::UI).to have_received(:warning).with(/ghost/)
     end
   end
 
@@ -670,7 +670,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Multi-line replacement?').and_return(false)
       # First: doesn't use {{myvar}}. Second: uses it — no warning → proceeds.
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('plain text', '{{myvar}} is great')
-      allow(SnippetCli::UI).to receive(:info)
+      allow(SnippetCli::UI).to receive(:warning)
       allow(Gum).to receive(:confirm).with('Are you sure you want to continue?').and_return(false)
       stub_post_replace_prompts
       stub_gum_preview
@@ -699,7 +699,7 @@ RSpec.describe SnippetCli::Commands::New do
       # First path: undeclared ref → warning. Second path: plain path → no warnings.
       allow(Gum).to receive(:input).with(placeholder: '/path/to/image.png')
                                    .and_return('/imgs/{{ghost}}.png', '/imgs/logo.png')
-      allow(SnippetCli::UI).to receive(:info)
+      allow(SnippetCli::UI).to receive(:warning)
       allow(Gum).to receive(:confirm).with('Are you sure you want to continue?').and_return(false)
       stub_post_replace_prompts
       stub_gum_preview

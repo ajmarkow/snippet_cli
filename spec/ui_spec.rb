@@ -48,6 +48,18 @@ RSpec.describe SnippetCli::UI do
     end
   end
 
+  describe '.cursor_checkpoint' do
+    it 'returns a callable' do
+      expect(described_class.cursor_checkpoint).to respond_to(:call)
+    end
+
+    it 'returns a no-op when stdout is not a TTY' do
+      allow($stdout).to receive(:tty?).and_return(false)
+      clear = described_class.cursor_checkpoint
+      expect { clear.call }.not_to output.to_stdout
+    end
+  end
+
   describe '.format_code' do
     it 'uses Gum::Command.run_display_only so gum writes directly to the TTY (enabling color)' do
       allow(Gum::Command).to receive(:run_display_only).and_return(true)
@@ -129,7 +141,7 @@ RSpec.describe SnippetCli::UI do
     include_examples 'passes text via stdin', :error
     include_examples 'handles YAML-prefixed text without error', :error
 
-    it 'passes error border styling' do
+    it 'passes error border and text styling' do
       received_args = nil
       allow(Gum::Command).to receive(:run_non_interactive) do |*args, **|
         received_args = args
@@ -141,7 +153,52 @@ RSpec.describe SnippetCli::UI do
 
       args = received_args.join(' ')
       expect(args).to include('border-foreground=196')
+      expect(args).to include('--foreground=196')
       expect(args).to include('--bold')
+    end
+  end
+
+  describe '.warning' do
+    include_examples 'passes text via stdin', :warning
+    include_examples 'handles YAML-prefixed text without error', :warning
+
+    it 'passes yellow border-foreground flag' do
+      received_args = nil
+      allow(Gum::Command).to receive(:run_non_interactive) do |*args, **|
+        received_args = args
+        'styled'
+      end
+      allow($stdout).to receive(:puts)
+
+      described_class.warning('text')
+
+      expect(received_args.join(' ')).to include('border-foreground=220')
+    end
+
+    it 'passes yellow foreground flag for text color' do
+      received_args = nil
+      allow(Gum::Command).to receive(:run_non_interactive) do |*args, **|
+        received_args = args
+        'styled'
+      end
+      allow($stdout).to receive(:puts)
+
+      described_class.warning('text')
+
+      expect(received_args.join(' ')).to include('--foreground=220')
+    end
+
+    it 'passes --bold flag' do
+      received_args = nil
+      allow(Gum::Command).to receive(:run_non_interactive) do |*args, **|
+        received_args = args
+        'styled'
+      end
+      allow($stdout).to receive(:puts)
+
+      described_class.warning('text')
+
+      expect(received_args).to include('--bold')
     end
   end
 end
