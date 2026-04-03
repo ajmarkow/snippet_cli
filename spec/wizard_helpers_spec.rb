@@ -15,18 +15,18 @@ RSpec.describe SnippetCli::WizardHelpers do
   before { system('true') } # reset $? so stale 130 exits don't fire WizardInterrupted
 
   describe '#confirm!' do
-    it 'passes prompt_style with a double border to Gum.confirm' do
+    it 'passes prompt_style with a rounded border to Gum.confirm' do
       allow(Gum).to receive(:confirm).and_return(true)
       host.confirm!('Are you sure?')
       expect(Gum).to have_received(:confirm)
-        .with('Are you sure?', prompt_style: a_hash_including(border: 'double'))
+        .with('Are you sure?', prompt_style: a_hash_including(border: 'rounded'))
     end
 
-    it 'does not pass --border-foreground 075 via prompt_style for accent color' do
+    it 'does not include a border-foreground color in prompt_style' do
       allow(Gum).to receive(:confirm).and_return(true)
       host.confirm!('Are you sure?')
       expect(Gum).to have_received(:confirm)
-        .with('Are you sure?', prompt_style: a_hash_including('border-foreground': '075'))
+        .with('Are you sure?', prompt_style: hash_not_including(:'border-foreground'))
     end
 
     it 'passes padding via prompt_style' do
@@ -34,6 +34,13 @@ RSpec.describe SnippetCli::WizardHelpers do
       host.confirm!('Are you sure?')
       expect(Gum).to have_received(:confirm)
         .with('Are you sure?', prompt_style: a_hash_including(padding: '0 1'))
+    end
+
+    it 'overrides the default left margin to zero via prompt_style' do
+      allow(Gum).to receive(:confirm).and_return(true)
+      host.confirm!('Are you sure?')
+      expect(Gum).to have_received(:confirm)
+        .with('Are you sure?', prompt_style: a_hash_including(margin: '0'))
     end
 
     it 'returns true when Gum.confirm returns true' do

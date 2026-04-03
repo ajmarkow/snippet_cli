@@ -331,18 +331,18 @@ RSpec.describe SnippetCli::VarBuilder do
   describe '.confirm! styling' do
     before { allow($stdout).to receive(:puts) }
 
-    it 'passes prompt_style with a normal border to Gum.confirm' do
+    it 'passes prompt_style with a rounded border to Gum.confirm' do
       allow(Gum).to receive(:confirm).and_return(false)
       described_class.run
       expect(Gum).to have_received(:confirm)
-        .with(anything, prompt_style: a_hash_including(border: 'normal'))
+        .with(anything, prompt_style: a_hash_including(border: 'rounded'))
     end
 
-    it 'passes border-foreground 075 via prompt_style for accent color' do
+    it 'does not include a border-foreground color in prompt_style' do
       allow(Gum).to receive(:confirm).and_return(false)
       described_class.run
       expect(Gum).to have_received(:confirm)
-        .with(anything, prompt_style: a_hash_including('border-foreground': '075'))
+        .with(anything, prompt_style: hash_not_including(:'border-foreground'))
     end
   end
 

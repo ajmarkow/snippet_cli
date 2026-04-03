@@ -6,23 +6,23 @@ require 'tty-cursor'
 module SnippetCli
   module UI
     def self.info(text)
-      gum_style(text, '--border=normal', '--padding=0 4')
+      gum_style(text, '--border=rounded', '--padding=0 4')
     end
 
     def self.hint(text)
-      gum_style(text, '--border=normal', '--padding=0 4', '--border-foreground=220')
+      gum_style(text, '--border=rounded', '--padding=0 4', '--border-foreground=220')
     end
 
     def self.success(text)
-      gum_style(text, '--border=normal', '--padding=0 4', '--border-foreground=46', '--bold')
+      gum_style(text, '--border=rounded', '--padding=0 4', '--border-foreground=46', '--bold')
     end
 
     def self.warning(text)
-      gum_style(text, '--border=normal', '--padding=0 4', '--border-foreground=220', '--foreground=220', '--bold')
+      gum_style(text, '--border=rounded', '--padding=0 4', '--border-foreground=220', '--foreground=220', '--bold')
     end
 
     def self.error(text)
-      gum_style(text, '--border=normal', '--padding=0 4', '--border-foreground=196', '--foreground=196', '--bold')
+      gum_style(text, '--border=rounded', '--padding=0 4', '--border-foreground=196', '--foreground=196', '--bold')
     end
 
     # Renders a warning and returns a lambda that erases it via line-count tracking.
@@ -51,7 +51,7 @@ module SnippetCli
     private_class_method :erase_lambda
 
     def self.preview(text)
-      gum_style(text, '--border=normal', '--padding=0 4')
+      gum_style(text, '--border=rounded', '--padding=0 4')
     end
 
     def self.format_code(text, language: 'yaml')

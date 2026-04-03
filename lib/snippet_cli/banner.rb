@@ -9,7 +9,7 @@ module SnippetCli
 
   def self.banner
     Gum::Command.run_non_interactive(
-      'style', '--border=thick', '--padding=1 2', '--align=center', '--border-foreground=075',
+      'style', '--border=rounded', '--padding=1 2', '--align=center', '--border-foreground=075',
       input: FIGLET_ART
     )
   end

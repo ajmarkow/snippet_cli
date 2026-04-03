@@ -15,10 +15,10 @@ RSpec.describe SnippetCli do
         .with('style', anything, anything, anything, anything, input: a_string_including('┏━┓┏┓╻╻'))
     end
 
-    it 'uses --border=thick' do
+    it 'uses --border=rounded' do
       described_class.banner
       expect(Gum::Command).to have_received(:run_non_interactive)
-        .with('style', '--border=thick', anything, anything, anything, input: anything)
+        .with('style', '--border=rounded', anything, anything, anything, input: anything)
     end
 
     it 'uses --border-foreground=075 for accent color' do
