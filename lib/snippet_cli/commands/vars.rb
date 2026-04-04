@@ -11,7 +11,7 @@ module SnippetCli
     class Vars < Dry::CLI::Command
       include WizardHelpers
 
-      desc 'Interactive var builder — outputs Espanso vars YAML block (alias: va)'
+      desc 'Interactive var builder — outputs Espanso vars YAML block'
 
       def call(**)
         deliver_vars(VarBuilder.run(skip_initial_prompt: true))

@@ -6,7 +6,7 @@ require_relative '../version'
 module SnippetCli
   module Commands
     class Version < Dry::CLI::Command
-      desc 'Print snippet_cli version (alias: v)'
+      desc 'Print snippet_cli version'
 
       def call(**)
         label = "  VERSION #{SnippetCli::VERSION}  "

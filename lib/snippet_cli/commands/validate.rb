@@ -8,7 +8,7 @@ require_relative '../ui'
 module SnippetCli
   module Commands
     class Validate < Dry::CLI::Command
-      desc 'Validate an Espanso match YAML file against the schema (alias: vl)'
+      desc 'Validate an Espanso match YAML file against the schema (alias: v)'
 
       argument :file, required: true, desc: 'Path to the Espanso match YAML file to validate'
 

@@ -24,10 +24,10 @@ module SnippetCli
   module CLI
     extend Dry::CLI::Registry
 
-    register 'version',  Commands::Version,  aliases: ['v']
+    register 'version',  Commands::Version
     register 'conflict', Commands::Conflict, aliases: ['c']
-    register 'vars',     Commands::Vars,     aliases: ['va']
+    register 'vars',     Commands::Vars
     register 'new',      Commands::New,      aliases: ['n']
-    register 'validate', Commands::Validate, aliases: ['vl']
+    register 'validate', Commands::Validate, aliases: ['v']
   end
 end
