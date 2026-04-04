@@ -1,0 +1,90 @@
+# frozen_string_literal: true
+
+require_relative 'ui'
+require_relative 'var_usage_checker'
+require_relative 'wizard_helpers'
+
+module SnippetCli
+  # Collects replacement text from interactive prompts with validation.
+  module ReplacementCollector
+    include WizardHelpers
+
+    private
+
+    def collect_replacement(vars)
+      return select_alt_type(vars) if confirm!('Alternative (non-plaintext) replacement type?')
+
+      collect_replace_with_check(vars)
+    end
+
+    def select_alt_type(vars)
+      loop do
+        type = prompt!(Gum.filter('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type'))
+        if type == 'image_path' && vars.any?
+          UI.info('image_path replacements do not support vars — they will be discarded.')
+          next unless confirm!('Discard vars and continue with image_path?')
+
+          return collect_alt_with_check(:image_path, []).merge(vars: [])
+        end
+        return collect_alt_with_check(type.to_sym, vars)
+      end
+    end
+
+    def collect_replace_with_check(vars)
+      clear = nil
+      loop do
+        clear&.call
+        replacement = { replace: collect_replace(vars) }
+        clear = var_error_clear(vars, replacement)
+        return replacement if clear.nil?
+      end
+    end
+
+    def collect_alt_with_check(type, vars)
+      clear = nil
+      loop do
+        clear&.call
+        replacement = { type => collect_alt_value(type) }
+        clear = var_error_clear(vars, replacement)
+        return replacement if clear.nil?
+      end
+    end
+
+    def collect_alt_value(type)
+      loop do
+        value = if type == :image_path
+                  prompt!(Gum.input(placeholder: '/path/to/image.png'))
+                else
+                  prompt!(Gum.write(header: type.to_s.capitalize, placeholder: "Enter #{type}..."))
+                end
+        return value unless value.strip.empty?
+
+        UI.warning('Replacement cannot be empty. Please enter replacement text.')
+      end
+    end
+
+    def var_error_clear(vars, replacement)
+      errors = VarUsageChecker.match_warnings(vars, replacement)
+      return nil if errors.empty?
+
+      errors.each { |e| UI.warning(e) }
+      return nil if confirm!('Are you sure you want to continue?')
+
+      -> {}
+    end
+
+    def collect_replace(_vars)
+      loop do
+        use_multiline = confirm!('Multi-line replacement?')
+        value = if use_multiline
+                  prompt!(Gum.write(header: 'Replacement', placeholder: 'Type expansion text...'))
+                else
+                  prompt!(Gum.input(placeholder: 'Replacement text'))
+                end
+        return value unless value.strip.empty?
+
+        UI.warning('Replacement cannot be empty. Please enter replacement text.')
+      end
+    end
+  end
+end

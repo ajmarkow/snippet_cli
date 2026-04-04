@@ -436,6 +436,118 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
+  context 'empty replace input' do
+    before do
+      stub_trigger_prompts
+      allow(SnippetCli::VarBuilder).to receive(:run).and_return([])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+                                           prompt_style: anything).and_return(false)
+      allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
+      # First input empty, second valid
+      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('', 'Hello world')
+      stub_post_replace_prompts
+      stub_gum_preview
+    end
+
+    it 'warns the user that replacement cannot be empty' do
+      allow(SnippetCli::UI).to receive(:warning)
+      command.call
+      expect(SnippetCli::UI).to have_received(:warning).with(/cannot be empty/i)
+    end
+
+    it 're-prompts and accepts the next non-empty input' do
+      captured = capture_display_input
+      command.call
+      expect(captured.join).to include('Hello world')
+    end
+  end
+
+  context 'empty multiline replace input' do
+    before do
+      stub_trigger_prompts
+      allow(SnippetCli::VarBuilder).to receive(:run).and_return([])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+                                           prompt_style: anything).and_return(false)
+      # First attempt: multiline with empty, second attempt: single-line with valid
+      allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(true, false)
+      allow(Gum).to receive(:write).with(header: 'Replacement', placeholder: 'Type expansion text...').and_return('')
+      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello world')
+      stub_post_replace_prompts
+      stub_gum_preview
+    end
+
+    it 'warns the user that replacement cannot be empty' do
+      allow(SnippetCli::UI).to receive(:warning)
+      command.call
+      expect(SnippetCli::UI).to have_received(:warning).with(/cannot be empty/i)
+    end
+
+    it 're-prompts and accepts the next non-empty input' do
+      captured = capture_display_input
+      command.call
+      expect(captured.join).to include('Hello world')
+    end
+  end
+
+  context 'empty alt type input (image_path)' do
+    before do
+      stub_trigger_prompts
+      allow(SnippetCli::VarBuilder).to receive(:run).and_return([])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+                                           prompt_style: anything).and_return(true)
+      allow(Gum).to receive(:filter)
+        .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
+        .and_return('image_path')
+      # First input empty, second valid
+      allow(Gum).to receive(:input).with(placeholder: '/path/to/image.png')
+                                   .and_return('', '/img/logo.png')
+      stub_post_replace_prompts
+      stub_gum_preview
+    end
+
+    it 'warns the user that replacement cannot be empty' do
+      allow(SnippetCli::UI).to receive(:warning)
+      command.call
+      expect(SnippetCli::UI).to have_received(:warning).with(/cannot be empty/i)
+    end
+
+    it 're-prompts and accepts the next non-empty input' do
+      captured = capture_display_input
+      command.call
+      expect(captured.join).to include('/img/logo.png')
+    end
+  end
+
+  context 'empty alt type input (html)' do
+    before do
+      stub_trigger_prompts
+      allow(SnippetCli::VarBuilder).to receive(:run).and_return([])
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+                                           prompt_style: anything).and_return(true)
+      allow(Gum).to receive(:filter)
+        .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
+        .and_return('html')
+      # First input empty, second valid
+      allow(Gum).to receive(:write)
+        .with(header: 'Html', placeholder: 'Enter html...')
+        .and_return('', '<b>Bold</b>')
+      stub_post_replace_prompts
+      stub_gum_preview
+    end
+
+    it 'warns the user that replacement cannot be empty' do
+      allow(SnippetCli::UI).to receive(:warning)
+      command.call
+      expect(SnippetCli::UI).to have_received(:warning).with(/cannot be empty/i)
+    end
+
+    it 're-prompts and accepts the next non-empty input' do
+      captured = capture_display_input
+      command.call
+      expect(captured.join).to include('<b>Bold</b>')
+    end
+  end
+
   context 'mutually exclusive trigger flags' do
     it 'exits with non-zero status when --trigger and --triggers both provided' do
       expect do
