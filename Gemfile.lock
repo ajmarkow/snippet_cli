@@ -79,6 +79,10 @@ GEM
     racc (1.8.1)
     rainbow (3.1.1)
     rake (13.3.0)
+    rbs (4.0.2)
+      logger
+      prism (>= 1.6.0)
+      tsort
     regexp_parser (2.11.3)
     rspec (3.13.1)
       rspec-core (~> 3.13.0)
@@ -107,6 +111,10 @@ GEM
     rubocop-ast (1.49.1)
       parser (>= 3.3.7.2)
       prism (~> 1.7)
+    ruby-lsp (0.26.9)
+      language_server-protocol (~> 3.17.0)
+      prism (>= 1.2, < 2.0)
+      rbs (>= 3, < 5)
     ruby-progressbar (1.13.0)
     simplecov (0.21.2)
       docile (~> 1.1)
@@ -119,6 +127,7 @@ GEM
       ffi (~> 1.1)
       memoist3 (~> 1.0.0)
     thor (1.5.0)
+    tsort (0.2.0)
     tty-cursor (0.7.1)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
@@ -135,6 +144,7 @@ DEPENDENCIES
   rake (~> 13.0)
   rspec (~> 3.0)
   rubocop (~> 1.0)
+  ruby-lsp (~> 0.23)
   simplecov (~> 0.21.2)
   snippet_cli!
 
