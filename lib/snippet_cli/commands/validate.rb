@@ -3,6 +3,7 @@
 require 'dry/cli'
 require 'yaml'
 require_relative '../file_validator'
+require_relative '../ui'
 
 module SnippetCli
   module Commands
@@ -22,7 +23,7 @@ module SnippetCli
       private
 
       def report(file, errors)
-        return puts("#{file}: valid") if errors.empty?
+        return UI.success("#{file} is valid.") if errors.empty?
 
         errors.each { |e| warn "error: #{e}" }
         exit 1
@@ -33,7 +34,7 @@ module SnippetCli
           warn "File not found: #{file}"
           exit 1
         end
-        YAML.safe_load_file(file, symbolize_names: false) || {}
+        YAML.safe_load_file(file, permitted_classes: [Symbol]) || {}
       end
     end
   end

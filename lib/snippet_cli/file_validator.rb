@@ -37,6 +37,8 @@ module SnippetCli
         obj.each_with_object({}) { |(k, v), h| h[k.to_s] = stringify_keys_deep(v) }
       when Array
         obj.map { |item| stringify_keys_deep(item) }
+      when Symbol
+        obj.to_s
       else
         obj
       end

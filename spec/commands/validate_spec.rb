@@ -36,9 +36,11 @@ RSpec.describe SnippetCli::Commands::Validate do
   end
 
   context 'with a valid matchfile' do
-    it 'prints a success message and exits 0' do
-      expect { command.call(file: valid_fixture) }
-        .to output(/valid|ok/i).to_stdout
+    before { allow(SnippetCli::UI).to receive(:success) }
+
+    it 'renders a success box via UI.success' do
+      command.call(file: valid_fixture)
+      expect(SnippetCli::UI).to have_received(:success).with(/valid/i)
     end
 
     it 'does not exit with non-zero status' do
@@ -67,6 +69,7 @@ RSpec.describe SnippetCli::Commands::Validate do
     end
 
     it 'accepts a proper matchfile with a top-level matches array' do
+      allow(SnippetCli::UI).to receive(:success)
       expect { command.call(file: valid_fixture) }.not_to raise_error
     end
   end
