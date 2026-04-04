@@ -9,6 +9,8 @@ module SnippetCli
   module ReplacementCollector
     include WizardHelpers
 
+    EMPTY_REPLACE_MSG = 'Replacement cannot be empty. Please enter replacement text.'
+
     private
 
     def collect_replacement(vars)
@@ -51,15 +53,14 @@ module SnippetCli
     end
 
     def collect_alt_value(type)
-      loop do
-        value = if type == :image_path
-                  prompt!(Gum.input(placeholder: '/path/to/image.png'))
-                else
-                  prompt!(Gum.write(header: type.to_s.capitalize, placeholder: "Enter #{type}..."))
-                end
-        return value unless value.strip.empty?
+      prompt_non_empty_replace { prompt_alt_input(type) }
+    end
 
-        UI.warning('Replacement cannot be empty. Please enter replacement text.')
+    def prompt_alt_input(type)
+      if type == :image_path
+        prompt!(Gum.input(placeholder: '/path/to/image.png'))
+      else
+        prompt!(Gum.write(header: type.to_s.capitalize, placeholder: "Enter #{type}..."))
       end
     end
 
@@ -74,16 +75,24 @@ module SnippetCli
     end
 
     def collect_replace(_vars)
-      loop do
+      prompt_non_empty_replace do
         use_multiline = confirm!('Multi-line replacement?')
-        value = if use_multiline
-                  prompt!(Gum.write(header: 'Replacement', placeholder: 'Type expansion text...'))
-                else
-                  prompt!(Gum.input(placeholder: 'Replacement text'))
-                end
+        if use_multiline
+          prompt!(Gum.write(header: 'Replacement', placeholder: 'Type expansion text...'))
+        else
+          prompt!(Gum.input(placeholder: 'Replacement text'))
+        end
+      end
+    end
+
+    def prompt_non_empty_replace
+      clear = nil
+      loop do
+        value = yield
+        clear&.call
         return value unless value.strip.empty?
 
-        UI.warning('Replacement cannot be empty. Please enter replacement text.')
+        clear = UI.transient_warning(EMPTY_REPLACE_MSG)
       end
     end
   end

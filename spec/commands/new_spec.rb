@@ -449,16 +449,23 @@ RSpec.describe SnippetCli::Commands::New do
       stub_gum_preview
     end
 
-    it 'warns the user that replacement cannot be empty' do
-      allow(SnippetCli::UI).to receive(:warning)
+    it 'shows a transient warning that replacement cannot be empty' do
+      allow(SnippetCli::UI).to receive(:transient_warning).and_return(-> {})
       command.call
-      expect(SnippetCli::UI).to have_received(:warning).with(/cannot be empty/i)
+      expect(SnippetCli::UI).to have_received(:transient_warning).with(/cannot be empty/i)
     end
 
     it 're-prompts and accepts the next non-empty input' do
       captured = capture_display_input
       command.call
       expect(captured.join).to include('Hello world')
+    end
+
+    it 'clears the warning before re-prompting' do
+      cleared = false
+      allow(SnippetCli::UI).to receive(:transient_warning).and_return(-> { cleared = true })
+      command.call
+      expect(cleared).to be true
     end
   end
 
@@ -476,10 +483,10 @@ RSpec.describe SnippetCli::Commands::New do
       stub_gum_preview
     end
 
-    it 'warns the user that replacement cannot be empty' do
-      allow(SnippetCli::UI).to receive(:warning)
+    it 'shows a transient warning that replacement cannot be empty' do
+      allow(SnippetCli::UI).to receive(:transient_warning).and_return(-> {})
       command.call
-      expect(SnippetCli::UI).to have_received(:warning).with(/cannot be empty/i)
+      expect(SnippetCli::UI).to have_received(:transient_warning).with(/cannot be empty/i)
     end
 
     it 're-prompts and accepts the next non-empty input' do
@@ -505,16 +512,23 @@ RSpec.describe SnippetCli::Commands::New do
       stub_gum_preview
     end
 
-    it 'warns the user that replacement cannot be empty' do
-      allow(SnippetCli::UI).to receive(:warning)
+    it 'shows a transient warning that replacement cannot be empty' do
+      allow(SnippetCli::UI).to receive(:transient_warning).and_return(-> {})
       command.call
-      expect(SnippetCli::UI).to have_received(:warning).with(/cannot be empty/i)
+      expect(SnippetCli::UI).to have_received(:transient_warning).with(/cannot be empty/i)
     end
 
     it 're-prompts and accepts the next non-empty input' do
       captured = capture_display_input
       command.call
       expect(captured.join).to include('/img/logo.png')
+    end
+
+    it 'clears the warning before re-prompting' do
+      cleared = false
+      allow(SnippetCli::UI).to receive(:transient_warning).and_return(-> { cleared = true })
+      command.call
+      expect(cleared).to be true
     end
   end
 
@@ -535,10 +549,10 @@ RSpec.describe SnippetCli::Commands::New do
       stub_gum_preview
     end
 
-    it 'warns the user that replacement cannot be empty' do
-      allow(SnippetCli::UI).to receive(:warning)
+    it 'shows a transient warning that replacement cannot be empty' do
+      allow(SnippetCli::UI).to receive(:transient_warning).and_return(-> {})
       command.call
-      expect(SnippetCli::UI).to have_received(:warning).with(/cannot be empty/i)
+      expect(SnippetCli::UI).to have_received(:transient_warning).with(/cannot be empty/i)
     end
 
     it 're-prompts and accepts the next non-empty input' do
