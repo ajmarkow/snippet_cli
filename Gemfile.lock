@@ -55,7 +55,9 @@ GEM
     docile (1.4.1)
     dry-cli (1.4.1)
     ffi (1.17.4-arm64-darwin)
+    ffi (1.17.4-x86_64-linux-gnu)
     gum (0.3.2-arm64-darwin)
+    gum (0.3.2-x86_64-linux)
     hana (1.3.7)
     json (2.19.3)
     json_schemer (2.5.0)
@@ -125,6 +127,7 @@ GEM
 PLATFORMS
   arm64-darwin-22
   arm64-darwin-25
+  x86_64-linux
 
 DEPENDENCIES
   aruba (~> 2.0)
