@@ -6,19 +6,9 @@ TODO: Delete this and the text above, and describe your gem
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Install it using command:
 
-```ruby
-gem 'snippet_cli'
-```
-
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install snippet_cli
+    $ sudo gem install snippet_cli
 
 ## Usage
 
