@@ -41,6 +41,7 @@ module SnippetCli
         cmd = builder.prompt!(Gum.input(placeholder: 'shell command'))
         debug_trim(builder, cmd: cmd, shell: sh)
       end
+      private_class_method :shell
 
       def self.script(builder)
         raw = builder.prompt!(
@@ -51,6 +52,7 @@ module SnippetCli
         )
         debug_trim(builder, args: raw.to_s.lines.map(&:chomp).reject(&:empty?))
       end
+      private_class_method :script
 
       def self.date(builder)
         params = { format: builder.prompt!(Gum.input(placeholder: 'date format (e.g. %Y-%m-%d)')) }

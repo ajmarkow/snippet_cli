@@ -2,8 +2,8 @@
 
 require 'dry/cli'
 require 'gum'
+require 'yaml'
 require_relative '../conflict_detector'
-require_relative '../yaml_loader'
 
 module SnippetCli
   module Commands
@@ -14,14 +14,20 @@ module SnippetCli
       option :trigger, type: :array, aliases: ['-t'], desc: 'Trigger(s) to look up (comma-separated or repeated flag)'
 
       def call(file:, trigger: nil, **)
+        unless File.exist?(file)
+          warn "File not found: #{file}"
+          exit 1
+        end
         entries = load_entries(file)
         trigger ? show_trigger(entries, trigger) : show_conflicts(entries)
+      rescue Psych::SyntaxError => e
+        warn "Invalid YAML: #{e.message}"
+        exit 1
       end
 
       private
 
       def load_entries(file)
-        YamlLoader.load(file)
         ConflictDetector.extract_triggers(File.read(file))
       end
 

@@ -28,7 +28,7 @@ module SnippetCli
 
       def call(**opts)
         yaml = build_snippet(opts)
-        VarBuilder.summary_clear.call
+        @summary_clear&.call
         output_result(yaml)
       rescue ValidationError => e
         UI.error(e.message)
@@ -50,7 +50,9 @@ module SnippetCli
       def resolve_replacement(replace_opt)
         return { replace: replace_opt, vars: [], label: nil, comment: nil } if replace_opt
 
-        vars = VarBuilder.run
+        result = VarBuilder.run
+        @summary_clear = result[:summary_clear]
+        vars = result[:vars]
         replacement = collect_replacement(vars)
         label, comment = collect_advanced
         { vars: vars, label: label, comment: comment }.merge(replacement)

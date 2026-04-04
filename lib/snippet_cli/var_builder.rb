@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'English'
 require 'gum'
 require_relative 'ui'
 require_relative 'wizard_helpers'
@@ -24,16 +23,11 @@ module SnippetCli
 
     # Collects Espanso variable definitions interactively. Raises WizardInterrupted on cancel.
     # skip_initial_prompt: true skips "Add a variable?" and goes straight to collecting the first var.
-    @summary_clear = -> {}
-
+    # Returns { vars: Array, summary_clear: Proc }.
     def self.run(skip_initial_prompt: false)
       interactive_session(skip_initial_prompt: skip_initial_prompt)
     rescue Interrupt
       raise WizardInterrupted
-    end
-
-    def self.summary_clear
-      @summary_clear
     end
 
     def self.platform_shells
@@ -60,8 +54,8 @@ module SnippetCli
 
         append_var!(vars)
       end
-      show_summary(vars) unless vars.empty?
-      vars
+      summary_clear = vars.empty? ? -> {} : show_summary(vars)
+      { vars: vars, summary_clear: summary_clear }
     end
     private_class_method :interactive_session
 
@@ -101,7 +95,7 @@ module SnippetCli
       rows = vars.map { |var| [var[:name], var[:type]] }
       Gum.table(rows, columns: %w[Name Type], print: true)
       puts
-      @summary_clear = build_summary_erase(text, vars)
+      build_summary_erase(text, vars)
     end
     private_class_method :show_summary
 

@@ -14,7 +14,8 @@ module SnippetCli
       desc 'Interactive var builder — outputs Espanso vars YAML block'
 
       def call(**)
-        deliver_vars(VarBuilder.run(skip_initial_prompt: true))
+        result = VarBuilder.run(skip_initial_prompt: true)
+        deliver_vars(result[:vars])
       rescue WizardInterrupted
         puts
         UI.error('Interrupted, exiting snippet_cli.')

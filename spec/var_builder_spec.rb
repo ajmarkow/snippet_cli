@@ -12,7 +12,7 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'returns an empty array' do
-        expect(described_class.run).to eq([])
+        expect(described_class.run[:vars]).to eq([])
       end
     end
 
@@ -29,12 +29,12 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'stores the value under the :echo key in params' do
-        var = described_class.run.first
+        var = described_class.run[:vars].first
         expect(var[:params][:echo]).to eq('John')
       end
 
       it 'does not use :value as the params key' do
-        var = described_class.run.first
+        var = described_class.run[:vars].first
         expect(var[:params]).not_to have_key(:value)
       end
     end
@@ -57,11 +57,11 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'returns one var' do
-        expect(described_class.run.size).to eq(1)
+        expect(described_class.run[:vars].size).to eq(1)
       end
 
       it 'has name, type, cmd, and shell in params' do
-        var = described_class.run.first
+        var = described_class.run[:vars].first
         expect(var[:name]).to eq('myvar')
         expect(var[:type]).to eq('shell')
         expect(var[:params][:cmd]).to eq('date')
@@ -69,12 +69,12 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'includes trim when true' do
-        var = described_class.run.first
+        var = described_class.run[:vars].first
         expect(var[:params][:trim]).to eq(true)
       end
 
       it 'omits debug when false' do
-        var = described_class.run.first
+        var = described_class.run[:vars].first
         expect(var[:params]).not_to have_key(:debug)
       end
     end
@@ -94,17 +94,17 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'splits args by line' do
-        var = described_class.run.first
+        var = described_class.run[:vars].first
         expect(var[:params][:args]).to eq(['/usr/bin/my_script', '--flag'])
       end
 
       it 'includes debug when true' do
-        var = described_class.run.first
+        var = described_class.run[:vars].first
         expect(var[:params][:debug]).to eq(true)
       end
 
       it 'omits trim when false' do
-        var = described_class.run.first
+        var = described_class.run[:vars].first
         expect(var[:params]).not_to have_key(:trim)
       end
     end
@@ -134,17 +134,17 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'stores format in params' do
-        var = described_class.run.first
+        var = described_class.run[:vars].first
         expect(var[:params][:format]).to eq('%Y-%m-%d')
       end
 
       it 'omits offset when user declines' do
-        var = described_class.run.first
+        var = described_class.run[:vars].first
         expect(var[:params]).not_to have_key(:offset)
       end
 
       it 'omits locale when user declines' do
-        var = described_class.run.first
+        var = described_class.run[:vars].first
         expect(var[:params]).not_to have_key(:locale)
       end
 
@@ -155,7 +155,7 @@ RSpec.describe SnippetCli::VarBuilder do
         end
 
         it 'stores offset as an integer in params' do
-          var = described_class.run.first
+          var = described_class.run[:vars].first
           expect(var[:params][:offset]).to eq(86_400)
         end
       end
@@ -167,7 +167,7 @@ RSpec.describe SnippetCli::VarBuilder do
         end
 
         it 'stores locale as a string in params' do
-          var = described_class.run.first
+          var = described_class.run[:vars].first
           expect(var[:params][:locale]).to eq('ja-JP')
         end
       end
@@ -216,7 +216,7 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'stores the multiline layout in params' do
-        var = described_class.run.first
+        var = described_class.run[:vars].first
         expect(var[:params][:layout]).to eq("Enter your name: [[name]]\nEnter city: [[city]]")
       end
 
@@ -250,7 +250,7 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'includes the var only once' do
-        vars = described_class.run
+        vars = described_class.run[:vars]
         expect(vars.count { |v| v[:name] == 'myvar' }).to eq(1)
       end
     end
@@ -412,7 +412,7 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'collects the first variable immediately without confirmation' do
-        vars = described_class.run(skip_initial_prompt: true)
+        vars = described_class.run(skip_initial_prompt: true)[:vars]
         expect(vars.first[:name]).to eq('dt')
       end
 
@@ -423,7 +423,7 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'returns only the one variable when user declines' do
-        vars = described_class.run(skip_initial_prompt: true)
+        vars = described_class.run(skip_initial_prompt: true)[:vars]
         expect(vars.size).to eq(1)
       end
     end
@@ -450,7 +450,7 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'returns two variables' do
-        vars = described_class.run(skip_initial_prompt: true)
+        vars = described_class.run(skip_initial_prompt: true)[:vars]
         expect(vars.size).to eq(2)
       end
 
@@ -484,7 +484,7 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 're-prompts and accepts the next non-empty name' do
-        vars = described_class.run
+        vars = described_class.run[:vars]
         expect(vars.first[:name]).to eq('good_name')
       end
     end
@@ -515,7 +515,7 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'does not add bad-name to the collected variables' do
-        vars = described_class.run
+        vars = described_class.run[:vars]
         expect(vars.map { |v| v[:name] }).not_to include('bad-name')
       end
 
@@ -544,7 +544,7 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'adds the variable to the result' do
-        vars = described_class.run
+        vars = described_class.run[:vars]
         expect(vars.first[:name]).to eq('my_var_2')
       end
     end
@@ -568,16 +568,24 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'only adds the valid variable' do
-        vars = described_class.run
+        vars = described_class.run[:vars]
         expect(vars.size).to eq(1)
         expect(vars.first[:name]).to eq('good_name')
       end
     end
   end
 
-  describe '.summary_clear' do
-    it 'returns a callable before any run' do
-      expect(described_class.summary_clear).to respond_to(:call)
+  describe ':summary_clear in run result' do
+    context 'when no vars are added' do
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(false)
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'returns a callable' do
+        result = described_class.run
+        expect(result[:summary_clear]).to respond_to(:call)
+      end
     end
 
     context 'after run with vars' do
@@ -597,17 +605,17 @@ RSpec.describe SnippetCli::VarBuilder do
       end
 
       it 'returns a callable that can erase the summary' do
-        described_class.run
-        expect(described_class.summary_clear).to respond_to(:call)
+        result = described_class.run
+        expect(result[:summary_clear]).to respond_to(:call)
       end
 
       it 'summary_clear moves cursor up past note AND table (not just note)' do
         # text = "Reference your variables...\n{{myvar}}" → 2 lines
         # total = (2 + 1) note+blank + (1 + 4) table + 1 blank = 9
-        described_class.run
+        result = described_class.run
         printed = []
         allow($stdout).to receive(:print) { |arg| printed << arg }
-        described_class.summary_clear.call
+        result[:summary_clear].call
         expect(printed).to include(TTY::Cursor.up(9))
       end
     end

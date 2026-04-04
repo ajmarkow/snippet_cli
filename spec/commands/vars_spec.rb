@@ -12,11 +12,15 @@ RSpec.describe SnippetCli::Commands::Vars do
 
   before do
     allow($stdout).to receive(:tty?).and_return(true)
-    allow(SnippetCli::VarBuilder).to receive(:run).with(skip_initial_prompt: true).and_return(vars)
+    allow(SnippetCli::VarBuilder).to receive(:run)
+      .with(skip_initial_prompt: true)
+      .and_return({ vars: vars, summary_clear: -> {} })
   end
 
   it 'calls VarBuilder.run with skip_initial_prompt: true' do
-    expect(SnippetCli::VarBuilder).to receive(:run).with(skip_initial_prompt: true).and_return(vars)
+    expect(SnippetCli::VarBuilder).to receive(:run)
+      .with(skip_initial_prompt: true)
+      .and_return({ vars: vars, summary_clear: -> {} })
     command.call
   end
 
@@ -78,7 +82,7 @@ RSpec.describe SnippetCli::Commands::Vars do
   end
 
   context 'when no vars are added' do
-    before { allow(SnippetCli::VarBuilder).to receive(:run).and_return([]) }
+    before { allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} }) }
 
     it 'passes an empty vars block for display' do
       captured = []
