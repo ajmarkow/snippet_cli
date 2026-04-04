@@ -34,10 +34,20 @@ begin
   require 'snippet_cli'
   require 'snippet_cli/banner'
 
-  if $stdout.tty?
-    puts SnippetCli.banner
-    puts
+  # When stdout is piped, redirect UI to the terminal so it displays normally.
+  # The original stdout is saved for structured output (YAML) only.
+  unless $stdout.tty?
+    SnippetCli.pipe_output = $stdout.dup
+    begin
+      $stdout.reopen('/dev/tty', 'w')
+    rescue Errno::ENXIO, Errno::ENOENT
+      # No controlling terminal (CI, cron, etc.) — fall back to stderr
+      $stdout.reopen($stderr)
+    end
   end
+
+  puts SnippetCli.banner
+  puts
 
   Dry::CLI.new(SnippetCli::CLI).call
 rescue Interrupt

@@ -52,11 +52,16 @@ RSpec.describe SnippetCli::Commands::Vars do
     end
   end
 
-  context 'pipe output (stdout not a TTY)' do
-    before { allow($stdout).to receive(:tty?).and_return(false) }
+  context 'pipe output (SnippetCli.pipe_output set)' do
+    let(:pipe_io) { StringIO.new }
 
-    it 'writes raw vars YAML to stdout' do
-      expect { command.call }.to output(/vars:/).to_stdout
+    before { SnippetCli.pipe_output = pipe_io }
+
+    after { SnippetCli.pipe_output = nil }
+
+    it 'writes raw vars YAML to pipe_output' do
+      command.call
+      expect(pipe_io.string).to match(/vars:/)
     end
 
     it 'does not call format_code' do
@@ -64,6 +69,11 @@ RSpec.describe SnippetCli::Commands::Vars do
       command.call
       expect(Gum::Command).not_to have_received(:run_display_only)
         .with('format', '--type=code', '--language=yaml', input: anything)
+    end
+
+    it 'writes valid YAML to pipe_output' do
+      command.call
+      expect { YAML.safe_load(pipe_io.string) }.not_to raise_error
     end
   end
 

@@ -13,6 +13,14 @@ module SnippetCli
   class WizardInterrupted < StandardError
   end
 
+  # When stdout is piped, holds the original stdout IO for structured output (YAML).
+  # All UI continues through $stdout (redirected to the terminal).
+  @pipe_output = nil
+
+  class << self
+    attr_accessor :pipe_output
+  end
+
   module CLI
     extend Dry::CLI::Registry
 

@@ -24,11 +24,12 @@ module SnippetCli
 
       def deliver_vars(vars)
         output = vars_yaml(vars)
-        if $stdout.tty?
+        pipe = SnippetCli.pipe_output
+        if pipe
+          pipe.print output
+        else
           UI.info('Vars YAML below.')
           UI.format_code(output)
-        else
-          $stdout.print output
         end
       end
 
@@ -46,8 +47,16 @@ module SnippetCli
         return lines unless params&.any?
 
         lines << '    params:'
-        params.each { |key, val| lines << "      #{key}: #{val}" }
+        params.each { |key, val| lines << "      #{key}: #{yaml_scalar(val)}" }
         lines
+      end
+
+      # Quote values that YAML would misinterpret (%, {, [, etc.)
+      def yaml_scalar(val)
+        return val.to_s if val.is_a?(Numeric) || val == true || val == false
+
+        str = val.to_s
+        YAML.dump(str).sub(/\A--- /, '').chomp
       end
     end
   end

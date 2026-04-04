@@ -6,8 +6,8 @@ RSpec.describe 'snippet_cli binary', type: :aruba do
   context 'banner' do
     before { run_command_and_stop('snippet_cli version') }
 
-    it 'suppresses the ASCII banner when stdout is not a tty (e.g. piped output)' do
-      expect(last_command_stopped).not_to have_output(/┏━┓┏┓╻╻/)
+    it 'displays the ASCII banner even when stdout is not a tty (UI redirected to stderr)' do
+      expect(last_command_stopped).to have_output(/┏━┓┏┓╻╻/)
     end
 
     it 'displays a normal-line box border' do

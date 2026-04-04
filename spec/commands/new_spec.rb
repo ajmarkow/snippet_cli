@@ -813,14 +813,19 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
-  context 'pipe output (stdout not a TTY)' do
+  context 'pipe output (SnippetCli.pipe_output set)' do
+    let(:pipe_io) { StringIO.new }
+
     before do
-      allow($stdout).to receive(:tty?).and_return(false)
       stub_happy_path
+      SnippetCli.pipe_output = pipe_io
     end
 
-    it 'writes raw YAML to stdout' do
-      expect { command.call }.to output(/triggers/).to_stdout
+    after { SnippetCli.pipe_output = nil }
+
+    it 'writes raw YAML to pipe_output' do
+      command.call
+      expect(pipe_io.string).to match(/triggers/)
     end
 
     it 'does not call UI.info with "Snippet YAML below."' do
@@ -834,6 +839,11 @@ RSpec.describe SnippetCli::Commands::New do
       command.call
       expect(Gum::Command).not_to have_received(:run_display_only)
         .with('format', '--type=code', '--language=yaml', input: anything)
+    end
+
+    it 'writes valid YAML to pipe_output' do
+      command.call
+      expect { YAML.safe_load(pipe_io.string) }.not_to raise_error
     end
   end
 

@@ -34,7 +34,7 @@ module SnippetCli
 
       def prompt_name(first)
         opts = { placeholder: 'Your variable name' }
-        opts[:header] = FIRST_VAR_HEADER if first && $stdout.tty?
+        opts[:header] = FIRST_VAR_HEADER if first
         [prompt!(Gum.input(**opts)), false]
       end
 
