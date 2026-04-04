@@ -34,8 +34,10 @@ begin
   require 'snippet_cli'
   require 'snippet_cli/banner'
 
-  puts SnippetCli.banner
-  puts
+  if $stdout.tty?
+    puts SnippetCli.banner
+    puts
+  end
 
   Dry::CLI.new(SnippetCli::CLI).call
 rescue Interrupt

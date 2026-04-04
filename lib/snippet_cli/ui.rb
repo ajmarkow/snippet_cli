@@ -5,6 +5,10 @@ require 'tty-cursor'
 
 module SnippetCli
   module UI
+    def self.note(text)
+      puts "\e[38;5;231m#{text}\e[0m"
+    end
+
     def self.info(text)
       gum_style(text, '--border=rounded', '--padding=0 4')
     end
@@ -29,6 +33,11 @@ module SnippetCli
     # The warning is always rendered; the clear lambda is a no-op when not a TTY.
     def self.transient_warning(text)
       warning(text)
+      erase_lambda(text.lines.count + 2)
+    end
+
+    def self.transient_error(text)
+      error(text)
       erase_lambda(text.lines.count + 2)
     end
 

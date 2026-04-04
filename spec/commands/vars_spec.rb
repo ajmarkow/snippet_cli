@@ -11,15 +11,16 @@ RSpec.describe SnippetCli::Commands::Vars do
   end
 
   before do
+    allow($stdout).to receive(:tty?).and_return(true)
     allow(SnippetCli::VarBuilder).to receive(:run).with(skip_initial_prompt: true).and_return(vars)
   end
 
   it 'calls VarBuilder.run with skip_initial_prompt: true' do
     expect(SnippetCli::VarBuilder).to receive(:run).with(skip_initial_prompt: true).and_return(vars)
-    command.call(no_clipboard: true)
+    command.call
   end
 
-  context 'with --no-clipboard (stdout mode)' do
+  context 'TTY output mode' do
     let(:captured_display_input) { [] }
 
     before do
@@ -30,39 +31,39 @@ RSpec.describe SnippetCli::Commands::Vars do
     end
 
     it 'syntax-highlights the YAML output via Gum::Command.run_display_only' do
-      command.call(no_clipboard: true)
+      command.call
       expect(Gum::Command).to have_received(:run_display_only)
         .with('format', '--type=code', '--language=yaml', input: anything)
     end
 
     it 'passes the vars YAML block for display' do
-      command.call(no_clipboard: true)
+      command.call
       expect(captured_display_input.join).to match(/vars:/)
     end
 
     it 'includes the var name' do
-      command.call(no_clipboard: true)
+      command.call
       expect(captured_display_input.join).to match(/name: dt/)
     end
 
     it 'includes the var type' do
-      command.call(no_clipboard: true)
+      command.call
       expect(captured_display_input.join).to match(/type: date/)
     end
   end
 
-  context 'with clipboard mode (default)' do
-    before do
-      stub_const('Clipboard', Module.new { def self.copy(_); end })
+  context 'pipe output (stdout not a TTY)' do
+    before { allow($stdout).to receive(:tty?).and_return(false) }
+
+    it 'writes raw vars YAML to stdout' do
+      expect { command.call }.to output(/vars:/).to_stdout
     end
 
-    it 'copies to clipboard and prints a confirmation' do
-      expect { command.call(no_clipboard: false) }
-        .to output(/copied to clipboard/i).to_stdout
-    end
-
-    it 'does not raise' do
-      expect { command.call(no_clipboard: false) }.not_to raise_error
+    it 'does not call format_code' do
+      allow(Gum::Command).to receive(:run_display_only)
+      command.call
+      expect(Gum::Command).not_to have_received(:run_display_only)
+        .with('format', '--type=code', '--language=yaml', input: anything)
     end
   end
 
@@ -75,7 +76,7 @@ RSpec.describe SnippetCli::Commands::Vars do
         captured << input
         true
       end
-      command.call(no_clipboard: true)
+      command.call
       expect(captured.join).to match(/vars/)
     end
   end
@@ -89,7 +90,7 @@ RSpec.describe SnippetCli::Commands::Vars do
     end
 
     it 'prints interrupted message and exits cleanly' do
-      expect { command.call(no_clipboard: true) }
+      expect { command.call }
         .to output(/Interrupted.*exiting snippet_cli/im).to_stdout
     end
   end

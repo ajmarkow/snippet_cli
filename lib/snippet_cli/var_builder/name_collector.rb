@@ -14,10 +14,14 @@ module SnippetCli
 
       # Returns the validated name string, or nil for a duplicate.
       # Raises WizardInterrupted on Ctrl+C / nil input.
+      FIRST_VAR_HEADER = "One replacement may use multiple variables.\n" \
+                         "Enter names one at a time, you'll be asked to add another after each.\n"
+
       def collect
         clear = nil
+        first = @existing.empty?
         loop do
-          name = prompt!(Gum.input(placeholder: 'Your variable name'))
+          name, first = prompt_name(first)
           if (new_clear = invalid_name_clear(name, clear))
             clear = new_clear
           else
@@ -27,6 +31,12 @@ module SnippetCli
       end
 
       private
+
+      def prompt_name(first)
+        opts = { placeholder: 'Your variable name' }
+        opts[:header] = FIRST_VAR_HEADER if first && $stdout.tty?
+        [prompt!(Gum.input(**opts)), false]
+      end
 
       def accepted_name(name, clear)
         clear&.call

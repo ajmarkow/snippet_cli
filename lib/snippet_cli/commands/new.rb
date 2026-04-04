@@ -24,13 +24,11 @@ module SnippetCli
       option :file,         aliases: ['-f'],  desc: 'Espanso match file to check conflicts against'
       option :no_warn,      type: :boolean, default: false, aliases: ['-nw'],
                             desc: 'Skip conflict warning'
-      option :no_clipboard, type: :boolean, default: false, aliases: ['-nc'],
-                            desc: 'Print to stdout instead of clipboard'
 
       def call(**opts)
         yaml = build_snippet(opts)
         VarBuilder.summary_clear.call
-        output_result(yaml, opts[:no_clipboard])
+        output_result(yaml)
       rescue ValidationError => e
         UI.error(e.message)
         exit 1
@@ -77,16 +75,22 @@ module SnippetCli
       end
 
       def collect_replace_with_check(vars)
+        clear = nil
         loop do
+          clear&.call
           replacement = { replace: collect_replace(vars) }
-          return replacement if var_warnings_cleared?(vars, replacement)
+          clear = var_error_clear(vars, replacement)
+          return replacement if clear.nil?
         end
       end
 
       def collect_alt_with_check(type, vars)
+        clear = nil
         loop do
+          clear&.call
           replacement = { type => collect_alt_value(type) }
-          return replacement if var_warnings_cleared?(vars, replacement)
+          clear = var_error_clear(vars, replacement)
+          return replacement if clear.nil?
         end
       end
 
@@ -96,29 +100,22 @@ module SnippetCli
         prompt!(Gum.write(header: type.to_s.capitalize, placeholder: "Enter #{type}..."))
       end
 
-      def var_warnings_cleared?(vars, replacement)
-        warnings = VarUsageChecker.match_warnings(vars, replacement)
-        return true if warnings.empty?
+      def var_error_clear(vars, replacement)
+        errors = VarUsageChecker.match_warnings(vars, replacement)
+        return nil if errors.empty?
 
-        clears = warnings.map { |w| UI.transient_warning(w) }
-        confirmed = confirm!('Are you sure you want to continue?')
-        clears.first&.call
-        confirmed
+        errors.each { |e| UI.warning(e) }
+        return nil if confirm!('Are you sure you want to continue?')
+
+        -> {}
       end
 
-      def output_result(yaml, no_clipboard)
-        UI.info('Snippet YAML below.')
-        UI.format_code(yaml)
-        copy_to_clipboard(yaml) unless no_clipboard
-      end
-
-      def copy_to_clipboard(yaml)
-        if confirm!('Copy to clipboard?')
-          require 'clipboard'
-          Clipboard.copy(yaml)
-          UI.success('Copied to clipboard.')
+      def output_result(yaml)
+        if $stdout.tty?
+          UI.info('Snippet YAML below.')
+          UI.format_code(yaml)
         else
-          UI.info('Not copied to clipboard.')
+          $stdout.print yaml
         end
       end
 

@@ -28,12 +28,17 @@ module SnippetCli
     private_class_method :extract_refs
 
     def self.unused_warnings(declared, used)
-      (declared - used).map { |name| "variable '#{name}' is declared but unused in replacement" }
+      (declared - used).map do |name|
+        "Variable '#{name}' is declared but unused — add {{#{name}}} to the replacement text."
+      end
     end
     private_class_method :unused_warnings
 
     def self.undeclared_warnings(used, declared)
-      (used - declared).map { |name| "variable '{{#{name}}}' is used but not declared in vars" }
+      (used - declared).map do |name|
+        "'{{#{name}}}' appears in the replacement but was not declared as a variable. " \
+          "Remove {{#{name}}} from the replacement."
+      end
     end
     private_class_method :undeclared_warnings
   end

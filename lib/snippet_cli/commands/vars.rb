@@ -13,11 +13,8 @@ module SnippetCli
 
       desc 'Interactive var builder — outputs Espanso vars YAML block (alias: va)'
 
-      option :no_clipboard, type: :boolean, default: false, aliases: ['-nc'],
-                            desc: 'Print to stdout only (skip clipboard)'
-
-      def call(no_clipboard: false, **)
-        deliver_vars(VarBuilder.run(skip_initial_prompt: true), no_clipboard)
+      def call(**)
+        deliver_vars(VarBuilder.run(skip_initial_prompt: true))
       rescue WizardInterrupted
         puts
         UI.error('Interrupted, exiting snippet_cli.')
@@ -25,20 +22,13 @@ module SnippetCli
 
       private
 
-      def deliver_vars(vars, no_clipboard)
+      def deliver_vars(vars)
         output = vars_yaml(vars)
-        UI.info('Vars YAML below.')
-        UI.format_code(output)
-        copy_to_clipboard(output) unless no_clipboard
-      end
-
-      def copy_to_clipboard(output)
-        if confirm!('Copy to clipboard?')
-          require 'clipboard'
-          Clipboard.copy(output)
-          UI.success('Copied to clipboard.')
+        if $stdout.tty?
+          UI.info('Vars YAML below.')
+          UI.format_code(output)
         else
-          UI.info('Not copied to clipboard.')
+          $stdout.print output
         end
       end
 

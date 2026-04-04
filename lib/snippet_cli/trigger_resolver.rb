@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'conflict_detector'
-require_relative 'table_formatter'
 require_relative 'ui'
 require_relative 'wizard_helpers'
 
@@ -32,7 +31,7 @@ module SnippetCli
     end
 
     def resolve_triggers_interactively(opts)
-      type = prompt!(Gum.choose('regular', 'regex', header: 'Trigger type?'))
+      type = prompt!(Gum.choose('regular', 'regex', header: "Trigger type?\n"))
       list, is_regex = collect_triggers(type, opts[:file], opts[:no_warn])
       [list, is_regex, false]
     end
@@ -85,29 +84,25 @@ module SnippetCli
       end
     end
 
+    def multi_trigger_header
+      "Multiple triggers can share one replacement.\n" \
+        "Enter them one at a time, you'll be asked to add another after each.\n"
+    end
+
     def trigger_input_opts(placeholder, header)
       opts = { placeholder: placeholder }
       opts[:header] = header if header
-      opts[:header_style] = { foreground: '075' } if header
       opts
     end
 
     def prompt_trigger_loop
       triggers = []
-      clear = UI.transient_info("Multiple triggers can share one replacement.\n" \
-                                "Enter them one at a time, you'll be asked to add another after each.")
       loop do
-        triggers << prompt_non_empty_trigger(':trigger')
-        break unless confirm!(build_trigger_confirm_prompt(triggers))
+        header = triggers.empty? ? multi_trigger_header : nil
+        triggers << prompt_non_empty_trigger(':trigger', header: header)
+        break unless list_confirm!('trigger', triggers.map { |t| [t] }, ['Trigger'], 'Add another trigger?')
       end
-      clear.call
       triggers
-    end
-
-    def build_trigger_confirm_prompt(triggers)
-      rows = triggers.map { |t| [t] }
-      table = TableFormatter.render(rows, headers: ['Trigger'])
-      "Current triggers:\n\n#{table}\n\nAdd another trigger?"
     end
 
     def check_conflicts(triggers, file, no_warn)

@@ -68,16 +68,19 @@ RSpec.describe SnippetCli::TriggerResolver do
         allow(SnippetCli::UI).to receive(:info)
       end
 
-      it 'displays UI.info with multi-trigger guidance on first prompt' do
-        expect(SnippetCli::UI).to receive(:info).with(a_string_including('Multiple triggers can share one replacement'))
+      it 'passes multi-trigger guidance as header to Gum.input on first prompt' do
+        expect(Gum).to receive(:input)
+          .with(hash_including(
+                  placeholder: ':trigger',
+                  header: a_string_including('Multiple triggers can share one replacement')
+                ))
+          .and_return(':foo')
         host.prompt_trigger_loop
       end
 
-      it 'displays UI.info only once (not on subsequent iterations)' do
-        count = 0
-        allow(SnippetCli::UI).to receive(:info) { count += 1 }
+      it 'does not call UI.info for trigger guidance (guidance is in input header)' do
+        expect(SnippetCli::UI).not_to receive(:info)
         host.prompt_trigger_loop
-        expect(count).to eq(1)
       end
 
       it 'returns the single trigger' do

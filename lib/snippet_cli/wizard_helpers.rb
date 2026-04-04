@@ -2,6 +2,7 @@
 
 require 'English'
 require 'gum'
+require_relative 'table_formatter'
 
 module SnippetCli
   # Shared prompt helpers for interactive wizard commands.
@@ -23,7 +24,20 @@ module SnippetCli
     # that $? records the child's exit code 130.
     # SIGINT can also raise Interrupt in Ruby before $? is read.
     def confirm!(text)
-      result = Gum.confirm(text, prompt_style: { border: 'rounded', padding: '0 1', margin: '0' })
+      result = Gum.confirm(text, prompt_style: { padding: '0 1', margin: '0' })
+      raise WizardInterrupted if result.nil?
+      raise WizardInterrupted if $CHILD_STATUS.respond_to?(:exitstatus) && $CHILD_STATUS.exitstatus == 130
+
+      result
+    rescue Interrupt
+      raise WizardInterrupted
+    end
+
+    # Renders a table of collected items and asks a follow-up question, without a border.
+    def list_confirm!(label, rows, headers, question)
+      table = TableFormatter.render(rows, headers: headers)
+      result = Gum.confirm("Current #{label}s:\n\n#{table}\n\n#{question}",
+                           prompt_style: { padding: '0 1', margin: '0' })
       raise WizardInterrupted if result.nil?
       raise WizardInterrupted if $CHILD_STATUS.respond_to?(:exitstatus) && $CHILD_STATUS.exitstatus == 130
 

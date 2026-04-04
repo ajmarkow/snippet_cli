@@ -15,11 +15,11 @@ RSpec.describe SnippetCli::WizardHelpers do
   before { system('true') } # reset $? so stale 130 exits don't fire WizardInterrupted
 
   describe '#confirm!' do
-    it 'passes prompt_style with a rounded border to Gum.confirm' do
+    it 'does not include a border in prompt_style' do
       allow(Gum).to receive(:confirm).and_return(true)
       host.confirm!('Are you sure?')
       expect(Gum).to have_received(:confirm)
-        .with('Are you sure?', prompt_style: a_hash_including(border: 'rounded'))
+        .with('Are you sure?', prompt_style: hash_not_including(:border))
     end
 
     it 'does not include a border-foreground color in prompt_style' do

@@ -2,13 +2,15 @@
 
 require 'English'
 require 'gum'
-require_relative 'table_formatter'
 require_relative 'ui'
+require_relative 'wizard_helpers'
 require_relative 'var_builder/name_collector'
 require_relative 'var_builder/params'
 
 module SnippetCli
   module VarBuilder
+    extend WizardHelpers
+
     VAR_TYPES = %w[echo shell date random choice script form].freeze
 
     # Characters that break variable-to-mapping resolution. Add more here as needed.
@@ -58,7 +60,7 @@ module SnippetCli
     end
 
     def self.confirm!(text)
-      result = Gum.confirm(text, prompt_style: { border: 'rounded', padding: '0 1', margin: '0' })
+      result = Gum.confirm(text, prompt_style: { padding: '0 1', margin: '0' })
       raise WizardInterrupted if $CHILD_STATUS.respond_to?(:exitstatus) && $CHILD_STATUS.exitstatus == 130
 
       result
@@ -69,10 +71,8 @@ module SnippetCli
     def self.interactive_session(skip_initial_prompt: false)
       vars = []
       loop do
-        unless vars.empty? && skip_initial_prompt
-          prompt_text = build_confirm_prompt(vars, skip_initial_prompt)
-          break unless confirm!(prompt_text)
-        end
+        break unless confirm_next?(vars, skip_initial_prompt)
+
         append_var!(vars)
       end
       show_summary(vars) unless vars.empty?
@@ -80,15 +80,17 @@ module SnippetCli
     end
     private_class_method :interactive_session
 
-    def self.build_confirm_prompt(vars, skip_initial_prompt)
-      question = confirm_question(vars, skip_initial_prompt)
-      return question if vars.empty?
+    def self.confirm_next?(vars, skip_initial_prompt)
+      return true if vars.empty? && skip_initial_prompt
 
-      rows = vars.map { |v| [v[:name], v[:type]] }
-      table = TableFormatter.render(rows, headers: %w[Name Type])
-      "Current variables:\n\n#{table}\n\n#{question}\n"
+      question = confirm_question(vars, skip_initial_prompt)
+      if vars.empty?
+        confirm!(question)
+      else
+        list_confirm!('variable', vars.map { |v| [v[:name], v[:type]] }, %w[Name Type], question)
+      end
     end
-    private_class_method :build_confirm_prompt
+    private_class_method :confirm_next?
 
     def self.confirm_question(vars, skip_initial_prompt)
       if skip_initial_prompt then 'Add an additional variable?'
@@ -109,7 +111,8 @@ module SnippetCli
     def self.show_summary(vars)
       names = vars.map { |v| "{{#{v[:name]}}}" }.join(', ')
       text = "Reference your variables in the replacement using {{var}} syntax:\n#{names}"
-      UI.info(text)
+      UI.note(text)
+      puts
       rows = vars.map { |var| [var[:name], var[:type]] }
       Gum.table(rows, columns: %w[Name Type], print: true)
       puts
@@ -120,10 +123,8 @@ module SnippetCli
     def self.build_summary_erase(text, vars)
       return -> {} unless $stdout.tty?
 
-      # info box: text lines + top/bottom borders
-      # table: top border + header + separator + data rows + bottom border
-      # blank line: from trailing puts
-      total = text.lines.count + 2 + vars.length + 4 + 1
+      # UI.note lines + blank + table (top border + header + separator + data rows + bottom border) + blank
+      total = text.lines.count + 1 + vars.length + 4 + 1
       lambda {
         $stdout.print TTY::Cursor.up(total)
         $stdout.print "\r"
