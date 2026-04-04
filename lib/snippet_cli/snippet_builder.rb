@@ -7,7 +7,7 @@ module SnippetCli
   # Raised when the match data fails schema validation.
   class ValidationError < StandardError; end
 
-  module SnippetBuilder # rubocop:disable Metrics/ModuleLength
+  module SnippetBuilder
     # Builds an Espanso match YAML entry from the given parameters.
     # Validates against the Espanso match JSON schema before generating YAML.
     # Raises ValidationError on failure.
@@ -95,12 +95,7 @@ module SnippetCli
     private_class_method :param_lines
 
     def self.replace_lines(str)
-      if str.include?("\n")
-        indented = str.lines.map { |line| "    #{line.chomp}" }.join("\n")
-        ['  replace: |', indented]
-      else
-        ["  replace: #{YamlScalar.quote(str)}"]
-      end
+      block_scalar_lines('replace', str)
     end
     private_class_method :replace_lines
 

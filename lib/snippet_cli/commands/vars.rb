@@ -23,14 +23,7 @@ module SnippetCli
       private
 
       def deliver_vars(vars)
-        output = vars_yaml(vars)
-        pipe = SnippetCli.pipe_output
-        if pipe
-          pipe.print output
-        else
-          UI.info('Vars YAML below.')
-          UI.format_code(output)
-        end
+        UI.deliver(vars_yaml(vars), label: 'Vars')
       end
 
       def vars_yaml(vars)

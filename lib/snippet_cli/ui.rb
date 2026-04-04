@@ -71,6 +71,17 @@ module SnippetCli
       puts
     end
 
+    # Delivers YAML output: pipes to stdout if piped, or displays with a label if interactive.
+    def self.deliver(yaml, label:)
+      pipe = SnippetCli.pipe_output
+      if pipe
+        pipe.print yaml
+      else
+        info("#{label} YAML below.")
+        format_code(yaml)
+      end
+    end
+
     # Pass text via stdin instead of as a positional CLI argument.
     # Gum's arg parser interprets leading `-` characters (e.g. YAML list
     # markers like `- triggers:`) as unknown flags when passed positionally.

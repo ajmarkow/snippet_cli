@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../ui'
+require_relative '../wizard_helpers'
 
 module SnippetCli
   module VarBuilder
@@ -8,6 +9,8 @@ module SnippetCli
     # name, validates it (non-empty, no prohibited chars, no duplicates), and
     # returns the accepted name or nil when a duplicate is detected.
     class NameCollector
+      include WizardHelpers
+
       def initialize(existing)
         @existing = existing
       end
@@ -62,12 +65,6 @@ module SnippetCli
 
         warn "Variable '#{name}' already defined — skipping"
         true
-      end
-
-      def prompt!(value)
-        value.nil? ? raise(WizardInterrupted) : value
-      rescue Interrupt
-        raise WizardInterrupted
       end
 
       def prohibited_char?(name)

@@ -85,15 +85,8 @@ module SnippetCli
       end
     end
 
-    def prompt_non_empty_replace
-      clear = nil
-      loop do
-        value = yield
-        clear&.call
-        return value unless value.strip.empty?
-
-        clear = UI.transient_warning(EMPTY_REPLACE_MSG)
-      end
+    def prompt_non_empty_replace(&)
+      prompt_non_empty(EMPTY_REPLACE_MSG, &)
     end
   end
 end

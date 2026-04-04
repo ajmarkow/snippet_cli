@@ -53,21 +53,6 @@ module SnippetCli
     end
     private_class_method :collect_one_var
 
-    def self.prompt!(value)
-      value.nil? ? raise(WizardInterrupted) : value
-    rescue Interrupt
-      raise WizardInterrupted
-    end
-
-    def self.confirm!(text)
-      result = Gum.confirm(text, prompt_style: { padding: '0 1', margin: '0' })
-      raise WizardInterrupted if $CHILD_STATUS.respond_to?(:exitstatus) && $CHILD_STATUS.exitstatus == 130
-
-      result
-    rescue Interrupt
-      raise WizardInterrupted
-    end
-
     def self.interactive_session(skip_initial_prompt: false)
       vars = []
       loop do

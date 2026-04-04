@@ -57,13 +57,7 @@ module SnippetCli
       end
 
       def output_result(yaml)
-        pipe = SnippetCli.pipe_output
-        if pipe
-          pipe.print yaml
-        else
-          UI.info('Snippet YAML below.')
-          UI.format_code(yaml)
-        end
+        UI.deliver(yaml, label: 'Snippet')
       end
 
       def collect_advanced

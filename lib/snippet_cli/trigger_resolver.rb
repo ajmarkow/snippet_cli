@@ -74,13 +74,8 @@ module SnippetCli
     end
 
     def prompt_non_empty_trigger(placeholder, header: nil)
-      clear = nil
-      loop do
-        t = prompt!(Gum.input(**trigger_input_opts(placeholder, header)))
-        clear&.call
-        return t unless t.strip.empty?
-
-        clear = UI.transient_warning('Trigger cannot be empty. Please enter a trigger string.')
+      prompt_non_empty('Trigger cannot be empty. Please enter a trigger string.') do
+        prompt!(Gum.input(**trigger_input_opts(placeholder, header)))
       end
     end
 

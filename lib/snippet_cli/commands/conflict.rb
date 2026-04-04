@@ -3,6 +3,7 @@
 require 'dry/cli'
 require 'gum'
 require_relative '../conflict_detector'
+require_relative '../yaml_loader'
 
 module SnippetCli
   module Commands
@@ -15,18 +16,12 @@ module SnippetCli
       def call(file:, trigger: nil, **)
         entries = load_entries(file)
         trigger ? show_trigger(entries, trigger) : show_conflicts(entries)
-      rescue Psych::SyntaxError => e
-        warn "Invalid YAML: #{e.message}"
-        exit 1
       end
 
       private
 
       def load_entries(file)
-        unless File.exist?(file)
-          warn "File not found: #{file}"
-          exit 1
-        end
+        YamlLoader.load(file)
         ConflictDetector.extract_triggers(File.read(file))
       end
 

@@ -2,6 +2,7 @@
 
 require 'json'
 require 'json_schemer'
+require_relative 'hash_utils'
 
 module SnippetCli
   # Validates an Espanso match entry (as a Ruby hash) against the vendored
@@ -18,13 +19,13 @@ module SnippetCli
     # The merged schema validates a full matchfile, so the entry is wrapped in
     # a { "matches" => [...] } envelope before validation.
     def self.valid?(data)
-      schemer.valid?(wrap(stringify_keys_deep(data)))
+      schemer.valid?(wrap(HashUtils.stringify_keys_deep(data)))
     end
 
     # Returns an array of human-readable error strings.
     # Empty array means the data is valid.
     def self.errors(data)
-      schemer.validate(wrap(stringify_keys_deep(data))).map do |error|
+      schemer.validate(wrap(HashUtils.stringify_keys_deep(data))).map do |error|
         error['error'] || error.fetch('type', 'validation error')
       end
     end
@@ -38,19 +39,5 @@ module SnippetCli
       @schemer ||= JSONSchemer.schema(Pathname.new(SCHEMA_PATH))
     end
     private_class_method :schemer
-
-    # Recursively converts symbol keys to string keys so the JSON schema
-    # validator can match property names.
-    def self.stringify_keys_deep(obj)
-      case obj
-      when Hash
-        obj.each_with_object({}) { |(k, v), h| h[k.to_s] = stringify_keys_deep(v) }
-      when Array
-        obj.map { |item| stringify_keys_deep(item) }
-      else
-        obj
-      end
-    end
-    private_class_method :stringify_keys_deep
   end
 end

@@ -36,14 +36,20 @@ module SnippetCli
     # Renders a table of collected items and asks a follow-up question, without a border.
     def list_confirm!(label, rows, headers, question)
       table = TableFormatter.render(rows, headers: headers)
-      result = Gum.confirm("Current #{label}s:\n\n#{table}\n\n#{question}",
-                           prompt_style: { padding: '0 1', margin: '0' })
-      raise WizardInterrupted if result.nil?
-      raise WizardInterrupted if $CHILD_STATUS.respond_to?(:exitstatus) && $CHILD_STATUS.exitstatus == 130
+      confirm!("Current #{label}s:\n\n#{table}\n\n#{question}")
+    end
 
-      result
-    rescue Interrupt
-      raise WizardInterrupted
+    # Loops until the block yields a non-empty string.
+    # Shows warning_message as a transient warning on empty input.
+    def prompt_non_empty(warning_message)
+      clear = nil
+      loop do
+        value = yield
+        clear&.call
+        return value unless value.strip.empty?
+
+        clear = UI.transient_warning(warning_message)
+      end
     end
   end
 end
