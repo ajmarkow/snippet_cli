@@ -4,7 +4,7 @@ title: Refine form-based snippet creation flow for clarity and usability
 status: To Do
 assignee: []
 created_date: '2026-03-30 04:13'
-updated_date: '2026-03-31 03:55'
+updated_date: '2026-04-04 21:14'
 labels:
   - ux
   - wizard
@@ -25,8 +25,8 @@ Improve the UX of the form wizard used in `snippet new --form` to make the proce
 - [ ] #1 Each step in the form flow has a clear and specific prompt
 - [ ] #2 User can complete the flow without confusion or backtracking
 - [ ] #3 Input fields map cleanly to generated form output (`form:` syntax)
-- [x] #4 Preview or output is accurate and easy to understand
-- [x] #5 No redundant or unnecessary steps in the flow
+- [ ] #4 Preview or output is accurate and easy to understand
+- [ ] #5 No redundant or unnecessary steps in the flow
 - [ ] #6 Flow handles multiple variables cleanly and scales beyond a few inputs
 - [ ] #7 At least one end-to-end example from input to generated snippet
 <!-- AC:END -->
