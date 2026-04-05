@@ -8,6 +8,8 @@ require_relative '../ui'
 require_relative '../wizard_helpers'
 require_relative '../trigger_resolver'
 require_relative '../replacement_collector'
+require_relative '../espanso_config'
+require_relative '../match_file_writer'
 
 module SnippetCli
   module Commands
@@ -25,12 +27,15 @@ module SnippetCli
       option :file,         aliases: ['-f'],  desc: 'Espanso match file to check conflicts against'
       option :no_warn,      type: :boolean, default: false, aliases: ['-nw'],
                             desc: 'Skip conflict warning'
+      option :save,         type: :boolean, default: false, aliases: ['-s'],
+                            desc: 'Save snippet to Espanso match file'
 
       def call(**opts)
         yaml = build_snippet(opts)
         @summary_clear&.call
+        save_snippet(yaml) if opts[:save]
         output_result(yaml)
-      rescue ValidationError => e
+      rescue ValidationError, EspansoConfigError => e
         UI.error(e.message)
         exit 1
       rescue WizardInterrupted
@@ -56,6 +61,21 @@ module SnippetCli
         replacement = collect_replacement(vars)
         label, comment = collect_advanced
         { vars: vars, label: label, comment: comment }.merge(replacement)
+      end
+
+      def save_snippet(yaml)
+        files = EspansoConfig.match_files
+        if files.empty?
+          UI.error('No match files found in Espanso config.')
+          exit 1
+        end
+
+        basenames = files.map { |f| File.basename(f) }
+        chosen = prompt!(Gum.filter(*basenames, header: 'Save to which match file?'))
+        full_path = files.find { |f| File.basename(f) == chosen }
+
+        MatchFileWriter.append(full_path, yaml)
+        UI.success("Saved to #{chosen}")
       end
 
       def output_result(yaml)

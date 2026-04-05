@@ -983,4 +983,103 @@ RSpec.describe SnippetCli::Commands::New do
   ensure
     $stdout = old
   end
+
+  # ── --save flag (TASK-38 ACs 1-5) ──────────────────────────────────────────
+
+  context '--save flag' do
+    let(:match_dir) { '/home/user/.config/espanso/match' }
+    let(:match_files) do
+      ["#{match_dir}/base.yml", "#{match_dir}/code.yml"]
+    end
+
+    before do
+      allow(SnippetCli::EspansoConfig).to receive(:match_dir).and_return(match_dir)
+      allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return(match_files)
+      allow(Gum).to receive(:filter).with(
+        *match_files.map { |f| File.basename(f) },
+        header: 'Save to which match file?'
+      ).and_return('base.yml')
+      allow(SnippetCli::MatchFileWriter).to receive(:append)
+      allow(SnippetCli::UI).to receive(:success)
+    end
+
+    it 'prompts the user to pick a match file via Gum.filter' do
+      stub_happy_path
+      command.call(save: true)
+
+      expect(Gum).to have_received(:filter).with(
+        *match_files.map { |f| File.basename(f) },
+        header: 'Save to which match file?'
+      )
+    end
+
+    it 'appends the snippet to the chosen file' do
+      stub_happy_path
+      command.call(save: true)
+
+      expect(SnippetCli::MatchFileWriter).to have_received(:append).with(
+        "#{match_dir}/base.yml", anything
+      )
+    end
+
+    it 'shows a success message with the filename' do
+      stub_happy_path
+      command.call(save: true)
+
+      expect(SnippetCli::UI).to have_received(:success).with(/base\.yml/)
+    end
+
+    it 'still outputs the snippet YAML normally' do
+      stub_happy_path
+      captured = capture_display_input
+      command.call(save: true)
+
+      expect(captured.join).to match(/triggers/)
+    end
+
+    it 'works with --trigger and --replace flags (no wizard)' do
+      command.call(trigger: ':test', replace: 'hello', save: true)
+
+      expect(SnippetCli::MatchFileWriter).to have_received(:append)
+    end
+
+    context 'when user cancels file picker (Ctrl+C)' do
+      before do
+        stub_happy_path
+        allow(Gum).to receive(:filter).and_return(nil)
+      end
+
+      it 'exits with interrupted message' do
+        expect { command.call(save: true) }
+          .to output(/Interrupted.*exiting snippet_cli/im).to_stdout
+      end
+    end
+
+    context 'when no match files found' do
+      before do
+        stub_happy_path
+        allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return([])
+      end
+
+      it 'shows an error and exits' do
+        allow(SnippetCli::UI).to receive(:error)
+        expect { command.call(save: true) }.to raise_error(SystemExit)
+        expect(SnippetCli::UI).to have_received(:error).with(/no match files/i)
+      end
+    end
+
+    context 'when espanso config discovery fails' do
+      before do
+        stub_happy_path
+        allow(SnippetCli::EspansoConfig).to receive(:match_files)
+          .and_raise(SnippetCli::EspansoConfigError, 'Could not determine Espanso config path.')
+      end
+
+      it 'shows an error and exits' do
+        allow(SnippetCli::UI).to receive(:error)
+        expect { command.call(save: true) }.to raise_error(SystemExit)
+        expect(SnippetCli::UI).to have_received(:error).with(/could not determine/i)
+      end
+    end
+  end
 end
