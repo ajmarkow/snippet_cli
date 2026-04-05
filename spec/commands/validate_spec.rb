@@ -9,6 +9,14 @@ RSpec.describe SnippetCli::Commands::Validate do
   let(:valid_fixture)   { File.join(__dir__, '..', 'fixtures', 'valid_matchfile.yml') }
   let(:invalid_fixture) { File.join(__dir__, '..', 'fixtures', 'invalid_matchfile.yml') }
 
+  context 'when --file is not provided' do
+    it 'shows a UI.error and exits 1' do
+      allow(SnippetCli::UI).to receive(:error)
+      expect { command.call }.to raise_error(SystemExit) { |e| expect(e.status).to eq(1) }
+      expect(SnippetCli::UI).to have_received(:error).with(/--file.*required/i)
+    end
+  end
+
   context 'when file does not exist' do
     it 'writes an error to stderr and exits 1' do
       expect do

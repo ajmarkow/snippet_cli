@@ -10,9 +10,13 @@ module SnippetCli
     class Validate < Dry::CLI::Command
       desc 'Validate an Espanso match YAML file against the schema (alias: v)'
 
-      argument :file, required: true, desc: 'Path to the Espanso match YAML file to validate'
+      option :file, required: true, aliases: ['-f'], desc: 'Path to the Espanso match YAML file to validate (required)'
 
-      def call(file:, **)
+      def call(file: nil, **)
+        unless file
+          UI.error('--file is required. Run with --help for usage.')
+          exit 1
+        end
         data = YamlLoader.load(file)
         report(file, FileValidator.errors(data))
       end

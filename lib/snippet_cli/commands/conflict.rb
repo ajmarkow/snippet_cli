@@ -4,6 +4,7 @@ require 'dry/cli'
 require 'gum'
 require 'yaml'
 require_relative '../conflict_detector'
+require_relative '../ui'
 
 module SnippetCli
   module Commands
@@ -13,11 +14,8 @@ module SnippetCli
       option :file,    required: true, aliases: ['-f'], desc: 'Path to Espanso match YAML file (required)'
       option :trigger, type: :array, aliases: ['-t'], desc: 'Trigger(s) to look up (comma-separated or repeated flag)'
 
-      def call(file:, trigger: nil, **)
-        unless File.exist?(file)
-          warn "File not found: #{file}"
-          exit 1
-        end
+      def call(file: nil, trigger: nil, **)
+        require_file!(file)
         entries = load_entries(file)
         trigger ? show_trigger(entries, trigger) : show_conflicts(entries)
       rescue Psych::SyntaxError => e
@@ -26,6 +24,17 @@ module SnippetCli
       end
 
       private
+
+      def require_file!(file)
+        unless file
+          UI.error('--file is required. Run with --help for usage.')
+          exit 1
+        end
+        return if File.exist?(file)
+
+        UI.error("File not found: #{file}")
+        exit 1
+      end
 
       def load_entries(file)
         ConflictDetector.extract_triggers(File.read(file))
