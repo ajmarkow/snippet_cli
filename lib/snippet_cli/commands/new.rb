@@ -29,6 +29,8 @@ module SnippetCli
                             desc: 'Skip conflict warning'
       option :save,         type: :boolean, default: false, aliases: ['-s'],
                             desc: 'Save snippet to Espanso match file'
+      option :simple,       type: :boolean, default: false, aliases: ['-S'],
+                            desc: 'Simple mode: skip variables, alt types, label, and comment'
 
       def call(**opts)
         yaml = build_snippet(opts)
@@ -48,12 +50,14 @@ module SnippetCli
       def build_snippet(opts)
         trigger_list, is_regex, single = resolve_triggers(opts)
         SnippetBuilder.build(
-          triggers: trigger_list, is_regex: is_regex, single_trigger: single, **resolve_replacement(opts[:replace])
+          triggers: trigger_list, is_regex: is_regex, single_trigger: single,
+          **resolve_replacement(opts[:replace], simple: opts[:simple])
         )
       end
 
-      def resolve_replacement(replace_opt)
+      def resolve_replacement(replace_opt, simple: false)
         return { replace: replace_opt, vars: [], label: nil, comment: nil } if replace_opt
+        return resolve_simple_replacement if simple
 
         result = VarBuilder.run
         @summary_clear = result[:summary_clear]
@@ -61,6 +65,11 @@ module SnippetCli
         replacement = collect_replacement(vars)
         label, comment = collect_advanced
         { vars: vars, label: label, comment: comment }.merge(replacement)
+      end
+
+      def resolve_simple_replacement
+        replace = collect_replace([])
+        { replace: replace, vars: [], label: nil, comment: nil }
       end
 
       def save_snippet(yaml)

@@ -984,6 +984,113 @@ RSpec.describe SnippetCli::Commands::New do
     $stdout = old
   end
 
+  # ── --simple flag ───────────────────────────────────────────────────────────
+
+  def stub_simple_replace_prompts(multiline: false, replace: 'Test replacement')
+    allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(multiline)
+    if multiline
+      allow(Gum).to receive(:write)
+        .with(header: 'Replacement', placeholder: 'Type expansion text...').and_return(replace)
+    else
+      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return(replace)
+    end
+  end
+
+  context '--simple flag with interactive triggers' do
+    before do
+      stub_trigger_prompts
+      stub_simple_replace_prompts
+      stub_gum_preview
+    end
+
+    it 'does not invoke VarBuilder' do
+      allow(SnippetCli::VarBuilder).to receive(:run)
+      command.call(simple: true)
+      expect(SnippetCli::VarBuilder).not_to have_received(:run)
+    end
+
+    it 'does not prompt for alternative replacement type' do
+      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?', prompt_style: anything)
+      command.call(simple: true)
+      expect(Gum).not_to have_received(:confirm)
+        .with('Alternative (non-plaintext) replacement type?', prompt_style: anything)
+    end
+
+    it 'does not prompt for label or comment' do
+      allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything)
+      allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything)
+      command.call(simple: true)
+      expect(Gum).not_to have_received(:confirm).with('Add a label?', prompt_style: anything)
+      expect(Gum).not_to have_received(:confirm).with('Add a comment?', prompt_style: anything)
+    end
+
+    it 'outputs valid YAML with trigger and replace' do
+      captured = capture_display_input
+      command.call(simple: true)
+      yaml = captured.join
+      expect(yaml).to match(/trigger/)
+      expect(yaml).to include('Test replacement')
+    end
+  end
+
+  context '--simple flag with multiline replacement' do
+    before do
+      stub_trigger_prompts
+      stub_simple_replace_prompts(multiline: true, replace: "line1\nline2")
+      stub_gum_preview
+    end
+
+    it 'supports multiline replacement' do
+      captured = capture_display_input
+      command.call(simple: true)
+      expect(captured.join).to include('line1')
+    end
+  end
+
+  context '--simple flag with --trigger and --replace (fully non-interactive)' do
+    it 'emits YAML without invoking any Gum prompts' do
+      allow(Gum).to receive(:choose)
+      allow(Gum).to receive(:input)
+      allow(Gum).to receive(:confirm)
+
+      captured = capture_display_input
+      command.call(simple: true, trigger: ':ty', replace: 'Thank you')
+
+      expect(captured.join).to match(/trigger: ":ty"/)
+      expect(Gum).not_to have_received(:choose)
+      expect(Gum).not_to have_received(:input)
+      expect(Gum).not_to have_received(:confirm)
+    end
+  end
+
+  context '--simple flag with --save' do
+    let(:match_dir) { '/home/user/.config/espanso/match' }
+    let(:match_files) do
+      ["#{match_dir}/base.yml", "#{match_dir}/code.yml"]
+    end
+
+    before do
+      allow(SnippetCli::EspansoConfig).to receive(:match_dir).and_return(match_dir)
+      allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return(match_files)
+      allow(Gum).to receive(:filter).with(
+        *match_files.map { |f| File.basename(f) },
+        header: 'Save to which match file?'
+      ).and_return('base.yml')
+      allow(SnippetCli::MatchFileWriter).to receive(:append)
+      allow(SnippetCli::UI).to receive(:success)
+    end
+
+    it 'saves the snippet to the chosen file' do
+      command.call(simple: true, trigger: ':ty', replace: 'Thank you', save: true)
+      expect(SnippetCli::MatchFileWriter).to have_received(:append).with("#{match_dir}/base.yml", anything)
+    end
+
+    it 'shows a success message' do
+      command.call(simple: true, trigger: ':ty', replace: 'Thank you', save: true)
+      expect(SnippetCli::UI).to have_received(:success).with(/base\.yml/)
+    end
+  end
+
   # ── --save flag (TASK-38 ACs 1-5) ──────────────────────────────────────────
 
   context '--save flag' do
