@@ -12,6 +12,8 @@ Aruba.configure do |config|
   config.command_search_paths = ['exe']
   config.exit_timeout = 15
   config.activate_announcer_on_command_failure = %i[stdout stderr]
+  # Prevent the exe from reopening stdout to /dev/tty, which aruba can't capture.
+  config.command_runtime_environment = { 'SNIPPET_CLI_NO_REDIRECT' => '1' }
 end
 
 RSpec.configure do |config|

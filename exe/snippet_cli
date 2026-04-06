@@ -12,7 +12,8 @@ begin
 
   # When stdout is piped, redirect UI to the terminal so it displays normally.
   # The original stdout is saved for structured output (YAML) only.
-  unless $stdout.tty?
+  # Skip redirect when SNIPPET_CLI_NO_REDIRECT is set (used by integration tests).
+  unless $stdout.tty? || ENV['SNIPPET_CLI_NO_REDIRECT']
     SnippetCli.pipe_output = $stdout.dup
     begin
       $stdout.reopen('/dev/tty', 'w')
