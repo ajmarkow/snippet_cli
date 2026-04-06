@@ -95,6 +95,124 @@ RSpec.describe SnippetCli::Commands::Vars do
     end
   end
 
+  # ── --save flag ──────────────────────────────────────────────────────────────
+
+  context '--save flag' do
+    let(:match_dir) { '/home/user/.config/espanso/match' }
+    let(:match_files) do
+      ["#{match_dir}/base.yml", "#{match_dir}/code.yml"]
+    end
+
+    before do
+      allow(SnippetCli::EspansoConfig).to receive(:match_dir).and_return(match_dir)
+      allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return(match_files)
+      allow(Gum).to receive(:filter).with(
+        *match_files.map { |f| File.basename(f) },
+        header: 'Save to which match file?'
+      ).and_return('base.yml')
+      allow(SnippetCli::GlobalVarsWriter).to receive(:append)
+      allow(SnippetCli::UI).to receive(:success)
+    end
+
+    it 'prompts the user to pick a match file via Gum.filter' do
+      command.call(save: true)
+
+      expect(Gum).to have_received(:filter).with(
+        *match_files.map { |f| File.basename(f) },
+        header: 'Save to which match file?'
+      )
+    end
+
+    it 'appends vars to the chosen file via GlobalVarsWriter' do
+      command.call(save: true)
+
+      expect(SnippetCli::GlobalVarsWriter).to have_received(:append).with(
+        "#{match_dir}/base.yml", anything
+      )
+    end
+
+    it 'passes pre-indented var entries to GlobalVarsWriter' do
+      command.call(save: true)
+
+      expect(SnippetCli::GlobalVarsWriter).to have_received(:append) do |_path, entries|
+        expect(entries).to include('  - name: dt')
+        expect(entries).to include('    type: date')
+      end
+    end
+
+    it 'shows a success message with the filename' do
+      command.call(save: true)
+
+      expect(SnippetCli::UI).to have_received(:success).with(/base\.yml/)
+    end
+
+    it 'still outputs the vars YAML normally' do
+      captured = []
+      allow(Gum::Command).to receive(:run_display_only) do |*, input: nil, **|
+        captured << input
+        true
+      end
+      command.call(save: true)
+
+      expect(captured.join).to match(/vars:/)
+    end
+
+    context 'when no vars are added' do
+      before do
+        allow(SnippetCli::VarBuilder).to receive(:run)
+          .and_return({ vars: [], summary_clear: -> {} })
+      end
+
+      it 'does not prompt for a file' do
+        command.call(save: true)
+
+        expect(Gum).not_to have_received(:filter)
+      end
+
+      it 'does not call GlobalVarsWriter' do
+        command.call(save: true)
+
+        expect(SnippetCli::GlobalVarsWriter).not_to have_received(:append)
+      end
+    end
+
+    context 'when user cancels file picker (Ctrl+C)' do
+      before do
+        allow(Gum).to receive(:filter).and_return(nil)
+      end
+
+      it 'exits with interrupted message' do
+        expect { command.call(save: true) }
+          .to output(/Interrupted.*exiting snippet_cli/im).to_stdout
+      end
+    end
+
+    context 'when no match files found' do
+      before do
+        allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return([])
+      end
+
+      it 'shows an error and exits' do
+        allow(SnippetCli::UI).to receive(:error)
+        expect { command.call(save: true) }.to raise_error(SystemExit)
+        expect(SnippetCli::UI).to have_received(:error).with(/no match files/i)
+      end
+    end
+
+    context 'when espanso config discovery fails' do
+      before do
+        allow(SnippetCli::EspansoConfig).to receive(:match_files)
+          .and_raise(SnippetCli::EspansoConfigError, 'Could not determine Espanso config path.')
+      end
+
+      it 'shows an error and exits' do
+        allow(SnippetCli::UI).to receive(:error)
+        expect { command.call(save: true) }.to raise_error(SystemExit)
+        expect(SnippetCli::UI).to have_received(:error).with(/could not determine/i)
+      end
+    end
+  end
+
   context 'when VarBuilder is interrupted' do
     before do
       allow(SnippetCli::VarBuilder).to receive(:run).and_raise(SnippetCli::WizardInterrupted)

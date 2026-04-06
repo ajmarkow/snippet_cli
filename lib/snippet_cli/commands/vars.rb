@@ -5,6 +5,8 @@ require_relative '../var_builder'
 require_relative '../snippet_builder'
 require_relative '../ui'
 require_relative '../wizard_helpers'
+require_relative '../espanso_config'
+require_relative '../global_vars_writer'
 
 module SnippetCli
   module Commands
@@ -13,9 +15,16 @@ module SnippetCli
 
       desc 'Interactive var builder — outputs Espanso vars YAML block'
 
-      def call(**)
+      option :save, type: :boolean, default: false, aliases: ['-s'],
+                    desc: 'Save vars to Espanso match file under global_vars'
+
+      def call(**opts)
         result = VarBuilder.run(skip_initial_prompt: true)
+        save_vars(result[:vars]) if opts[:save]
         deliver_vars(result[:vars])
+      rescue EspansoConfigError => e
+        UI.error(e.message)
+        exit 1
       rescue WizardInterrupted
         puts
         UI.error('Interrupted, exiting snippet_cli.')
@@ -25,6 +34,27 @@ module SnippetCli
 
       def deliver_vars(vars)
         UI.deliver(vars_yaml(vars), label: 'Vars')
+      end
+
+      def save_vars(vars)
+        return if vars.empty?
+
+        chosen, full_path = pick_match_file
+        entries = vars_yaml(vars).sub(/\Avars:\n/, '')
+        GlobalVarsWriter.append(full_path, entries)
+        UI.success("Saved to #{chosen}")
+      end
+
+      def pick_match_file
+        files = EspansoConfig.match_files
+        if files.empty?
+          UI.error('No match files found in Espanso config.')
+          exit 1
+        end
+
+        basenames = files.map { |f| File.basename(f) }
+        chosen = prompt!(Gum.filter(*basenames, header: 'Save to which match file?'))
+        [chosen, files.find { |f| File.basename(f) == chosen }]
       end
 
       def vars_yaml(vars)

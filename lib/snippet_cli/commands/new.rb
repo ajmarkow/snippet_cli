@@ -10,6 +10,7 @@ require_relative '../trigger_resolver'
 require_relative '../replacement_collector'
 require_relative '../espanso_config'
 require_relative '../match_file_writer'
+require_relative '../global_vars_writer'
 
 module SnippetCli
   module Commands
@@ -33,10 +34,8 @@ module SnippetCli
                             desc: 'Simple mode: skip variables, alt types, label, and comment'
 
       def call(**opts)
-        yaml = build_snippet(opts)
-        @summary_clear&.call
-        save_snippet(yaml) if opts[:save]
-        output_result(yaml)
+        prepare_save if opts[:save]
+        deliver_snippet(build_snippet(opts))
       rescue ValidationError, EspansoConfigError => e
         UI.error(e.message)
         exit 1
@@ -72,7 +71,7 @@ module SnippetCli
         { replace: replace, vars: [], label: nil, comment: nil }
       end
 
-      def save_snippet(yaml)
+      def prepare_save
         files = EspansoConfig.match_files
         if files.empty?
           UI.error('No match files found in Espanso config.')
@@ -81,10 +80,19 @@ module SnippetCli
 
         basenames = files.map { |f| File.basename(f) }
         chosen = prompt!(Gum.filter(*basenames, header: 'Save to which match file?'))
-        full_path = files.find { |f| File.basename(f) == chosen }
+        @save_path = files.find { |f| File.basename(f) == chosen }
+        @global_var_names = GlobalVarsWriter.read_names(@save_path)
+      end
 
-        MatchFileWriter.append(full_path, yaml)
-        UI.success("Saved to #{chosen}")
+      def deliver_snippet(yaml)
+        @summary_clear&.call
+        write_save(yaml) if @save_path
+        output_result(yaml)
+      end
+
+      def write_save(yaml)
+        MatchFileWriter.append(@save_path, yaml)
+        UI.success("Saved to #{File.basename(@save_path)}")
       end
 
       def output_result(yaml)

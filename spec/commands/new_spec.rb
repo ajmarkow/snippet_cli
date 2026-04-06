@@ -1188,5 +1188,23 @@ RSpec.describe SnippetCli::Commands::New do
         expect(SnippetCli::UI).to have_received(:error).with(/could not determine/i)
       end
     end
+
+    context 'when target file has global_vars' do
+      before do
+        allow(SnippetCli::GlobalVarsWriter).to receive(:read_names)
+          .with("#{match_dir}/base.yml")
+          .and_return(%w[dt])
+      end
+
+      it 'passes global_var_names to VarUsageChecker' do
+        allow(SnippetCli::VarUsageChecker).to receive(:match_warnings).and_call_original
+
+        stub_happy_path
+        command.call(save: true)
+
+        expect(SnippetCli::VarUsageChecker).to have_received(:match_warnings)
+          .with(anything, anything, global_var_names: %w[dt])
+      end
+    end
   end
 end

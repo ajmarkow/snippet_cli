@@ -96,6 +96,35 @@ RSpec.describe SnippetCli::VarUsageChecker do
     end
   end
 
+  context 'with global_var_names' do
+    def warnings_with_globals(vars, replacement, global_var_names:)
+      described_class.match_warnings(vars, replacement, global_var_names: global_var_names)
+    end
+
+    it 'suppresses undeclared warning when var is in global_var_names' do
+      result = warnings_with_globals([], { replace: 'Today is {{dt}}' }, global_var_names: %w[dt])
+      expect(result).to be_empty
+    end
+
+    it 'still warns for vars not in local or global' do
+      result = warnings_with_globals([], { replace: '{{dt}} {{ghost}}' }, global_var_names: %w[dt])
+      expect(result.length).to eq(1)
+      expect(result.first).to include('ghost')
+    end
+
+    it 'does not suppress unused-local-var warnings' do
+      result = warnings_with_globals([echo_var], { replace: 'Today is {{dt}}' }, global_var_names: %w[dt])
+      expect(result.length).to eq(1)
+      expect(result.first).to include('greeting')
+      expect(result.first).to match(/unused/i)
+    end
+
+    it 'handles mix of local vars and global vars' do
+      result = warnings_with_globals([echo_var], { replace: 'Hi {{greeting}} on {{dt}}' }, global_var_names: %w[dt])
+      expect(result).to be_empty
+    end
+  end
+
   context 'with string-keyed var hashes (from YAML load)' do
     it 'handles string keys gracefully' do
       string_var = { 'name' => 'greeting', 'type' => 'echo', 'params' => { 'echo' => 'Hello' } }

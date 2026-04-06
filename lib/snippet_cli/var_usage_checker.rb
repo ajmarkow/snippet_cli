@@ -10,10 +10,11 @@ module SnippetCli
     # Returns an array of human-readable warning strings.
     # vars: array of var hashes (symbol or string keyed)
     # replacement: hash with one of :replace, :html, :markdown, :image_path
-    def self.match_warnings(vars, replacement)
+    def self.match_warnings(vars, replacement, global_var_names: [])
       declared = extract_names(vars)
       used     = extract_refs(replacement)
-      unused_warnings(declared, used) + undeclared_warnings(used, declared)
+      known    = declared + Array(global_var_names)
+      unused_warnings(declared, used) + undeclared_warnings(used, known)
     end
 
     def self.extract_names(vars)
