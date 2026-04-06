@@ -72,23 +72,23 @@ RSpec.describe SnippetCli::Commands::Conflict do
         allow(Gum).to receive(:table)
         command.call(file: fixture_path)
         expect(Gum).to have_received(:table) do |rows, **|
-          triggers = rows.map { |r| r[1] }
+          triggers = rows.map { |r| r[0] }
           expect(triggers).to include(':hello', ':bye')
         end
       end
 
-      it 'passes Instance, Trigger, Line columns to Gum.table' do
+      it 'passes Trigger, Lines columns to Gum.table' do
         allow(Gum).to receive(:table)
         command.call(file: fixture_path)
-        expect(Gum).to have_received(:table).with(anything, columns: %w[Instance Trigger Line], print: true)
+        expect(Gum).to have_received(:table).with(anything, columns: %w[Trigger Lines], separator: "\t", print: true)
       end
 
-      it 'increments the instance number per occurrence within a trigger group' do
+      it 'joins line numbers with commas for each trigger group' do
         allow(Gum).to receive(:table)
         command.call(file: fixture_path)
         expect(Gum).to have_received(:table) do |rows, **|
-          hello_rows = rows.select { |r| r[1] == ':hello' }
-          expect(hello_rows.map { |r| r[0] }).to eq([1, 2])
+          hello_row = rows.find { |r| r[0] == ':hello' }
+          expect(hello_row[1]).to include(',')
         end
       end
 
@@ -107,7 +107,7 @@ RSpec.describe SnippetCli::Commands::Conflict do
         command.call(file: fixture_path, trigger: [':hello'])
         expect(Gum).to have_received(:table) do |rows, **|
           expect(rows).not_to be_empty
-          expect(rows.map { |r| r[1] }).to all(eq(':hello'))
+          expect(rows.map { |r| r[0] }).to all(eq(':hello'))
         end
       end
     end
@@ -125,7 +125,7 @@ RSpec.describe SnippetCli::Commands::Conflict do
         command.call(file: fixture_path, trigger: [':hello', ':bye'])
         expect(Gum).to have_received(:table) do |rows, **|
           expect(rows).not_to be_empty
-          triggers_in_rows = rows.map { |r| r[1] }.uniq
+          triggers_in_rows = rows.map { |r| r[0] }.uniq
           expect(triggers_in_rows).to include(':hello', ':bye')
         end
       end

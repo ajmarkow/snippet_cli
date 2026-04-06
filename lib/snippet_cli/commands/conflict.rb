@@ -46,13 +46,13 @@ module SnippetCli
           puts 'No conflicts found'
           return
         end
-        puts 'The following conflicts were found:'
-        Gum.table(build_rows(duplicates), columns: %w[Instance Trigger Line], print: true)
+        puts "\e[38;5;231mThe following conflicts were found:\e[0m"
+        Gum.table(build_rows(duplicates), columns: %w[Trigger Lines], separator: "\t", print: true)
       end
 
       def build_rows(groups)
-        groups.flat_map do |trig, occurrences|
-          occurrences.each_with_index.map { |e, i| [i + 1, trig, e[:line]] }
+        groups.map do |trig, occurrences|
+          [trig, occurrences.map { |e| e[:line] }.join(', ')]
         end
       end
 
@@ -62,8 +62,9 @@ module SnippetCli
           puts "Trigger(s) #{triggers.join(', ')} not found"
           return
         end
-        puts 'The following conflicts were found:'
-        Gum.table(build_rows(matches.group_by { |e| e[:trigger] }), columns: %w[Instance Trigger Line], print: true)
+        puts "\e[38;5;231mThe following conflicts were found:\e[0m"
+        rows = build_rows(matches.group_by { |e| e[:trigger] })
+        Gum.table(rows, columns: %w[Trigger Lines], separator: "\t", print: true)
       end
     end
   end
