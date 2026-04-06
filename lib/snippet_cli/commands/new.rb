@@ -72,15 +72,7 @@ module SnippetCli
       end
 
       def prepare_save
-        files = EspansoConfig.match_files
-        if files.empty?
-          UI.error('No match files found in Espanso config.')
-          exit 1
-        end
-
-        basenames = files.map { |f| File.basename(f) }
-        chosen = prompt!(Gum.filter(*basenames, header: 'Save to which match file?'))
-        @save_path = files.find { |f| File.basename(f) == chosen }
+        _chosen, @save_path = pick_match_file
         @global_var_names = GlobalVarsWriter.read_names(@save_path)
       end
 

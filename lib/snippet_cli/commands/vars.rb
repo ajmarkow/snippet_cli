@@ -45,17 +45,7 @@ module SnippetCli
         UI.success("Saved to #{chosen}")
       end
 
-      def pick_match_file
-        files = EspansoConfig.match_files
-        if files.empty?
-          UI.error('No match files found in Espanso config.')
-          exit 1
-        end
-
-        basenames = files.map { |f| File.basename(f) }
-        chosen = prompt!(Gum.filter(*basenames, header: 'Save to which match file?'))
-        [chosen, files.find { |f| File.basename(f) == chosen }]
-      end
+      # pick_match_file is provided by WizardHelpers
 
       def vars_yaml(vars)
         return "vars: []\n" if vars.empty?

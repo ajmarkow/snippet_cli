@@ -176,6 +176,34 @@ RSpec.describe SnippetCli::Commands::Vars do
       end
     end
 
+    context 'when only one match file exists' do
+      let(:match_files) { ["#{match_dir}/base.yml"] }
+
+      before do
+        allow(Gum).to receive(:filter)
+      end
+
+      it 'skips Gum.filter and auto-selects the file' do
+        command.call(save: true)
+
+        expect(Gum).not_to have_received(:filter)
+      end
+
+      it 'saves to the single file' do
+        command.call(save: true)
+
+        expect(SnippetCli::GlobalVarsWriter).to have_received(:append).with(
+          "#{match_dir}/base.yml", anything
+        )
+      end
+
+      it 'shows a success message with the filename' do
+        command.call(save: true)
+
+        expect(SnippetCli::UI).to have_received(:success).with(/base\.yml/)
+      end
+    end
+
     context 'when user cancels file picker (Ctrl+C)' do
       before do
         allow(Gum).to receive(:filter).and_return(nil)

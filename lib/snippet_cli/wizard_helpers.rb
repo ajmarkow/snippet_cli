@@ -39,6 +39,24 @@ module SnippetCli
       confirm!("Current #{label}s:\n\n#{table}\n\n#{question}")
     end
 
+    # Selects an Espanso match file for saving.
+    # Auto-selects when only one file exists; otherwise prompts via Gum.filter.
+    # Exits with an error when no match files are found.
+    def pick_match_file
+      files = EspansoConfig.match_files
+      abort_no_match_files if files.empty?
+      return [File.basename(files.first), files.first] if files.size == 1
+
+      basenames = files.map { |f| File.basename(f) }
+      chosen = prompt!(Gum.filter(*basenames, header: 'Save to which match file?'))
+      [chosen, files.find { |f| File.basename(f) == chosen }]
+    end
+
+    def abort_no_match_files
+      UI.error('No match files found in Espanso config.')
+      exit 1
+    end
+
     # Loops until the block yields a non-empty string.
     # Shows warning_message as a transient warning on empty input.
     def prompt_non_empty(warning_message)
