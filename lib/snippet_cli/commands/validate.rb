@@ -4,21 +4,25 @@ require 'dry/cli'
 require_relative '../file_validator'
 require_relative '../ui'
 require_relative '../yaml_loader'
+require_relative '../wizard_helpers'
+require_relative '../espanso_config'
 
 module SnippetCli
   module Commands
     class Validate < Dry::CLI::Command
+      include WizardHelpers
+
       desc 'Validate an Espanso match YAML file against the schema (alias: v)'
 
-      option :file, required: true, aliases: ['-f'], desc: 'Path to the Espanso match YAML file to validate (required)'
+      option :file, aliases: ['-f'], desc: 'Path to the Espanso match YAML file to validate'
 
       def call(file: nil, **)
-        unless file
-          UI.error('--file is required. Run with --help for usage.')
-          exit 1
-        end
+        file ||= pick_match_file.last
         data = YamlLoader.load(file)
         report(file, FileValidator.errors(data))
+      rescue WizardInterrupted
+        puts
+        UI.error('Interrupted, exiting snippet_cli.')
       end
 
       private

@@ -5,31 +5,35 @@ require 'gum'
 require 'yaml'
 require_relative '../conflict_detector'
 require_relative '../ui'
+require_relative '../wizard_helpers'
+require_relative '../espanso_config'
 
 module SnippetCli
   module Commands
     class Conflict < Dry::CLI::Command
+      include WizardHelpers
+
       desc 'Detect duplicate triggers in an Espanso match YAML file (alias: c)'
 
-      option :file,    required: true, aliases: ['-f'], desc: 'Path to Espanso match YAML file (required)'
+      option :file,    aliases: ['-f'], desc: 'Path to Espanso match YAML file'
       option :trigger, type: :array, aliases: ['-t'], desc: 'Trigger(s) to look up (comma-separated or repeated flag)'
 
       def call(file: nil, trigger: nil, **)
-        require_file!(file)
+        file ||= pick_match_file.last
+        validate_file!(file)
         entries = load_entries(file)
         trigger ? show_trigger(entries, trigger) : show_conflicts(entries)
       rescue Psych::SyntaxError => e
         warn "Invalid YAML: #{e.message}"
         exit 1
+      rescue WizardInterrupted
+        puts
+        UI.error('Interrupted, exiting snippet_cli.')
       end
 
       private
 
-      def require_file!(file)
-        unless file
-          UI.error('--file is required. Run with --help for usage.')
-          exit 1
-        end
+      def validate_file!(file)
         return if File.exist?(file)
 
         UI.error("File not found: #{file}")

@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 require 'snippet_cli/commands/conflict'
+require 'snippet_cli/espanso_config'
 
 RSpec.describe SnippetCli::Commands::Conflict do
   subject(:command) { described_class.new }
@@ -26,10 +27,46 @@ RSpec.describe SnippetCli::Commands::Conflict do
   after { clean_file.unlink }
 
   context 'when --file is not provided' do
-    it 'shows a UI.error and exits 1' do
-      allow(SnippetCli::UI).to receive(:error)
-      expect { command.call }.to raise_error(SystemExit) { |e| expect(e.status).to eq(1) }
-      expect(SnippetCli::UI).to have_received(:error).with(/--file.*required/i)
+    context 'when no match files exist' do
+      before { allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return([]) }
+
+      it 'shows a UI.error and exits 1' do
+        allow(SnippetCli::UI).to receive(:error)
+        expect { command.call }.to raise_error(SystemExit) { |e| expect(e.status).to eq(1) }
+        expect(SnippetCli::UI).to have_received(:error).with(/no match files/i)
+      end
+    end
+
+    context 'when exactly one match file exists' do
+      before do
+        allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return([clean_file.path])
+        allow(Gum).to receive(:filter)
+      end
+
+      it 'auto-selects the file and runs without error' do
+        expect { command.call }.to output(/No conflicts found/i).to_stdout
+      end
+
+      it 'does not prompt via Gum.filter' do
+        command.call
+        expect(Gum).not_to have_received(:filter)
+      end
+    end
+
+    context 'when multiple match files exist' do
+      before do
+        allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return([clean_file.path, fixture_path])
+        allow(Gum).to receive(:filter).and_return(File.basename(clean_file.path))
+      end
+
+      it 'prompts the user to pick a file via Gum.filter' do
+        command.call
+        expect(Gum).to have_received(:filter)
+      end
+
+      it 'runs conflict detection on the chosen file' do
+        expect { command.call }.to output(/No conflicts found/i).to_stdout
+      end
     end
   end
 

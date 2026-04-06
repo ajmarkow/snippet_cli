@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 require 'snippet_cli/commands/validate'
+require 'snippet_cli/espanso_config'
 
 RSpec.describe SnippetCli::Commands::Validate do
   subject(:command) { described_class.new }
@@ -10,10 +11,52 @@ RSpec.describe SnippetCli::Commands::Validate do
   let(:invalid_fixture) { File.join(__dir__, '..', 'fixtures', 'invalid_matchfile.yml') }
 
   context 'when --file is not provided' do
-    it 'shows a UI.error and exits 1' do
-      allow(SnippetCli::UI).to receive(:error)
-      expect { command.call }.to raise_error(SystemExit) { |e| expect(e.status).to eq(1) }
-      expect(SnippetCli::UI).to have_received(:error).with(/--file.*required/i)
+    context 'when no match files exist' do
+      before { allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return([]) }
+
+      it 'shows a UI.error and exits 1' do
+        allow(SnippetCli::UI).to receive(:error)
+        expect { command.call }.to raise_error(SystemExit) { |e| expect(e.status).to eq(1) }
+        expect(SnippetCli::UI).to have_received(:error).with(/no match files/i)
+      end
+    end
+
+    context 'when exactly one match file exists' do
+      before do
+        allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return([valid_fixture])
+        allow(Gum).to receive(:filter)
+        allow(SnippetCli::UI).to receive(:success)
+      end
+
+      it 'auto-selects the file and validates it without prompting' do
+        expect { command.call }.not_to raise_error
+        expect(SnippetCli::UI).to have_received(:success).with(/valid/i)
+      end
+
+      it 'does not prompt via Gum.filter' do
+        command.call
+        expect(Gum).not_to have_received(:filter)
+      end
+    end
+
+    context 'when multiple match files exist' do
+      let(:another_fixture) { File.join(__dir__, '..', 'fixtures', 'valid_matchfile_full.yml') }
+
+      before do
+        allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return([valid_fixture, another_fixture])
+        allow(Gum).to receive(:filter).and_return(File.basename(valid_fixture))
+        allow(SnippetCli::UI).to receive(:success)
+      end
+
+      it 'prompts the user to pick a file via Gum.filter' do
+        command.call
+        expect(Gum).to have_received(:filter)
+      end
+
+      it 'validates the chosen file' do
+        expect { command.call }.not_to raise_error
+        expect(SnippetCli::UI).to have_received(:success).with(/valid/i)
+      end
     end
   end
 
