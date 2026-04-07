@@ -9,7 +9,7 @@ module SnippetCli
   module ReplacementCollector
     include WizardHelpers
 
-    EMPTY_REPLACE_MSG = 'Replacement cannot be empty. Please enter replacement text.'
+    EMPTY_REPLACE_WARNING = 'Replace value is empty. Continue with no replacement text?'
 
     private
 
@@ -75,19 +75,22 @@ module SnippetCli
       -> {}
     end
 
-    def collect_replace(_vars)
-      prompt_non_empty_replace do
-        use_multiline = confirm!('Multi-line replacement?')
-        if use_multiline
-          prompt!(Gum.write(header: 'Replacement', placeholder: 'Type expansion text...'))
-        else
-          prompt!(Gum.input(placeholder: 'Replacement text'))
-        end
-      end
+    def prompt_non_empty_replace(&)
+      prompt_non_empty('Replacement cannot be empty. Please enter replacement text.', &)
     end
 
-    def prompt_non_empty_replace(&)
-      prompt_non_empty(EMPTY_REPLACE_MSG, &)
+    def collect_replace(_vars)
+      loop do
+        use_multiline = confirm!('Multi-line replacement?')
+        value = if use_multiline
+                  prompt!(Gum.write(header: 'Replacement', placeholder: 'Type expansion text...'))
+                else
+                  prompt!(Gum.input(placeholder: 'Replacement text'))
+                end
+        next if value.strip.empty? && !confirm!(EMPTY_REPLACE_WARNING)
+
+        return value
+      end
     end
   end
 end

@@ -285,6 +285,20 @@ RSpec.describe SnippetCli::SnippetBuilder do
       end
     end
 
+    context 'empty string replace' do
+      it 'emits replace key with empty quoted string' do
+        yaml = build(triggers: [':del'], replace: '')
+        expect(yaml).to include("replace: ''")
+      end
+
+      it 'passes schema validation' do
+        yaml = build(triggers: [':del'], replace: '', single_trigger: true)
+        match_data = YAML.safe_load(yaml).first
+        errors = SnippetCli::FileValidator.errors({ 'matches' => [match_data] })
+        expect(errors).to be_empty, "FileValidator errors: #{errors.inspect}"
+      end
+    end
+
     context 'output structure' do
       it 'starts with a YAML list item dash' do
         yaml = build(triggers: [':hello'], replace: 'Hi')

@@ -8,17 +8,23 @@ module SnippetCli
     # to sit under the top-level `matches:` key.
     def self.append(file_path, snippet_yaml)
       existing = File.exist?(file_path) ? File.read(file_path) : ''
-      needs_prefix = existing.strip.empty?
-
       indented = snippet_yaml.lines.map { |line| "  #{line}" }.join
-
-      content = String.new
-      content << "matches:\n" if needs_prefix
-      content << existing unless needs_prefix
-      content << indented
-      content << "\n" unless content.end_with?("\n")
-
+      content = build_content(existing, indented)
       File.write(file_path, content)
     end
+
+    def self.build_content(existing, indented)
+      content = String.new
+      if existing.strip.empty?
+        content << "matches:\n"
+      else
+        content << existing
+        content << "\n" unless existing.end_with?("\n")
+      end
+      content << indented
+      content << "\n" unless content.end_with?("\n")
+      content
+    end
+    private_class_method :build_content
   end
 end

@@ -79,6 +79,22 @@ RSpec.describe SnippetCli::MatchFileWriter do
       expect(content).to include('    replace:')
     end
 
+    context 'when existing file has no trailing newline' do
+      it 'ensures new snippet starts on its own line' do
+        file = File.join(@tmpdir, 'no_newline.yml')
+        File.write(file, "matches:\n  - trigger: \":hi\"\n    replace: \"hi\"")
+
+        described_class.append(file, snippet_yaml)
+
+        content = File.read(file)
+        # The trigger key must never appear on the same line as a replace value
+        expect(content).not_to match(/replace:.*- trigger/)
+        expect(content).not_to match(/replace:.*- triggers/)
+        expect(content).not_to match(/replace:.*- regex/)
+        expect(content).to include("    replace: \"hi\"\n  - trigger:")
+      end
+    end
+
     context 'with multi-line replacement snippet' do
       let(:snippet_yaml) do
         <<~YAML

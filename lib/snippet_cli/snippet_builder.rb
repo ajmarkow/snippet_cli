@@ -106,13 +106,15 @@ module SnippetCli
     private_class_method :to_match_hash
 
     def self.merge_optional(hash, opts, *keys)
-      keys.each do |key|
-        val = opts[key]
-        hash[key] = val if val.is_a?(Array) ? val.any? : val && !val.to_s.empty?
-      end
+      keys.each { |key| hash[key] = opts[key] unless skip_key?(key, opts[key]) }
       hash
     end
     private_class_method :merge_optional
+
+    def self.skip_key?(key, val)
+      val.nil? || (val.is_a?(Array) && val.empty?) || (val.is_a?(String) && val.empty? && key != :replace)
+    end
+    private_class_method :skip_key?
 
     def self.build_trigger_hash(opts)
       if opts[:is_regex]

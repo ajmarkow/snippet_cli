@@ -60,6 +60,12 @@ RSpec.describe SnippetCli::MatchValidator do
     end
   end
 
+  context 'empty string replace' do
+    it 'accepts an empty string as a valid replace value' do
+      expect(valid?(trigger: ':del', replace: '')).to be true
+    end
+  end
+
   context 'mutually exclusive triggers' do
     it 'fails when both trigger and triggers are provided' do
       expect(valid?(trigger: ':ty', triggers: [':thankyou'], replace: 'Thank you')).to be false
