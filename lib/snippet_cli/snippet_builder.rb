@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'match_validator'
+require_relative 'yaml_param_renderer'
 require_relative 'yaml_scalar'
 
 module SnippetCli
@@ -79,20 +80,11 @@ module SnippetCli
         next unless params&.any?
 
         lines << '    params:'
-        params.each { |key, val| lines.concat(param_lines(key, val, '      ')) }
+        params.each { |key, val| lines.concat(YamlParamRenderer.lines(key, val, '      ')) }
       end
       lines
     end
     private_class_method :vars_lines
-
-    def self.param_lines(key, val, indent)
-      if val.is_a?(Array)
-        ["#{indent}#{key}:", *val.map { |item| "#{indent}  - #{YamlScalar.quote(item.to_s)}" }]
-      else
-        ["#{indent}#{key}: #{YamlScalar.quote(val.to_s)}"]
-      end
-    end
-    private_class_method :param_lines
 
     def self.replace_lines(str)
       block_scalar_lines('replace', str)

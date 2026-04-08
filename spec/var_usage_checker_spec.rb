@@ -125,6 +125,46 @@ RSpec.describe SnippetCli::VarUsageChecker do
     end
   end
 
+  context 'with form variables' do
+    let(:form_layout) do
+      "I went to [[city]].\nThe weather was [[adjective]].\n" \
+        "We ate [[food]].\nWhat a [[unit_of_time]]."
+    end
+    let(:form_var) do
+      { name: 'laughing', type: 'form', params: { layout: form_layout } }
+    end
+
+    it 'returns no warnings when all form fields are used' do
+      replace = '{{laughing.city}} {{laughing.adjective}} ' \
+                '{{laughing.food}} {{laughing.unit_of_time}}'
+      expect(warnings([form_var], { replace: replace })).to be_empty
+    end
+
+    it 'warns about unused form fields' do
+      result = warnings([form_var], { replace: '{{laughing.city}}' })
+      expect(result).to include(a_string_including('laughing.adjective'))
+      expect(result).to include(a_string_including('laughing.food'))
+      expect(result).to include(a_string_including('laughing.unit_of_time'))
+    end
+
+    it 'warns about undeclared form field references' do
+      result = warnings([form_var], { replace: '{{laughing.city}} {{laughing.bogus}}' })
+      expect(result).to include(a_string_including('laughing.bogus'))
+    end
+
+    it 'does not treat the form var name itself as a declared name' do
+      result = warnings([form_var], { replace: '{{laughing}}' })
+      expect(result).to include(a_string_including('laughing').and(matching(/not declared/i)))
+    end
+
+    it 'works alongside non-form vars' do
+      vars = [form_var, echo_var]
+      replace = '{{laughing.city}} {{laughing.adjective}} ' \
+                '{{laughing.food}} {{laughing.unit_of_time}} {{greeting}}'
+      expect(warnings(vars, { replace: replace })).to be_empty
+    end
+  end
+
   context 'with string-keyed var hashes (from YAML load)' do
     it 'handles string keys gracefully' do
       string_var = { 'name' => 'greeting', 'type' => 'echo', 'params' => { 'echo' => 'Hello' } }

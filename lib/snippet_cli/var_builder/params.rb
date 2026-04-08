@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'gum'
+require_relative 'form_fields'
 
 module SnippetCli
   module VarBuilder
@@ -9,8 +10,7 @@ module SnippetCli
       COLLECTORS = {
         'echo' => ->(b) { { echo: b.prompt!(Gum.input(placeholder: 'echo value')) } },
         'random' => ->(b) { { choices: Params.collect_list(b, 'choice value') } },
-        'choice' => ->(b) { { values: Params.collect_list(b, 'value') } },
-        'form' => ->(b) { { layout: b.prompt!(Gum.write(header: 'Form layout (use [[field_name]] for fields)')) } }
+        'choice' => ->(b) { { values: Params.collect_list(b, 'value') } }
       }.freeze
 
       def self.collect(builder, type)
@@ -21,6 +21,7 @@ module SnippetCli
         when 'date'   then date(builder)
         when 'shell'  then shell(builder)
         when 'script' then script(builder)
+        when 'form'   then form(builder)
         else {}
         end
       end
@@ -65,6 +66,19 @@ module SnippetCli
         params
       end
       private_class_method :date
+
+      def self.form(builder)
+        layout = if builder.confirm!('Multi-line form?')
+                   builder.prompt!(Gum.write(header: 'Form layout (use [[field_name]] for fields)'))
+                 else
+                   builder.prompt!(Gum.input(placeholder: 'Form layout (use [[field_name]] for fields)'))
+                 end
+        fields = FormFields.collect(builder, layout)
+        params = { layout: layout }
+        params[:fields] = fields if fields.any?
+        params
+      end
+      private_class_method :form
 
       def self.debug_trim(builder, params)
         params[:debug] = true if builder.confirm!('Enable debug mode?')

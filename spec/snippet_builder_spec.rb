@@ -87,6 +87,78 @@ RSpec.describe SnippetCli::SnippetBuilder do
       end
     end
 
+    context 'with multiline form layout' do
+      let(:vars) { [{ name: 'myform', type: 'form', params: { layout: "Name: [[name]]\nCity: [[city]]" } }] }
+
+      it 'uses a literal block scalar for layout' do
+        yaml = build(triggers: [':form'], vars: vars, replace: '{{myform.name}}')
+        expect(yaml).to include("layout: |\n")
+      end
+
+      it 'indents each layout line under the block scalar' do
+        yaml = build(triggers: [':form'], vars: vars, replace: '{{myform.name}}')
+        expect(yaml).to include('        Name: [[name]]')
+        expect(yaml).to include('        City: [[city]]')
+      end
+    end
+
+    context 'with form fields containing multiline text box' do
+      let(:vars) do
+        [{ name: 'greet', type: 'form',
+           params: { layout: "Hey [[name]],\n[[text]]\nHappy Birthday!",
+                     fields: { text: { multiline: true } } } }]
+      end
+
+      it 'renders fields as nested YAML mapping' do
+        yaml = build(triggers: [':greet'], vars: vars, replace: '{{greet.name}}')
+        expect(yaml).to include("fields:\n")
+        expect(yaml).to include("text:\n")
+        expect(yaml).to include('multiline: true')
+      end
+    end
+
+    context 'with form fields containing choice and list types' do
+      let(:vars) do
+        [{ name: 'myform', type: 'form',
+           params: { layout: '[[name]] [[food]] [[desc]]',
+                     fields: { name: { type: :choice, values: %w[aj judith] },
+                               food: { type: :list, values: %w[burger pizza] },
+                               desc: { multiline: true } } } }]
+      end
+
+      it 'renders choice field with type and values list' do
+        yaml = build(triggers: [':form'], vars: vars, replace: '{{myform.name}}')
+        expect(yaml).to include("name:\n")
+        expect(yaml).to include("type: 'choice'")
+        expect(yaml).to include("values:\n")
+        expect(yaml).to include("- 'aj'")
+        expect(yaml).to include("- 'judith'")
+      end
+
+      it 'renders list field with type and values list' do
+        yaml = build(triggers: [':form'], vars: vars, replace: '{{myform.name}}')
+        expect(yaml).to include("food:\n")
+        expect(yaml).to include("type: 'list'")
+        expect(yaml).to include("- 'burger'")
+        expect(yaml).to include("- 'pizza'")
+      end
+
+      it 'renders multiline field' do
+        yaml = build(triggers: [':form'], vars: vars, replace: '{{myform.name}}')
+        expect(yaml).to include("desc:\n")
+        expect(yaml).to include('multiline: true')
+      end
+    end
+
+    context 'with single-line form layout' do
+      let(:vars) { [{ name: 'myform', type: 'form', params: { layout: 'Name: [[name]]' } }] }
+
+      it 'renders layout as a quoted scalar' do
+        yaml = build(triggers: [':form'], vars: vars, replace: '{{myform.name}}')
+        expect(yaml).to include('layout: "Name: [[name]]"')
+      end
+    end
+
     context 'with array params (script args)' do
       let(:vars) { [{ name: 'out', type: 'script', params: { args: ['/bin/script', '--flag'] } }] }
 

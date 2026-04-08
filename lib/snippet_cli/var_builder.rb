@@ -88,22 +88,38 @@ module SnippetCli
     private_class_method :append_var!
 
     def self.show_summary(vars)
-      names = vars.map { |v| "{{#{v[:name]}}}" }.join(', ')
+      rows = summary_rows(vars)
+      names = rows.map { |name, _type| "{{#{name}}}" }.join(', ')
       text = "Reference your variables in the replacement using {{var}} syntax:\n#{names}"
       UI.note(text)
       puts
-      rows = vars.map { |var| [var[:name], var[:type]] }
       Gum.table(rows, columns: %w[Name Type], print: true)
       puts
-      build_summary_erase(text, vars)
+      build_summary_erase(text, rows)
     end
     private_class_method :show_summary
 
-    def self.build_summary_erase(text, vars)
+    def self.summary_rows(vars)
+      vars.flat_map do |var|
+        if var[:type] == 'form'
+          form_field_names(var[:params][:layout]).map { |field| ["#{var[:name]}.#{field}", 'form field'] }
+        else
+          [[var[:name], var[:type]]]
+        end
+      end
+    end
+    private_class_method :summary_rows
+
+    def self.form_field_names(layout)
+      layout.to_s.scan(/\[\[\s*(\w+)\s*\]\]/).flatten
+    end
+    private_class_method :form_field_names
+
+    def self.build_summary_erase(text, rows)
       return -> {} unless $stdout.tty?
 
       # UI.note lines + blank + table (top border + header + separator + data rows + bottom border) + blank
-      total = text.lines.count + 1 + vars.length + 4 + 1
+      total = text.lines.count + 1 + rows.length + 4 + 1
       lambda {
         $stdout.print TTY::Cursor.up(total)
         $stdout.print "\r"

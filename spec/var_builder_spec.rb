@@ -197,6 +197,8 @@ RSpec.describe SnippetCli::VarBuilder do
     end
 
     context 'when user adds a form variable' do
+      let(:field_types) { described_class::FormFields::FIELD_TYPES }
+
       before do
         allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
         allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
@@ -204,25 +206,151 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('myform')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('form')
-        allow(Gum).to receive(:write).with(hash_including(header: a_string_including('layout')))
-                                     .and_return("Enter your name: [[name]]\nEnter city: [[city]]")
         allow($stdout).to receive(:puts)
       end
 
-      it 'collects layout via gum write (multiline)' do
-        expect(Gum).to receive(:write).with(hash_including(header: a_string_including('layout')))
-                                      .and_return('Enter your name: [[name]]')
-        described_class.run
+      context 'when user selects multi-line form' do
+        before do
+          allow(Gum).to receive(:confirm).with('Multi-line form?', prompt_style: anything).and_return(true)
+          allow(Gum).to receive(:write).with(hash_including(header: a_string_including('layout')))
+                                       .and_return("Enter your name: [[name]]\nEnter city: [[city]]")
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_matching(/field type/i))
+                                        .and_return('Single-line text box', 'Single-line text box')
+        end
+
+        it 'collects layout via gum write' do
+          expect(Gum).to receive(:write).with(hash_including(header: a_string_including('layout')))
+                                        .and_return('Enter your name: [[name]]')
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_matching(/field type/i))
+                                        .and_return('Single-line text box')
+          described_class.run
+        end
+
+        it 'stores the multiline layout in params' do
+          var = described_class.run[:vars].first
+          expect(var[:params][:layout]).to eq("Enter your name: [[name]]\nEnter city: [[city]]")
+        end
       end
 
-      it 'stores the multiline layout in params' do
-        var = described_class.run[:vars].first
-        expect(var[:params][:layout]).to eq("Enter your name: [[name]]\nEnter city: [[city]]")
+      context 'when user selects single-line form' do
+        before do
+          allow(Gum).to receive(:confirm).with('Multi-line form?', prompt_style: anything).and_return(false)
+          allow(Gum).to receive(:input).with(hash_including(placeholder: a_string_including('layout')))
+                                       .and_return('Name: [[name]]')
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_matching(/field type/i))
+                                        .and_return('Single-line text box')
+        end
+
+        it 'collects layout via gum input' do
+          expect(Gum).to receive(:input).with(hash_including(placeholder: a_string_including('layout')))
+                                        .and_return('Name: [[name]]')
+          described_class.run
+        end
+
+        it 'stores the single-line layout in params' do
+          var = described_class.run[:vars].first
+          expect(var[:params][:layout]).to eq('Name: [[name]]')
+        end
+
+        it 'does not use gum write for layout' do
+          expect(Gum).not_to receive(:write)
+          described_class.run
+        end
       end
 
-      it 'does not use gum input for form layout' do
-        expect(Gum).not_to receive(:input).with(placeholder: 'form layout template')
-        described_class.run
+      context 'field type selection' do
+        before do
+          allow(Gum).to receive(:confirm).with('Multi-line form?', prompt_style: anything).and_return(false)
+          allow(Gum).to receive(:input).with(hash_including(placeholder: a_string_including('layout')))
+                                       .and_return('Name: [[name]] City: [[city]]')
+        end
+
+        it 'prompts for each field type' do
+          expect(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                             header: a_string_including('name'))
+                                         .and_return('Single-line text box').ordered
+          expect(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                             header: a_string_including('city'))
+                                         .and_return('Single-line text box').ordered
+          described_class.run
+        end
+
+        it 'omits fields key when all fields are single-line text box' do
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_matching(/field type/i))
+                                        .and_return('Single-line text box')
+          var = described_class.run[:vars].first
+          expect(var[:params]).not_to have_key(:fields)
+        end
+
+        it 'sets multiline: true for Multiline text box fields' do
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_including('name'))
+                                        .and_return('Multi-line text box')
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_including('city'))
+                                        .and_return('Single-line text box')
+          var = described_class.run[:vars].first
+          expect(var[:params][:fields]).to eq({ name: { multiline: true } })
+        end
+
+        it 'collects values for Choice box fields' do
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_including('name'))
+                                        .and_return('Choice box')
+          allow(Gum).to receive(:input).with(placeholder: 'name value (blank to finish)')
+                                       .and_return('Alice', 'Bob', '')
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_including('city'))
+                                        .and_return('Single-line text box')
+          var = described_class.run[:vars].first
+          expect(var[:params][:fields]).to eq({ name: { type: :choice, values: %w[Alice Bob] } })
+        end
+
+        it 'collects values for List box fields' do
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_including('name'))
+                                        .and_return('List box')
+          allow(Gum).to receive(:input).with(placeholder: 'name value (blank to finish)')
+                                       .and_return('Alice', 'Bob', '')
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_including('city'))
+                                        .and_return('Single-line text box')
+          var = described_class.run[:vars].first
+          expect(var[:params][:fields]).to eq({ name: { type: :list, values: %w[Alice Bob] } })
+        end
+
+        it 'requires more than one value for Choice box fields' do
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_including('name'))
+                                        .and_return('Choice box')
+          # First attempt: only one value, re-prompted; second attempt: two values
+          allow(Gum).to receive(:input).with(placeholder: 'name value (blank to finish)')
+                                       .and_return('Alice', '', 'Alice', 'Bob', '')
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_including('city'))
+                                        .and_return('Single-line text box')
+          expect(SnippetCli::UI).to receive(:warning).with(a_string_matching(/at least 2/i))
+          var = described_class.run[:vars].first
+          expect(var[:params][:fields][:name][:values]).to eq(%w[Alice Bob])
+        end
+
+        it 'requires more than one value for List box fields' do
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_including('name'))
+                                        .and_return('List box')
+          allow(Gum).to receive(:input).with(placeholder: 'name value (blank to finish)')
+                                       .and_return('Alice', '', 'Alice', 'Bob', '')
+          allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                            header: a_string_including('city'))
+                                        .and_return('Single-line text box')
+          expect(SnippetCli::UI).to receive(:warning).with(a_string_matching(/at least 2/i))
+          var = described_class.run[:vars].first
+          expect(var[:params][:fields][:name][:values]).to eq(%w[Alice Bob])
+        end
       end
     end
 
@@ -324,6 +452,84 @@ RSpec.describe SnippetCli::VarBuilder do
           print: true
         ).once
 
+        described_class.run
+      end
+    end
+
+    context 'summary display with form variable' do
+      let(:field_types) { described_class::FormFields::FIELD_TYPES }
+
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Multi-line form?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('myform')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type').and_return('form')
+        allow(Gum).to receive(:write).with(hash_including(header: a_string_including('layout')))
+                                     .and_return("Name: [[name]]\nCity: [[city]]")
+        allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                          header: a_string_matching(/field type/i))
+                                      .and_return('Single-line text box')
+        allow(Gum).to receive(:table)
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'expands form fields as individual rows with dot notation names' do
+        expect(Gum).to receive(:table).with(
+          [['myform.name', 'form field'], ['myform.city', 'form field']],
+          columns: %w[Name Type],
+          print: true
+        )
+        described_class.run
+      end
+
+      it 'shows field reference syntax in the note' do
+        expect(SnippetCli::UI).to receive(:note).with(
+          a_string_including('{{myform.name}}').and(a_string_including('{{myform.city}}'))
+        )
+        described_class.run
+      end
+
+      it 'does not show the form var itself as a row' do
+        expect(Gum).to receive(:table) do |rows, **_|
+          expect(rows).not_to include(%w[myform form])
+        end
+        described_class.run
+      end
+    end
+
+    context 'summary display with form and non-form variables' do
+      let(:field_types) { described_class::FormFields::FIELD_TYPES }
+
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm)
+          .with(a_string_including('Add another variable?'), prompt_style: anything)
+          .and_return(true, false)
+        allow(Gum).to receive(:confirm).with('Multi-line form?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('myform',
+                                                                                                         'greeting')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type').and_return('form',
+                                                                                                             'echo')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: a_string_including('layout')))
+                                     .and_return('Hi [[name]]')
+        allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                          header: a_string_matching(/field type/i))
+                                      .and_return('Single-line text box')
+        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
+        allow(Gum).to receive(:table)
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'renders form fields and regular vars together' do
+        expect(Gum).to receive(:table).with(
+          [['myform.name', 'form field'], %w[greeting echo]],
+          columns: %w[Name Type],
+          print: true
+        )
         described_class.run
       end
     end

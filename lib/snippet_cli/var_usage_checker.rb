@@ -4,7 +4,8 @@ module SnippetCli
   # Checks variable usage in a single snippet match.
   # Detects declared-but-unused vars and used-but-undeclared {{refs}}.
   module VarUsageChecker
-    VAR_REF_PATTERN = /\{\{(\w+)\}\}/
+    VAR_REF_PATTERN = /\{\{(\w+(?:\.\w+)?)\}\}/
+    FORM_FIELD_PATTERN = /\[\[\s*(\w+)\s*\]\]/
     REPLACEMENT_KEYS = %i[replace html markdown image_path].freeze
 
     # Returns an array of human-readable warning strings.
@@ -18,9 +19,21 @@ module SnippetCli
     end
 
     def self.extract_names(vars)
-      Array(vars).filter_map { |v| v[:name] || v['name'] }
+      Array(vars).flat_map do |v|
+        name = v[:name] || v['name']
+        next [] unless name
+
+        (v[:type] || v['type']).to_s == 'form' ? form_field_refs(name, v) : [name]
+      end
     end
     private_class_method :extract_names
+
+    def self.form_field_refs(name, var)
+      params = var[:params] || var['params'] || {}
+      layout = params[:layout] || params['layout'] || ''
+      layout.scan(FORM_FIELD_PATTERN).flatten.map { |field| "#{name}.#{field}" }
+    end
+    private_class_method :form_field_refs
 
     def self.extract_refs(replacement)
       text = REPLACEMENT_KEYS.filter_map { |k| replacement[k] }.join
