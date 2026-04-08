@@ -66,7 +66,7 @@ module SnippetCli
       if vars.empty?
         confirm!(question)
       else
-        list_confirm!('variable', vars.map { |v| [v[:name], v[:type]] }, %w[Name Type], question)
+        list_confirm!('variable', summary_rows(vars), %w[Name Type], question)
       end
     end
     private_class_method :confirm_next?

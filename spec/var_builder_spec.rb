@@ -456,6 +456,56 @@ RSpec.describe SnippetCli::VarBuilder do
       end
     end
 
+    context 'mid-flow table with form variable' do
+      let(:field_types) { described_class::FormFields::FIELD_TYPES }
+
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with('Multi-line form?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name'))
+                                     .and_return('test', 'greeting')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type')
+                                      .and_return('form', 'echo')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: a_string_including('layout')))
+                                     .and_return('Name: [[field1]] City: [[field2]]')
+        allow(Gum).to receive(:filter).with(*field_types, limit: 1,
+                                                          header: a_string_matching(/field type/i))
+                                      .and_return('Single-line text box')
+        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hi')
+        allow(Gum).to receive(:table)
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'shows form fields with dot notation in the mid-flow confirm' do
+        allow(Gum).to receive(:confirm)
+          .with(a_string_including('Add another variable?'), prompt_style: anything)
+          .and_return(true, false)
+        expect(Gum).to receive(:confirm)
+          .with(a_string_including('test.field1').and(a_string_including('test.field2')),
+                prompt_style: anything)
+        described_class.run
+      end
+
+      it 'shows form field type in the mid-flow confirm' do
+        allow(Gum).to receive(:confirm)
+          .with(a_string_including('Add another variable?'), prompt_style: anything)
+          .and_return(true, false)
+        expect(Gum).to receive(:confirm)
+          .with(a_string_including('form field'), prompt_style: anything)
+        described_class.run
+      end
+
+      it 'does not show the bare form var name in the mid-flow confirm' do
+        allow(Gum).to receive(:confirm)
+          .with(a_string_including('Add another variable?'), prompt_style: anything)
+          .and_return(true, false)
+        expect(Gum).not_to receive(:confirm)
+          .with(a_string_matching(/│ test\s+│ form\s+│/), prompt_style: anything)
+        described_class.run
+      end
+    end
+
     context 'summary display with form variable' do
       let(:field_types) { described_class::FormFields::FIELD_TYPES }
 
