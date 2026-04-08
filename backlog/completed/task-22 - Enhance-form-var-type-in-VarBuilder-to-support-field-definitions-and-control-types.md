@@ -3,10 +3,10 @@ id: TASK-22
 title: >-
   Enhance form var type in VarBuilder to support field definitions and control
   types
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-30 04:13'
-updated_date: '2026-04-06 02:57'
+updated_date: '2026-04-08 01:43'
 labels:
   - ux
   - wizard
@@ -82,16 +82,16 @@ The current `form` collector in `Params::COLLECTORS` is a single lambda that pro
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Existing `form` type in VarBuilder enhanced — no separate FormFieldBuilder class
-- [ ] #2 Layout prompt collects a multi-line template with `[[field_name]]` placeholders
-- [ ] #3 After layout entry, each `[[field]]` placeholder is parsed and the user is prompted for its control type (text/choice/list)
-- [ ] #4 Text fields: user prompted for multiline (bool) and default value
-- [ ] #5 Choice and list fields: user prompted for values list and default
-- [ ] #6 Params output includes `fields:` hash only when fields have non-default config
-- [ ] #7 Form field values referenceable by subsequent vars as `{{formName.fieldName}}`
-- [ ] #8 Summary table displays form fields with their types after collection
-- [ ] #9 Generated YAML matches Espanso verbose form syntax (`type: form`, `params.layout`, `params.fields`)
-- [ ] #10 Integration with existing VarBuilder flow — form is just another var type alongside shell, script, etc.
+- [x] #1 Existing `form` type in VarBuilder enhanced — no separate FormFieldBuilder class
+- [x] #2 Layout prompt collects a multi-line template with `[[field_name]]` placeholders
+- [x] #3 After layout entry, each `[[field]]` placeholder is parsed and the user is prompted for its control type (text/choice/list)
+- [x] #4 Text fields: user prompted for multiline (bool) and default value
+- [x] #5 Choice and list fields: user prompted for values list and default
+- [x] #6 Params output includes `fields:` hash only when fields have non-default config
+- [x] #7 Form field values referenceable by subsequent vars as `{{formName.fieldName}}`
+- [x] #8 Summary table displays form fields with their types after collection
+- [x] #9 Generated YAML matches Espanso verbose form syntax (`type: form`, `params.layout`, `params.fields`)
+- [x] #10 Integration with existing VarBuilder flow — form is just another var type alongside shell, script, etc.
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -136,3 +136,18 @@ This only collects a raw layout string. No field-level configuration is collecte
 - Espanso forms docs: https://espanso.org/docs/matches/forms/
 - Verbose syntax with extensions: https://espanso.org/docs/matches/forms/#using-forms-with-script-and-shell-extensions
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Implemented full form variable support in the snippet wizard across two commits (bea57dd, ebeb53e):
+
+- Multi-line toggle: "Multi-line form?" confirm after selecting form type, using Gum.write (block scalar) or Gum.input (single-line) for layout input
+- Field type selection: each [[field]] placeholder parsed from layout, user selects control type via Gum.filter (Single-line text box, Multi-line text box, Choice box, List box)
+- Choice/List validation: requires at least 2 values
+- Fields hash only included in params when non-default config exists
+- Summary table (both mid-flow and final) expands form vars into per-field rows with dot notation names (e.g. form.field) and type "form field"
+- YAML rendering: nested Hash/boolean values render as proper YAML mappings; multiline params use block scalar notation
+- Variable usage checker: form vars declare field-level names and {{var.field}} references are matched
+- Extracted FormFields module and YamlParamRenderer module to satisfy rubocop module length limits
+<!-- SECTION:FINAL_SUMMARY:END -->
