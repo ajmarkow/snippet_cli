@@ -45,12 +45,7 @@ module SnippetCli
     private_class_method :replacement_lines
 
     def self.block_scalar_lines(key, val)
-      if val.include?("\n")
-        indented = val.lines.map { |line| "    #{line.chomp}" }.join("\n")
-        ["  #{key}: |", indented]
-      else
-        ["  #{key}: #{YamlScalar.quote(val)}"]
-      end
+      YamlParamRenderer.scalar_lines(key, val, '  ')
     end
     private_class_method :block_scalar_lines
 

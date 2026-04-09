@@ -29,6 +29,5 @@ module SnippetCli
         ["#{indent}#{key}: #{YamlScalar.quote(str)}"]
       end
     end
-    private_class_method :scalar_lines
   end
 end
