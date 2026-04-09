@@ -19,16 +19,15 @@ module SnippetCli
       option :trigger, type: :array, aliases: ['-t'], desc: 'Trigger(s) to look up (comma-separated or repeated flag)'
 
       def call(file: nil, trigger: nil, **)
-        file ||= pick_match_file.last
-        validate_file!(file)
-        entries = load_entries(file)
-        trigger ? show_trigger(entries, trigger) : show_conflicts(entries)
+        handle_errors do
+          file ||= pick_match_file.last
+          validate_file!(file)
+          entries = load_entries(file)
+          trigger ? show_trigger(entries, trigger) : show_conflicts(entries)
+        end
       rescue Psych::SyntaxError => e
         warn "Invalid YAML: #{e.message}"
         exit 1
-      rescue WizardInterrupted
-        puts
-        UI.error('Interrupted, exiting snippet_cli.')
       end
 
       private

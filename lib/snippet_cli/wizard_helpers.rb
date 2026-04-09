@@ -57,6 +57,19 @@ module SnippetCli
       exit 1
     end
 
+    # Wraps a command body with standard error handling.
+    # Rescues WizardInterrupted (Ctrl+C) universally.
+    # Also rescues any error_classes passed, displaying their message via UI.error and exiting 1.
+    def handle_errors(*error_classes)
+      yield
+    rescue *error_classes => e
+      UI.error(e.message)
+      exit 1
+    rescue WizardInterrupted
+      puts
+      UI.error('Interrupted, exiting snippet_cli.')
+    end
+
     # Loops until the block yields a non-empty string.
     # Shows warning_message as a transient warning on empty input.
     def prompt_non_empty(warning_message)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'yaml'
+require_relative 'file_helper'
 
 module SnippetCli
   # Appends generated var entries to the global_vars key in an Espanso match file.
@@ -10,7 +11,7 @@ module SnippetCli
     # Creates the key if it doesn't exist. Never overwrites existing vars.
     # +var_entries+ is the indented YAML string (each line already indented by 2).
     def self.append(file_path, var_entries)
-      existing = File.exist?(file_path) ? File.read(file_path) : ''
+      existing = FileHelper.read_or_empty(file_path)
       content = build_content(existing, var_entries)
       File.write(file_path, content)
     end

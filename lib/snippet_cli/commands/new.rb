@@ -34,14 +34,10 @@ module SnippetCli
                             desc: 'Simple mode: skip variables, alt types, label, and comment'
 
       def call(**opts)
-        prepare_save if opts[:save]
-        deliver_snippet(build_snippet(opts))
-      rescue ValidationError, EspansoConfigError, YamlScalar::InvalidCharacterError => e
-        UI.error(e.message)
-        exit 1
-      rescue WizardInterrupted
-        puts
-        UI.error('Interrupted, exiting snippet_cli.')
+        handle_errors(ValidationError, EspansoConfigError, YamlScalar::InvalidCharacterError) do
+          prepare_save if opts[:save]
+          deliver_snippet(build_snippet(opts))
+        end
       end
 
       private

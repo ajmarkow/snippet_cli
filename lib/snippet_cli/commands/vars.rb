@@ -19,15 +19,11 @@ module SnippetCli
                     desc: 'Save vars to Espanso match file under global_vars'
 
       def call(**opts)
-        result = VarBuilder.run(skip_initial_prompt: true)
-        save_vars(result[:vars]) if opts[:save]
-        deliver_vars(result[:vars])
-      rescue EspansoConfigError => e
-        UI.error(e.message)
-        exit 1
-      rescue WizardInterrupted
-        puts
-        UI.error('Interrupted, exiting snippet_cli.')
+        handle_errors(EspansoConfigError) do
+          result = VarBuilder.run(skip_initial_prompt: true)
+          save_vars(result[:vars]) if opts[:save]
+          deliver_vars(result[:vars])
+        end
       end
 
       private
