@@ -2,6 +2,7 @@
 
 require 'dry/cli'
 require_relative '../var_builder'
+require_relative '../var_yaml_renderer'
 require_relative '../snippet_builder'
 require_relative '../ui'
 require_relative '../wizard_helpers'
@@ -52,21 +53,7 @@ module SnippetCli
       end
 
       def var_lines(var)
-        lines = ["  - name: #{var[:name]}", "    type: #{var[:type]}"]
-        params = var[:params]
-        return lines unless params&.any?
-
-        lines << '    params:'
-        params.each { |key, val| lines << "      #{key}: #{yaml_scalar(val)}" }
-        lines
-      end
-
-      # Quote values that YAML would misinterpret (%, {, [, etc.)
-      def yaml_scalar(val)
-        return val.to_s if val.is_a?(Numeric) || val == true || val == false
-
-        str = val.to_s
-        YAML.dump(str).sub(/\A--- /, '').chomp
+        VarYamlRenderer.var_lines(var)
       end
     end
   end
