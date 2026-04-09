@@ -6,6 +6,7 @@ require 'yaml'
 require_relative '../conflict_detector'
 require_relative '../ui'
 require_relative '../wizard_helpers'
+require_relative '../file_helper'
 require_relative '../espanso_config'
 
 module SnippetCli
@@ -21,7 +22,7 @@ module SnippetCli
       def call(file: nil, trigger: nil, **)
         handle_errors do
           file ||= pick_match_file.last
-          validate_file!(file)
+          FileHelper.ensure_readable!(file)
           entries = load_entries(file)
           trigger ? show_trigger(entries, trigger) : show_conflicts(entries)
         end
@@ -31,13 +32,6 @@ module SnippetCli
       end
 
       private
-
-      def validate_file!(file)
-        return if File.exist?(file)
-
-        UI.error("File not found: #{file}")
-        exit 1
-      end
 
       def load_entries(file)
         ConflictDetector.extract_triggers(File.read(file))
