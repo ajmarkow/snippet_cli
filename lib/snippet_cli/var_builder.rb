@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 require 'gum'
-require_relative 'ui'
-require_relative 'cursor_helper'
 require_relative 'wizard_helpers'
+require_relative 'var_summary_renderer'
 require_relative 'var_builder/name_collector'
 require_relative 'var_builder/params'
 
@@ -55,7 +54,7 @@ module SnippetCli
 
         append_var!(vars)
       end
-      summary_clear = vars.empty? ? -> {} : show_summary(vars)
+      summary_clear = vars.empty? ? -> {} : VarSummaryRenderer.show(vars)
       { vars: vars, summary_clear: summary_clear }
     end
     private_class_method :interactive_session
@@ -67,7 +66,7 @@ module SnippetCli
       if vars.empty?
         confirm!(question)
       else
-        list_confirm!('variable', summary_rows(vars), %w[Name Type], question)
+        list_confirm!('variable', VarSummaryRenderer.rows(vars), %w[Name Type], question)
       end
     end
     private_class_method :confirm_next?
@@ -87,40 +86,5 @@ module SnippetCli
       vars << var
     end
     private_class_method :append_var!
-
-    def self.show_summary(vars)
-      rows = summary_rows(vars)
-      names = rows.map { |name, _type| "{{#{name}}}" }.join(', ')
-      text = "Reference your variables in the replacement using {{var}} syntax:\n#{names}"
-      UI.note(text)
-      puts
-      Gum.table(rows, columns: %w[Name Type], print: true)
-      puts
-      build_summary_erase(text, rows)
-    end
-    private_class_method :show_summary
-
-    def self.summary_rows(vars)
-      vars.flat_map do |var|
-        if var[:type] == 'form'
-          form_field_names(var[:params][:layout]).map { |field| ["#{var[:name]}.#{field}", 'form field'] }
-        else
-          [[var[:name], var[:type]]]
-        end
-      end
-    end
-    private_class_method :summary_rows
-
-    def self.form_field_names(layout)
-      layout.to_s.scan(/\[\[\s*(\w+)\s*\]\]/).flatten
-    end
-    private_class_method :form_field_names
-
-    def self.build_summary_erase(text, rows)
-      # UI.note lines + blank + table (top border + header + separator + data rows + bottom border) + blank
-      total = text.lines.count + 1 + rows.length + 4 + 1
-      CursorHelper.build_erase_lambda(total)
-    end
-    private_class_method :build_summary_erase
   end
 end
