@@ -8,12 +8,45 @@ class WizardHelpersTestHost
 
   public :confirm!
   public :handle_errors
+  public :optional_prompt
 end
 
 RSpec.describe SnippetCli::WizardHelpers do
   subject(:host) { WizardHelpersTestHost.new }
 
   before { system('true') } # reset $? so stale 130 exits don't fire WizardInterrupted
+
+  describe '#optional_prompt' do
+    context 'when the user confirms' do
+      before { allow(Gum).to receive(:confirm).and_return(true) }
+
+      it 'returns the block result' do
+        result = host.optional_prompt('Add one?') { 'collected value' }
+        expect(result).to eq('collected value')
+      end
+
+      it 'executes the block' do
+        executed = false
+        host.optional_prompt('Add one?') { executed = true }
+        expect(executed).to be(true)
+      end
+    end
+
+    context 'when the user declines' do
+      before { allow(Gum).to receive(:confirm).and_return(false) }
+
+      it 'returns nil' do
+        result = host.optional_prompt('Add one?') { 'collected value' }
+        expect(result).to be_nil
+      end
+
+      it 'does not execute the block' do
+        executed = false
+        host.optional_prompt('Add one?') { executed = true }
+        expect(executed).to be(false)
+      end
+    end
+  end
 
   describe '#handle_errors' do
     let(:test_error_class) { Class.new(StandardError) }

@@ -88,8 +88,8 @@ module SnippetCli
       end
 
       def collect_advanced
-        label   = confirm!('Add a label?')   ? prompt!(Gum.input(placeholder: 'Label'))   : nil
-        comment = confirm!('Add a comment?') ? prompt!(Gum.input(placeholder: 'Comment')) : nil
+        label   = optional_prompt('Add a label?')   { prompt!(Gum.input(placeholder: 'Label')) }
+        comment = optional_prompt('Add a comment?') { prompt!(Gum.input(placeholder: 'Comment')) }
         [label, comment]
       end
     end

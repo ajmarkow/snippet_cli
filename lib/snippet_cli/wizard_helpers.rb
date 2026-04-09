@@ -57,6 +57,11 @@ module SnippetCli
       exit 1
     end
 
+    # Confirms a question then collects a value via the block, or returns nil if declined.
+    def optional_prompt(question)
+      yield if confirm!(question)
+    end
+
     # Wraps a command body with standard error handling.
     # Rescues WizardInterrupted (Ctrl+C) universally.
     # Also rescues any error_classes passed, displaying their message via UI.error and exiting 1.
