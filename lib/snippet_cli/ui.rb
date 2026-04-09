@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'gum'
-require 'tty-cursor'
+require_relative 'cursor_helper'
 
 module SnippetCli
   module UI
@@ -49,13 +49,7 @@ module SnippetCli
     end
 
     def self.erase_lambda(line_count)
-      return -> {} unless $stdout.tty?
-
-      lambda {
-        $stdout.print TTY::Cursor.up(line_count)
-        $stdout.print "\r"
-        $stdout.print TTY::Cursor.clear_screen_down
-      }
+      CursorHelper.build_erase_lambda(line_count)
     end
     private_class_method :erase_lambda
 

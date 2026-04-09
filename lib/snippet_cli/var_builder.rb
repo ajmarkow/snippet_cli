@@ -2,6 +2,7 @@
 
 require 'gum'
 require_relative 'ui'
+require_relative 'cursor_helper'
 require_relative 'wizard_helpers'
 require_relative 'var_builder/name_collector'
 require_relative 'var_builder/params'
@@ -116,15 +117,9 @@ module SnippetCli
     private_class_method :form_field_names
 
     def self.build_summary_erase(text, rows)
-      return -> {} unless $stdout.tty?
-
       # UI.note lines + blank + table (top border + header + separator + data rows + bottom border) + blank
       total = text.lines.count + 1 + rows.length + 4 + 1
-      lambda {
-        $stdout.print TTY::Cursor.up(total)
-        $stdout.print "\r"
-        $stdout.print TTY::Cursor.clear_screen_down
-      }
+      CursorHelper.build_erase_lambda(total)
     end
     private_class_method :build_summary_erase
   end
