@@ -4,18 +4,18 @@ title: Add package to nixpkgs
 status: To Do
 assignee: []
 created_date: '2026-04-06 20:35'
-updated_date: '2026-04-09 21:51'
+updated_date: '2026-04-09 21:59'
 labels:
   - nix
 dependencies: []
 references:
   - >-
     https://github.com/nix-community/bundix
+    https://fzakaria.com/2020/07/18/what-is-bundlerenv-doing
     https://github.com/NixOS/nixpkgs/blob/master/doc/languages-frameworks/ruby.section.md#packaging-applications-packaging-applications
 priority: low
 ordinal: 1000
----
-## Description
+---## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Package snippet_cli as a Ruby application and submit it to nixpkgs.
