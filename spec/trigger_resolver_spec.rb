@@ -11,6 +11,9 @@ class TriggerResolverHost
 
   public :prompt_trigger_loop
   public :collect_triggers
+  public :resolve_triggers
+  public :resolve_triggers_from_flags
+  public :resolve_triggers_interactively
 end
 
 RSpec.describe SnippetCli::TriggerResolver do
@@ -54,6 +57,79 @@ RSpec.describe SnippetCli::TriggerResolver do
         expect(SnippetCli::UI).not_to receive(:info).with(a_string_including('Rust Regex'))
         host.collect_triggers('regular', nil, false)
       end
+    end
+  end
+
+  describe 'TriggerResolution struct' do
+    it 'is defined under SnippetCli::TriggerResolver' do
+      expect(SnippetCli::TriggerResolver::TriggerResolution).to be_a(Class)
+    end
+
+    it 'has named fields: list, is_regex, single_trigger' do
+      r = SnippetCli::TriggerResolver::TriggerResolution.new([':foo'], false, true)
+      expect(r.list).to eq([':foo'])
+      expect(r.is_regex).to be(false)
+      expect(r.single_trigger).to be(true)
+    end
+  end
+
+  describe '#resolve_triggers_from_flags' do
+    before { allow(host).to receive(:check_conflicts) }
+
+    context 'with --trigger flag' do
+      let(:opts) { { trigger: ':foo', triggers: nil, regex: nil, file: nil, no_warn: false } }
+
+      it 'returns a TriggerResolution struct' do
+        result = host.resolve_triggers_from_flags(opts)
+        expect(result).to be_a(SnippetCli::TriggerResolver::TriggerResolution)
+      end
+
+      it 'has list containing the trigger' do
+        expect(host.resolve_triggers_from_flags(opts).list).to eq([':foo'])
+      end
+
+      it 'has is_regex false' do
+        expect(host.resolve_triggers_from_flags(opts).is_regex).to be(false)
+      end
+
+      it 'has single_trigger true' do
+        expect(host.resolve_triggers_from_flags(opts).single_trigger).to be(true)
+      end
+    end
+
+    context 'with --regex flag' do
+      let(:opts) { { trigger: nil, triggers: nil, regex: ':(gr|great)ing', file: nil, no_warn: false } }
+
+      it 'returns a TriggerResolution struct with is_regex true' do
+        result = host.resolve_triggers_from_flags(opts)
+        expect(result).to be_a(SnippetCli::TriggerResolver::TriggerResolution)
+        expect(result.is_regex).to be(true)
+        expect(result.single_trigger).to be(false)
+      end
+    end
+  end
+
+  describe '#resolve_triggers_interactively' do
+    before do
+      allow(Gum).to receive(:choose).and_return('regular')
+      allow(host).to receive(:prompt!).and_return('regular')
+      allow(host).to receive(:collect_triggers).and_return([[':foo'], false])
+    end
+
+    it 'returns a TriggerResolution struct' do
+      result = host.resolve_triggers_interactively({})
+      expect(result).to be_a(SnippetCli::TriggerResolver::TriggerResolution)
+    end
+
+    it 'has single_trigger false (interactive never produces single)' do
+      result = host.resolve_triggers_interactively({})
+      expect(result.single_trigger).to be(false)
+    end
+
+    it 'has list and is_regex from collect_triggers' do
+      result = host.resolve_triggers_interactively({})
+      expect(result.list).to eq([':foo'])
+      expect(result.is_regex).to be(false)
     end
   end
 

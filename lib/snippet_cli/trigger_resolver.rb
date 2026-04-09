@@ -7,6 +7,8 @@ require_relative 'wizard_helpers'
 module SnippetCli
   # Resolves trigger input from CLI flags or interactive prompts.
   module TriggerResolver
+    TriggerResolution = Struct.new(:list, :is_regex, :single_trigger)
+
     include WizardHelpers
 
     RUST_REGEX_GUIDANCE = "Espanso uses Rust Regex syntax, ensure this is a valid Rust regex.\n" \
@@ -27,20 +29,20 @@ module SnippetCli
     def resolve_triggers_from_flags(opts)
       list, is_regex, single = resolve_trigger_flags(opts)
       check_conflicts(list, opts[:file], opts[:no_warn])
-      [list, is_regex, single]
+      TriggerResolution.new(list, is_regex, single)
     end
 
     def resolve_triggers_interactively(opts)
       type = prompt!(Gum.choose('regular', 'regex', header: "Trigger type?\n"))
       list, is_regex = collect_triggers(type, opts[:file], opts[:no_warn])
-      [list, is_regex, false]
+      TriggerResolution.new(list, is_regex, false)
     end
 
     def validate_trigger_flags!(trigger, triggers, regex)
       provided = [trigger, triggers, regex].compact
       return if provided.length <= 1
 
-      warn 'Error: --trigger, --triggers, and --regex are mutually exclusive. Provide only one.'
+      warn '--trigger, --triggers, and --regex are mutually exclusive. Provide only one.'
       exit 1
     end
 

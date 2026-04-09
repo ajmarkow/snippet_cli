@@ -36,7 +36,7 @@ module SnippetCli
       def call(**opts)
         prepare_save if opts[:save]
         deliver_snippet(build_snippet(opts))
-      rescue ValidationError, EspansoConfigError => e
+      rescue ValidationError, EspansoConfigError, YamlScalar::InvalidCharacterError => e
         UI.error(e.message)
         exit 1
       rescue WizardInterrupted
@@ -47,9 +47,9 @@ module SnippetCli
       private
 
       def build_snippet(opts)
-        trigger_list, is_regex, single = resolve_triggers(opts)
+        resolution = resolve_triggers(opts)
         SnippetBuilder.build(
-          triggers: trigger_list, is_regex: is_regex, single_trigger: single,
+          triggers: resolution.list, is_regex: resolution.is_regex, single_trigger: resolution.single_trigger,
           **resolve_replacement(opts[:replace], simple: opts[:simple])
         )
       end
