@@ -33,7 +33,7 @@ RSpec.describe SnippetCli::VarYamlRenderer do
       end
 
       it 'returns only name and type lines' do
-        expect(described_class.var_lines(var)).to eq(["'  - name: x'", '"    type: echo"'])
+        expect(described_class.var_lines(var)).to eq(['  - name: x', '    type: echo'])
       end
     end
 
