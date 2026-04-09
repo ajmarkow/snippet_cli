@@ -2,6 +2,7 @@
 
 require 'yaml'
 require_relative 'file_helper'
+require_relative 'string_helper'
 
 module SnippetCli
   # Appends generated var entries to the global_vars key in an Espanso match file.
@@ -33,12 +34,12 @@ module SnippetCli
     private_class_method :build_content
 
     def self.new_global_vars(var_entries)
-      ensure_newline("global_vars:\n#{var_entries}")
+      StringHelper.ensure_trailing_newline("global_vars:\n#{var_entries}")
     end
     private_class_method :new_global_vars
 
     def self.append_global_vars(existing, var_entries)
-      ensure_newline("#{existing.chomp}\n\nglobal_vars:\n#{var_entries}")
+      StringHelper.ensure_trailing_newline("#{existing.chomp}\n\nglobal_vars:\n#{var_entries}")
     end
     private_class_method :append_global_vars
 
@@ -72,13 +73,8 @@ module SnippetCli
         result << "\n" unless result.end_with?("\n\n") || rest.first&.strip&.empty?
         result << rest.join
       end
-      ensure_newline(result)
+      StringHelper.ensure_trailing_newline(result)
     end
     private_class_method :join_parts
-
-    def self.ensure_newline(str)
-      str.end_with?("\n") ? str : "#{str}\n"
-    end
-    private_class_method :ensure_newline
   end
 end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'file_helper'
+require_relative 'string_helper'
 
 module SnippetCli
   # Appends a generated snippet YAML string to an Espanso match file.
@@ -16,16 +17,8 @@ module SnippetCli
     end
 
     def self.build_content(existing, indented)
-      content = String.new
-      if existing.strip.empty?
-        content << "matches:\n"
-      else
-        content << existing
-        content << "\n" unless existing.end_with?("\n")
-      end
-      content << indented
-      content << "\n" unless content.end_with?("\n")
-      content
+      prefix = existing.strip.empty? ? "matches:\n" : StringHelper.ensure_trailing_newline(existing)
+      StringHelper.ensure_trailing_newline("#{prefix}#{indented}")
     end
     private_class_method :build_content
   end
