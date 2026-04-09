@@ -4,11 +4,13 @@ title: Simplify user flow with 'Show advanced options' gum confirm
 status: To Do
 assignee: []
 created_date: '2026-04-06 03:01'
+updated_date: '2026-04-09 20:19'
 labels:
   - feature
   - ux
 dependencies: []
 priority: medium
+ordinal: 2000
 ---
 
 ## Description

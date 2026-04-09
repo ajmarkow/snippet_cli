@@ -4,11 +4,13 @@ title: Consolidate multiline YAML block rendering into YamlParamRenderer
 status: To Do
 assignee: []
 created_date: '2026-04-08 21:04'
+updated_date: '2026-04-09 20:19'
 labels:
   - refactor
   - dry
 dependencies: []
 priority: medium
+ordinal: 5000
 ---
 
 ## Description

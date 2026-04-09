@@ -4,11 +4,13 @@ title: Nest advanced/debug options under a separate section after initial input
 status: To Do
 assignee: []
 created_date: '2026-04-08 21:05'
+updated_date: '2026-04-09 20:19'
 labels:
   - ux
   - feature
 dependencies: []
 priority: low
+ordinal: 13000
 ---
 
 ## Description
