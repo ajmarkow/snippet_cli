@@ -43,7 +43,7 @@ module SnippetCli
           puts 'No conflicts found'
           return
         end
-        puts "\e[38;5;231mThe following conflicts were found:\e[0m"
+        UI.note('The following conflicts were found:')
         Gum.table(build_rows(duplicates), columns: %w[Trigger Lines], separator: "\t", print: true)
       end
 
@@ -59,7 +59,7 @@ module SnippetCli
           puts "Trigger(s) #{triggers.join(', ')} not found"
           return
         end
-        puts "\e[38;5;231mThe following conflicts were found:\e[0m"
+        UI.note('The following conflicts were found:')
         rows = build_rows(matches.group_by { |e| e[:trigger] })
         Gum.table(rows, columns: %w[Trigger Lines], separator: "\t", print: true)
       end

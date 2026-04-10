@@ -48,6 +48,38 @@ RSpec.describe SnippetCli::UI do
     end
   end
 
+  describe 'STYLE_FLAGS' do
+    it 'defines presets for all named style methods' do
+      expect(described_class::STYLE_FLAGS.keys).to match_array(%i[info hint success warning error preview])
+    end
+
+    it 'includes bold in success' do
+      expect(described_class::STYLE_FLAGS[:success]).to include('--bold')
+    end
+
+    it 'includes bold in warning' do
+      expect(described_class::STYLE_FLAGS[:warning]).to include('--bold')
+    end
+
+    it 'includes bold in error' do
+      expect(described_class::STYLE_FLAGS[:error]).to include('--bold')
+    end
+
+    it 'info has no variant flags' do
+      expect(described_class::STYLE_FLAGS[:info]).to be_empty
+    end
+  end
+
+  describe 'BASE_FLAGS' do
+    it 'includes --border=rounded' do
+      expect(described_class::BASE_FLAGS).to include('--border=rounded')
+    end
+
+    it 'includes --padding=0 4' do
+      expect(described_class::BASE_FLAGS).to include('--padding=0 4')
+    end
+  end
+
   describe '.transient_warning' do
     it 'always calls UI.warning with the text regardless of TTY' do
       allow($stdout).to receive(:tty?).and_return(false)

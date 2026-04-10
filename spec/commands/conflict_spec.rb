@@ -133,6 +133,12 @@ RSpec.describe SnippetCli::Commands::Conflict do
         expect { command.call(file: fixture_path) }
           .to output(/The following conflicts were found/).to_stdout
       end
+
+      it 'routes the header through UI.note' do
+        allow(Gum).to receive(:table)
+        expect(SnippetCli::UI).to receive(:note).with('The following conflicts were found:')
+        command.call(file: fixture_path)
+      end
     end
   end
 

@@ -5,29 +5,27 @@ require_relative 'cursor_helper'
 
 module SnippetCli
   module UI
+    BASE_FLAGS = ['--border=rounded', '--padding=0 4'].freeze
+
+    STYLE_FLAGS = {
+      info: [],
+      hint: ['--border-foreground=220'],
+      success: ['--border-foreground=46', '--bold'],
+      warning: ['--border-foreground=220', '--foreground=220', '--bold'],
+      error: ['--border-foreground=196', '--foreground=196', '--bold'],
+      preview: []
+    }.freeze
+
     def self.note(text)
       puts "\e[38;5;231m#{text}\e[0m"
     end
 
-    def self.info(text)
-      gum_style(text, '--border=rounded', '--padding=0 4')
-    end
-
-    def self.hint(text)
-      gum_style(text, '--border=rounded', '--padding=0 4', '--border-foreground=220')
-    end
-
-    def self.success(text)
-      gum_style(text, '--border=rounded', '--padding=0 4', '--border-foreground=46', '--bold')
-    end
-
-    def self.warning(text)
-      gum_style(text, '--border=rounded', '--padding=0 4', '--border-foreground=220', '--foreground=220', '--bold')
-    end
-
-    def self.error(text)
-      gum_style(text, '--border=rounded', '--padding=0 4', '--border-foreground=196', '--foreground=196', '--bold')
-    end
+    def self.info(text)    = gum_style(text, *STYLE_FLAGS[:info])
+    def self.hint(text)    = gum_style(text, *STYLE_FLAGS[:hint])
+    def self.success(text) = gum_style(text, *STYLE_FLAGS[:success])
+    def self.warning(text) = gum_style(text, *STYLE_FLAGS[:warning])
+    def self.error(text)   = gum_style(text, *STYLE_FLAGS[:error])
+    def self.preview(text) = gum_style(text, *STYLE_FLAGS[:preview])
 
     # Renders a warning and returns a lambda that erases it via line-count tracking.
     # The warning is always rendered; the clear lambda is a no-op when not a TTY.
@@ -53,10 +51,6 @@ module SnippetCli
     end
     private_class_method :erase_lambda
 
-    def self.preview(text)
-      gum_style(text, '--border=rounded', '--padding=0 4')
-    end
-
     def self.format_code(text, language: 'yaml')
       Gum::Command.run_display_only('format', '--type=code', "--language=#{language}", input: text)
       puts
@@ -79,8 +73,8 @@ module SnippetCli
     # Pass text via stdin instead of as a positional CLI argument.
     # Gum's arg parser interprets leading `-` characters (e.g. YAML list
     # markers like `- triggers:`) as unknown flags when passed positionally.
-    def self.gum_style(text, *flags)
-      result = Gum::Command.run_non_interactive('style', *flags, input: text)
+    def self.gum_style(text, *extra_flags)
+      result = Gum::Command.run_non_interactive('style', *BASE_FLAGS, *extra_flags, input: text)
       puts result
     end
     private_class_method :gum_style
