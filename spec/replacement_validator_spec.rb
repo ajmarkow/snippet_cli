@@ -25,6 +25,19 @@ RSpec.describe SnippetCli::ReplacementValidator do
       end
     end
 
+    context 'with explicit global_var_names: keyword' do
+      it 'accepts global_var_names: and returns nil when no errors' do
+        result = host.var_error_clear([declared_var], replacement_using_var, global_var_names: [])
+        expect(result).to be_nil
+      end
+
+      it 'suppresses undeclared-var warning when var is in global_var_names' do
+        replacement = { replace: 'Hi {{global_greeting}}' }
+        result = host.var_error_clear([], replacement, global_var_names: ['global_greeting'])
+        expect(result).to be_nil
+      end
+    end
+
     context 'when there are var usage warnings' do
       before { allow(SnippetCli::UI).to receive(:warning) }
 

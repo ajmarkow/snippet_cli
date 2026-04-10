@@ -12,9 +12,8 @@ module SnippetCli
 
     private
 
-    def var_error_clear(vars, replacement)
-      gv_names = defined?(@global_var_names) ? @global_var_names : []
-      errors = VarUsageChecker.match_warnings(vars, replacement, global_var_names: gv_names)
+    def var_error_clear(vars, replacement, global_var_names: [])
+      errors = VarUsageChecker.match_warnings(vars, replacement, global_var_names: global_var_names)
       return nil if errors.empty?
 
       errors.each { |e| UI.warning(e) }
