@@ -1,9 +1,10 @@
 ---
 id: TASK-71
 title: Decompose TableFormatter#render into composable private methods
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-10 21:17'
+updated_date: '2026-04-10 21:45'
 labels:
   - refactor
   - oop
@@ -27,8 +28,20 @@ priority: low
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 TableFormatter#render delegates to private helper methods
-- [ ] #2 No rubocop:disable complexity comments needed
-- [ ] #3 Table output unchanged (verified by tests)
-- [ ] #4 All existing tests pass
+- [x] #1 TableFormatter#render delegates to private helper methods
+- [x] #2 No rubocop:disable complexity comments needed
+- [x] #3 Table output unchanged (verified by tests)
+- [x] #4 All existing tests pass
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Decomposed `TableFormatter.render` into four private helpers:
+- `column_widths(rows, headers)` — max width per column
+- `border_line(widths, left:, mid:, right:)` — builds top/divider/bottom lines from box-drawing chars
+- `data_line(cells, widths)` — builds a `│ cell │` row
+- `colorize(line)` — wraps in `\e[97m...\e[0m`
+
+`render` is now a clean 7-line coordinator. All three rubocop:disable comments removed. No new tests needed — existing 5 output-level specs verify identical behaviour. 648 examples, 0 failures.
+<!-- SECTION:FINAL_SUMMARY:END -->

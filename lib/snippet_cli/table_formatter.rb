@@ -2,18 +2,36 @@
 
 module SnippetCli
   module TableFormatter
-    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def self.render(rows, headers:)
-      widths = headers.each_with_index.map { |h, i| [h.length, *rows.map { |r| r[i].to_s.length }].max }
-      top     = "╭#{widths.map { |w| '─' * (w + 2) }.join('┬')}╮"
-      heading = "│#{headers.each_with_index.map { |h, i| " #{h.ljust(widths[i])} " }.join('│')}│"
-      divider = "├#{widths.map { |w| '─' * (w + 2) }.join('┼')}┤"
-      body    = rows.map do |row|
-        "│#{row.each_with_index.map { |cell, i| " #{cell.to_s.ljust(widths[i])} " }.join('│')}│"
-      end
-      bottom = "╰#{widths.map { |w| '─' * (w + 2) }.join('┴')}╯"
-      ([top, heading, divider] + body + [bottom]).map { |line| "\e[97m#{line}\e[0m" }.join("\n")
+      widths = column_widths(rows, headers)
+      lines = [
+        border_line(widths, left: '╭', mid: '┬', right: '╮'),
+        data_line(headers, widths),
+        border_line(widths, left: '├', mid: '┼', right: '┤'),
+        *rows.map { |row| data_line(row, widths) },
+        border_line(widths, left: '╰', mid: '┴', right: '╯')
+      ]
+      lines.map { |line| colorize(line) }.join("\n")
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+
+    def self.column_widths(rows, headers)
+      headers.each_with_index.map { |h, i| [h.length, *rows.map { |r| r[i].to_s.length }].max }
+    end
+    private_class_method :column_widths
+
+    def self.border_line(widths, left:, mid:, right:)
+      "#{left}#{widths.map { |w| '─' * (w + 2) }.join(mid)}#{right}"
+    end
+    private_class_method :border_line
+
+    def self.data_line(cells, widths)
+      "│#{cells.each_with_index.map { |cell, i| " #{cell.to_s.ljust(widths[i])} " }.join('│')}│"
+    end
+    private_class_method :data_line
+
+    def self.colorize(line)
+      "\e[97m#{line}\e[0m"
+    end
+    private_class_method :colorize
   end
 end
