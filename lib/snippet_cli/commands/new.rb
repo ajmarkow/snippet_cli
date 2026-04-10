@@ -7,7 +7,8 @@ require_relative '../snippet_builder'
 require_relative '../ui'
 require_relative '../wizard_helpers'
 require_relative '../trigger_resolver'
-require_relative '../replacement_collector'
+require_relative '../replacement_text_collector'
+require_relative '../replacement_validator'
 require_relative '../espanso_config'
 require_relative '../match_file_writer'
 require_relative '../global_vars_writer'
@@ -17,7 +18,8 @@ module SnippetCli
     class New < Dry::CLI::Command
       include WizardHelpers
       include TriggerResolver
-      include ReplacementCollector
+      include ReplacementTextCollector
+      include ReplacementValidator
 
       desc 'Interactive wizard to build an Espanso match entry (alias: n)'
 
@@ -68,6 +70,43 @@ module SnippetCli
       def resolve_simple_replacement
         replace = collect_replace([])
         { replace: replace, vars: [], label: nil, comment: nil }
+      end
+
+      def collect_replacement(vars)
+        return select_alt_type(vars) if confirm!('Alternative (non-plaintext) replacement type?')
+
+        collect_replace_with_check(vars)
+      end
+
+      def select_alt_type(vars)
+        loop do
+          type = prompt!(Gum.filter('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type'))
+          if type == 'image_path' && vars.any?
+            UI.info('image_path replacements do not support vars — they will be discarded.')
+            next unless confirm!('Discard vars and continue with image_path?')
+
+            return collect_alt_with_check(:image_path, []).merge(vars: [])
+          end
+          return collect_alt_with_check(type.to_sym, vars)
+        end
+      end
+
+      def collect_replace_with_check(vars)
+        collect_with_check(vars) { { replace: collect_replace(vars) } }
+      end
+
+      def collect_alt_with_check(type, vars)
+        collect_with_check(vars) { { type => collect_alt_value(type) } }
+      end
+
+      def collect_with_check(vars)
+        clear = nil
+        loop do
+          clear&.call
+          replacement = yield
+          clear = var_error_clear(vars, replacement)
+          return replacement if clear.nil?
+        end
       end
 
       def prepare_save
