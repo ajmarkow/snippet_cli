@@ -3,6 +3,7 @@
 require 'gum'
 require_relative 'ui'
 require_relative 'cursor_helper'
+require_relative 'form_field_parser'
 
 module SnippetCli
   # Pure display/formatting logic for the VarBuilder summary screen.
@@ -33,7 +34,7 @@ module SnippetCli
     end
 
     def self.form_field_names(layout)
-      layout.to_s.scan(/\[\[\s*(\w+)\s*\]\]/).flatten
+      FormFieldParser.extract(layout)
     end
     private_class_method :form_field_names
 

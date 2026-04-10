@@ -2,6 +2,7 @@
 
 require 'gum'
 require_relative '../ui'
+require_relative '../form_field_parser'
 
 module SnippetCli
   module VarBuilder
@@ -15,7 +16,7 @@ module SnippetCli
       ].freeze
 
       def self.collect(builder, layout)
-        field_names = layout.scan(/\[\[\s*(\w+)\s*\]\]/).flatten
+        field_names = FormFieldParser.extract(layout)
         fields = {}
         field_names.each do |name|
           type = builder.prompt!(

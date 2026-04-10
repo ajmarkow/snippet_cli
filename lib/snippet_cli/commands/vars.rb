@@ -2,7 +2,7 @@
 
 require 'dry/cli'
 require_relative '../var_builder'
-require_relative '../var_yaml_renderer'
+require_relative '../vars_block_renderer'
 require_relative '../snippet_builder'
 require_relative '../ui'
 require_relative '../wizard_helpers'
@@ -47,13 +47,7 @@ module SnippetCli
       def vars_yaml(vars)
         return "vars: []\n" if vars.empty?
 
-        lines = ['vars:']
-        vars.each { |var| lines.concat(var_lines(var)) }
-        "#{lines.join("\n")}\n"
-      end
-
-      def var_lines(var)
-        VarYamlRenderer.var_lines(var)
+        "#{VarsBlockRenderer.render(vars).join("\n")}\n"
       end
     end
   end

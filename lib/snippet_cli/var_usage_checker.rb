@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
+require_relative 'form_field_parser'
+
 module SnippetCli
   # Checks variable usage in a single snippet match.
   # Detects declared-but-unused vars and used-but-undeclared {{refs}}.
   module VarUsageChecker
     VAR_REF_PATTERN = /\{\{(\w+(?:\.\w+)?)\}\}/
-    FORM_FIELD_PATTERN = /\[\[\s*(\w+)\s*\]\]/
     REPLACEMENT_KEYS = %i[replace html markdown image_path].freeze
 
     # Returns an array of human-readable warning strings.
@@ -31,7 +32,7 @@ module SnippetCli
     def self.form_field_refs(name, var)
       params = var[:params] || var['params'] || {}
       layout = params[:layout] || params['layout'] || ''
-      layout.scan(FORM_FIELD_PATTERN).flatten.map { |field| "#{name}.#{field}" }
+      FormFieldParser.extract(layout).map { |field| "#{name}.#{field}" }
     end
     private_class_method :form_field_refs
 

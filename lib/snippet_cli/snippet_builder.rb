@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'match_validator'
-require_relative 'var_yaml_renderer'
+require_relative 'vars_block_renderer'
 require_relative 'yaml_param_renderer'
 require_relative 'yaml_scalar'
 
@@ -68,9 +68,7 @@ module SnippetCli
     private_class_method :trigger_lines
 
     def self.vars_lines(vars)
-      lines = ['  vars:']
-      vars.each { |var| lines.concat(VarYamlRenderer.var_lines(var)) }
-      lines
+      VarsBlockRenderer.render(vars, indent: '  ')
     end
     private_class_method :vars_lines
 
