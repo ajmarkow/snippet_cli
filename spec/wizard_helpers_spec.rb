@@ -9,12 +9,86 @@ class WizardHelpersTestHost
   public :confirm!
   public :handle_errors
   public :optional_prompt
+  public :prompt_until_valid
+  public :prompt_non_empty
 end
 
 RSpec.describe SnippetCli::WizardHelpers do
   subject(:host) { WizardHelpersTestHost.new }
 
   before { system('true') } # reset $? so stale 130 exits don't fire WizardInterrupted
+
+  describe '#prompt_until_valid' do
+    it 'returns the value immediately when the block yields [value, nil]' do
+      result = host.prompt_until_valid { ['hello', nil] }
+      expect(result).to eq('hello')
+    end
+
+    it 'loops until the block yields a nil error' do
+      calls = 0
+      allow(SnippetCli::UI).to receive(:transient_warning).and_return(-> {})
+      result = host.prompt_until_valid do
+        calls += 1
+        calls < 3 ? ['bad', 'too short'] : ['good', nil]
+      end
+      expect(result).to eq('good')
+      expect(calls).to eq(3)
+    end
+
+    it 'calls UI.transient_warning with the error message on each invalid attempt' do
+      allow(SnippetCli::UI).to receive(:transient_warning).and_return(-> {})
+      host.prompt_until_valid do |_|
+        @done ||= false
+        if @done
+          ['ok', nil]
+        else
+          @done = true
+          ['', 'cannot be empty']
+        end
+      end
+      expect(SnippetCli::UI).to have_received(:transient_warning).with('cannot be empty').once
+    end
+
+    it 'calls the clear lambda from the previous iteration before re-prompting' do
+      cleared = false
+      clear_lambda = -> { cleared = true }
+      allow(SnippetCli::UI).to receive(:transient_warning).and_return(clear_lambda)
+      calls = 0
+      host.prompt_until_valid do
+        calls += 1
+        calls == 1 ? ['', 'error'] : ['ok', nil]
+      end
+      expect(cleared).to be(true)
+    end
+  end
+
+  describe '#prompt_non_empty' do
+    it 'returns the value when the block yields a non-empty string' do
+      result = host.prompt_non_empty('cannot be empty') { 'hello' }
+      expect(result).to eq('hello')
+    end
+
+    it 'loops and shows a transient warning when the block yields an empty string' do
+      allow(SnippetCli::UI).to receive(:transient_warning).and_return(-> {})
+      calls = 0
+      result = host.prompt_non_empty('cannot be empty') do
+        calls += 1
+        calls < 2 ? '' : 'hello'
+      end
+      expect(result).to eq('hello')
+      expect(SnippetCli::UI).to have_received(:transient_warning).with('cannot be empty').once
+    end
+
+    it 'treats whitespace-only input as empty' do
+      allow(SnippetCli::UI).to receive(:transient_warning).and_return(-> {})
+      calls = 0
+      host.prompt_non_empty('msg') do
+        calls += 1
+        calls < 2 ? '   ' : 'ok'
+      end
+      expect(SnippetCli::UI).to have_received(:transient_warning).once
+    end
+  end
 
   describe '#optional_prompt' do
     context 'when the user confirms' do

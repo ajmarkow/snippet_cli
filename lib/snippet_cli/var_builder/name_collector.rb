@@ -21,16 +21,14 @@ module SnippetCli
                          "Enter names one at a time, you'll be asked to add another after each.\n"
 
       def collect
-        clear = nil
         first = @existing.empty?
-        loop do
-          name, first = prompt_name(first)
-          if (new_clear = invalid_name_clear(name, clear))
-            clear = new_clear
-          else
-            return accepted_name(name, clear)
-          end
+        name = prompt_until_valid do
+          n, first = prompt_name(first)
+          [n, name_validation_error(n)]
         end
+        return nil if duplicate?(name)
+
+        name
       end
 
       private
@@ -41,23 +39,11 @@ module SnippetCli
         [prompt!(Gum.input(**opts)), false]
       end
 
-      def accepted_name(name, clear)
-        clear&.call
-        return nil if duplicate?(name)
-
-        name
-      end
-
-      def invalid_name_clear(name, clear)
-        return checkpoint_warning(clear, 'Variable name cannot be empty. Please enter a name.') if name.strip.empty?
-        return checkpoint_warning(clear, prohibited_char_message(name)) if prohibited_char?(name)
+      def name_validation_error(name)
+        return 'Variable name cannot be empty. Please enter a name.' if name.strip.empty?
+        return prohibited_char_message(name) if prohibited_char?(name)
 
         nil
-      end
-
-      def checkpoint_warning(clear, text)
-        clear&.call
-        UI.transient_warning(text)
       end
 
       def duplicate?(name)
