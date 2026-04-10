@@ -38,3 +38,8 @@ snippet_new_thoughts.md
 sunday-plan.md
 plan-rev1.md
 temp-plan.md
+
+# Local machine/generated files
+/.mcp.json
+/request.jsonl
+/~/
