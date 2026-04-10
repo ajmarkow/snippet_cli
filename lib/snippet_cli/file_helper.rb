@@ -3,12 +3,9 @@
 module SnippetCli
   # Utility methods for safe file reading.
   module FileHelper
-    # Checks that path exists. Warns to stderr and exits 1 if not.
+    # Checks that path exists. Raises FileMissingError if not.
     def self.ensure_readable!(path)
-      return if File.exist?(path)
-
-      warn "File not found: #{path}"
-      exit 1
+      raise FileMissingError, "File not found: #{path}" unless File.exist?(path)
     end
 
     # Returns the contents of path if it exists, or an empty string otherwise.

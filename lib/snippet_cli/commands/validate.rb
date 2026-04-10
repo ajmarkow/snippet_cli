@@ -17,11 +17,14 @@ module SnippetCli
       option :file, aliases: ['-f'], desc: 'Path to the Espanso match YAML file to validate'
 
       def call(file: nil, **)
-        handle_errors do
+        handle_errors(NoMatchFilesError) do
           file ||= pick_match_file.last
           data = YamlLoader.load(file)
           report(file, FileValidator.errors(data))
         end
+      rescue FileMissingError, InvalidYamlError => e
+        warn e.message
+        exit 1
       end
 
       private

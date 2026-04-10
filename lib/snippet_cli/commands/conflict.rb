@@ -20,18 +20,23 @@ module SnippetCli
       option :trigger, type: :array, aliases: ['-t'], desc: 'Trigger(s) to look up (comma-separated or repeated flag)'
 
       def call(file: nil, trigger: nil, **)
-        handle_errors do
-          file ||= pick_match_file.last
-          FileHelper.ensure_readable!(file)
-          entries = load_entries(file)
-          trigger ? show_trigger(entries, trigger) : show_conflicts(entries)
-        end
+        handle_errors(NoMatchFilesError) { detect_conflicts(file, trigger) }
+      rescue FileMissingError => e
+        warn e.message
+        exit 1
       rescue Psych::SyntaxError => e
         warn "Invalid YAML: #{e.message}"
         exit 1
       end
 
       private
+
+      def detect_conflicts(file, trigger)
+        file ||= pick_match_file.last
+        FileHelper.ensure_readable!(file)
+        entries = load_entries(file)
+        trigger ? show_trigger(entries, trigger) : show_conflicts(entries)
+      end
 
       def load_entries(file)
         ConflictDetector.extract_triggers(File.read(file))

@@ -16,15 +16,14 @@ RSpec.describe SnippetCli::FileHelper do
     end
 
     context 'when the file does not exist' do
-      it 'writes a not-found message to stderr' do
+      it 'raises FileMissingError' do
         expect { described_class.ensure_readable!('/no/such/file.yml') }
-          .to raise_error(SystemExit)
-          .and output(%r{not found.*no/such/file\.yml}i).to_stderr
+          .to raise_error(SnippetCli::FileMissingError)
       end
 
-      it 'exits with status 1' do
+      it 'includes the path in the error message' do
         expect { described_class.ensure_readable!('/no/such/file.yml') }
-          .to raise_error(SystemExit) { |e| expect(e.status).to eq(1) }
+          .to raise_error(SnippetCli::FileMissingError, %r{not found.*no/such/file\.yml}i)
       end
     end
   end

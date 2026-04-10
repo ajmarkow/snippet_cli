@@ -42,8 +42,7 @@ module SnippetCli
       provided = [trigger, triggers, regex].compact
       return if provided.length <= 1
 
-      warn '--trigger, --triggers, and --regex are mutually exclusive. Provide only one.'
-      exit 1
+      raise InvalidFlagsError, '--trigger, --triggers, and --regex are mutually exclusive. Provide only one.'
     end
 
     def resolve_trigger_flags(opts)
@@ -110,8 +109,7 @@ module SnippetCli
       conflicts = triggers.select { |t| existing_triggers.include?(t) }
       return if conflicts.empty?
 
-      warn "Warning: trigger(s) #{conflicts.join(', ')} already exist in #{file}"
-      exit 1 unless no_warn
+      raise TriggerConflictError, "Warning: trigger(s) #{conflicts.join(', ')} already exist in #{file}" unless no_warn
     end
   end
 end

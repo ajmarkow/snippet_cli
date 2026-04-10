@@ -34,10 +34,13 @@ module SnippetCli
                             desc: 'Simple mode: skip variables, alt types, label, and comment'
 
       def call(**opts)
-        handle_errors(ValidationError, EspansoConfigError, YamlScalar::InvalidCharacterError) do
+        handle_errors(ValidationError, EspansoConfigError, YamlScalar::InvalidCharacterError, NoMatchFilesError) do
           prepare_save if opts[:save]
           deliver_snippet(build_snippet(opts))
         end
+      rescue InvalidFlagsError, TriggerConflictError => e
+        warn e.message
+        exit 1
       end
 
       private

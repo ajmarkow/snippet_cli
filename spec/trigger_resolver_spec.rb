@@ -60,6 +60,47 @@ RSpec.describe SnippetCli::TriggerResolver do
     end
   end
 
+  describe '#validate_trigger_flags!' do
+    it 'raises InvalidFlagsError when --trigger and --triggers are both provided' do
+      expect { host.send(:validate_trigger_flags!, ':foo', ':bar,:baz', nil) }
+        .to raise_error(SnippetCli::InvalidFlagsError, /mutually exclusive/i)
+    end
+
+    it 'raises InvalidFlagsError when all three flags are provided' do
+      expect { host.send(:validate_trigger_flags!, ':foo', ':bar', 'regex') }
+        .to raise_error(SnippetCli::InvalidFlagsError, /mutually exclusive/i)
+    end
+
+    it 'does not raise when only one flag is provided' do
+      expect { host.send(:validate_trigger_flags!, ':foo', nil, nil) }.not_to raise_error
+    end
+
+    it 'does not raise when no flags are provided' do
+      expect { host.send(:validate_trigger_flags!, nil, nil, nil) }.not_to raise_error
+    end
+  end
+
+  describe '#check_conflicts' do
+    let(:fixture_path) { File.join(__dir__, 'fixtures', 'duplicate_triggers.yml') }
+
+    it 'raises TriggerConflictError when a trigger already exists and no_warn is false' do
+      expect { host.send(:check_conflicts, [':hello'], fixture_path, false) }
+        .to raise_error(SnippetCli::TriggerConflictError, /:hello/)
+    end
+
+    it 'does not raise when no_warn is true' do
+      expect { host.send(:check_conflicts, [':hello'], fixture_path, true) }.not_to raise_error
+    end
+
+    it 'does not raise when no conflicts exist' do
+      expect { host.send(:check_conflicts, [':no_such_trigger'], fixture_path, false) }.not_to raise_error
+    end
+
+    it 'does not raise when file does not exist' do
+      expect { host.send(:check_conflicts, [':hello'], '/nonexistent.yml', false) }.not_to raise_error
+    end
+  end
+
   describe 'TriggerResolution struct' do
     it 'is defined under SnippetCli::TriggerResolver' do
       expect(SnippetCli::TriggerResolver::TriggerResolution).to be_a(Class)

@@ -53,8 +53,7 @@ module SnippetCli
     end
 
     def abort_no_match_files
-      UI.error('No match files found in Espanso config.')
-      exit 1
+      raise NoMatchFilesError, 'No match files found in Espanso config.'
     end
 
     # Confirms a question then collects a value via the block, or returns nil if declined.
