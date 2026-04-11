@@ -54,6 +54,38 @@ RSpec.describe SnippetCli::WizardHelpers::ValidationLoop do
       end
       expect(cleared).to be(true)
     end
+
+    context 'when the block yields a callable error (confirm-and-retry pattern)' do
+      it 'does not call UI.transient_warning — uses the callable directly as clear' do
+        allow(SnippetCli::UI).to receive(:transient_warning)
+        calls = 0
+        host.prompt_until_valid do
+          calls += 1
+          calls < 2 ? ['bad', -> {}] : ['good', nil]
+        end
+        expect(SnippetCli::UI).not_to have_received(:transient_warning)
+      end
+
+      it 'loops until the block yields a nil error' do
+        calls = 0
+        result = host.prompt_until_valid do
+          calls += 1
+          calls < 3 ? ['bad', -> {}] : ['good', nil]
+        end
+        expect(result).to eq('good')
+        expect(calls).to eq(3)
+      end
+
+      it 'calls the callable clear from the previous iteration' do
+        cleared = false
+        calls = 0
+        host.prompt_until_valid do
+          calls += 1
+          calls == 1 ? ['bad', -> { cleared = true }] : ['good', nil]
+        end
+        expect(cleared).to be(true)
+      end
+    end
   end
 
   describe '#prompt_non_empty' do

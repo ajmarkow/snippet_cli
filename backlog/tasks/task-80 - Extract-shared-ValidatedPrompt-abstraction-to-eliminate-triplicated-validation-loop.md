@@ -3,10 +3,10 @@ id: TASK-80
 title: >-
   Extract shared ValidatedPrompt abstraction to eliminate triplicated validation
   loop
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-04-11 15:47'
-updated_date: '2026-04-11 20:08'
+updated_date: '2026-04-11 20:18'
 labels:
   - architecture
   - refactor
@@ -30,8 +30,14 @@ Depends on the WizardHelpers decomposition task if that lands first.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A single validated-prompt primitive exists (method or small class) that accepts a prompt block and a validation block
-- [ ] #2 All three call sites are replaced with the shared primitive
-- [ ] #3 Transient error display and retry behavior are consistent across all former call sites
-- [ ] #4 All existing specs pass
+- [x] #1 A single validated-prompt primitive exists (method or small class) that accepts a prompt block and a validation block
+- [x] #2 All three call sites are replaced with the shared primitive
+- [x] #3 Transient error display and retry behavior are consistent across all former call sites
+- [x] #4 All existing specs pass
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Extended `ValidationLoop#prompt_until_valid` to handle both String errors (shows via `UI.transient_warning`) and Callable errors (uses directly as clear lambda). This lets `NewWorkflow#collect_with_check` delegate to `prompt_until_valid` instead of maintaining its own loop. `collect_with_check` reduced from 7 lines to 3. All three call sites now share the same primitive. 701 examples, 0 failures.
+<!-- SECTION:FINAL_SUMMARY:END -->

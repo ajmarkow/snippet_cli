@@ -5,8 +5,10 @@ module SnippetCli
     # Loop-until-valid prompt abstractions.
     module ValidationLoop
       # General loop-until-valid primitive.
-      # The block must yield [value, error_message_or_nil].
-      # Loops showing each error as a transient warning until the block yields a nil error.
+      # The block must yield [value, error_or_nil].
+      # When error is a String, shows it as a transient warning.
+      # When error is a Callable (e.g. a lambda), uses it directly as the clear function.
+      # Loops until the block yields a nil error.
       def prompt_until_valid
         clear = nil
         loop do
@@ -14,7 +16,7 @@ module SnippetCli
           clear&.call
           return value if error.nil?
 
-          clear = UI.transient_warning(error)
+          clear = error.respond_to?(:call) ? error : UI.transient_warning(error)
         end
       end
 

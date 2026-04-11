@@ -108,12 +108,9 @@ module SnippetCli
     end
 
     def collect_with_check(vars, global_var_names: [])
-      clear = nil
-      loop do
-        clear&.call
+      prompt_until_valid do
         replacement = yield
-        clear = var_error_clear(vars, replacement, global_var_names: global_var_names)
-        return replacement if clear.nil?
+        [replacement, var_error_clear(vars, replacement, global_var_names: global_var_names)]
       end
     end
 
