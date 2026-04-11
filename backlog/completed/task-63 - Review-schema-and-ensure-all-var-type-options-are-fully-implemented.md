@@ -1,10 +1,10 @@
 ---
 id: TASK-63
 title: Review schema and ensure all var type options are fully implemented
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-04-08 21:05'
-updated_date: '2026-04-11 14:47'
+updated_date: '2026-04-11 14:53'
 labels:
   - feature
   - schema
