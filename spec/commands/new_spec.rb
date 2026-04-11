@@ -165,28 +165,6 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
-  context 'conflict detection with --save' do
-    before do
-      stub_happy_path(trigger: ':hello') # :hello exists in fixture
-      allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return([fixture_path])
-      allow(SnippetCli::GlobalVarsWriter).to receive(:read_names).and_return([])
-      allow(SnippetCli::MatchFileWriter).to receive(:append)
-    end
-
-    it 'warns about the conflicting trigger and exits 1' do
-      expect do
-        command.call(save: true)
-      end.to raise_error(SystemExit) { |e| expect(e.status).to eq(1) }
-        .and output(/Warning.*:hello/i).to_stderr
-    end
-
-    it 'does not exit when --no-warn is set' do
-      expect do
-        command.call(save: true, no_warn: true)
-      end.not_to raise_error
-    end
-  end
-
   context 'Ctrl+C interrupt during wizard' do
     before do
       allow(Gum::Command).to receive(:run_non_interactive).and_wrap_original do |_m, *_args, input: nil, **_opts|

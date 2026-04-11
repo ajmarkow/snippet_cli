@@ -21,9 +21,6 @@ module SnippetCli
   # Raised by TriggerResolver when mutually exclusive trigger flags are combined.
   class InvalidFlagsError < StandardError; end
 
-  # Raised by TriggerResolver when a trigger already exists in the target file.
-  class TriggerConflictError < StandardError; end
-
   # Raised by WizardHelpers when no Espanso match files are found.
   class NoMatchFilesError < StandardError; end
 

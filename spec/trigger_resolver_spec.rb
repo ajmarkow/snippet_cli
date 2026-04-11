@@ -23,17 +23,16 @@ RSpec.describe SnippetCli::TriggerResolver do
     context 'when type is regex' do
       before do
         allow(host).to receive(:prompt_non_empty_trigger).and_return(':(gr|great)ing')
-        allow(host).to receive(:check_conflicts)
       end
 
       it 'displays UI.info with Rust Regex syntax guidance' do
         expect(SnippetCli::UI).to receive(:info).with(a_string_including('Espanso uses Rust Regex syntax'))
-        host.collect_triggers('regex', nil, false)
+        host.collect_triggers('regex')
       end
 
       it 'displays UI.info with link to Rust regex docs' do
         expect(SnippetCli::UI).to receive(:info).with(a_string_including('https://docs.rs/regex/1.1.8/regex/#syntax'))
-        host.collect_triggers('regex', nil, false)
+        host.collect_triggers('regex')
       end
 
       it 'displays UI.info before prompting for input' do
@@ -43,19 +42,19 @@ RSpec.describe SnippetCli::TriggerResolver do
           order << :prompt
           ':(gr|great)ing'
         end
-        host.collect_triggers('regex', nil, false)
+        host.collect_triggers('regex')
         expect(order).to eq(%i[info prompt])
       end
     end
 
     context 'when type is regular' do
       before do
-        allow(host).to receive(:collect_regular_triggers).and_return([[':foo'], false])
+        allow(host).to receive(:prompt_trigger_loop).and_return([':foo'])
       end
 
       it 'does not display the Rust Regex guidance' do
         expect(SnippetCli::UI).not_to receive(:info).with(a_string_including('Rust Regex'))
-        host.collect_triggers('regular', nil, false)
+        host.collect_triggers('regular')
       end
     end
   end
@@ -77,27 +76,6 @@ RSpec.describe SnippetCli::TriggerResolver do
 
     it 'does not raise when no flags are provided' do
       expect { host.send(:validate_trigger_flags!, nil, nil, nil) }.not_to raise_error
-    end
-  end
-
-  describe '#check_conflicts' do
-    let(:fixture_path) { File.join(__dir__, 'fixtures', 'duplicate_triggers.yml') }
-
-    it 'raises TriggerConflictError when a trigger already exists and no_warn is false' do
-      expect { host.send(:check_conflicts, [':hello'], fixture_path, false) }
-        .to raise_error(SnippetCli::TriggerConflictError, /:hello/)
-    end
-
-    it 'does not raise when no_warn is true' do
-      expect { host.send(:check_conflicts, [':hello'], fixture_path, true) }.not_to raise_error
-    end
-
-    it 'does not raise when no conflicts exist' do
-      expect { host.send(:check_conflicts, [':no_such_trigger'], fixture_path, false) }.not_to raise_error
-    end
-
-    it 'does not raise when file does not exist' do
-      expect { host.send(:check_conflicts, [':hello'], '/nonexistent.yml', false) }.not_to raise_error
     end
   end
 

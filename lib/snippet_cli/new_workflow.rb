@@ -28,7 +28,7 @@ module SnippetCli
         yaml, summary_clear = build_snippet(opts, context)
         deliver_snippet(yaml, context.save_path, summary_clear)
       end
-    rescue InvalidFlagsError, TriggerConflictError => e
+    rescue InvalidFlagsError => e
       warn e.message
       exit 1
     end
@@ -44,7 +44,7 @@ module SnippetCli
     end
 
     def build_snippet(opts, context)
-      resolution = resolve_triggers(opts.merge(file: context.save_path))
+      resolution = resolve_triggers(opts)
       replacement_hash, summary_clear = resolve_replacement(
         opts[:replace], no_vars: opts[:no_vars], bare: opts[:bare], global_var_names: context.global_var_names
       )

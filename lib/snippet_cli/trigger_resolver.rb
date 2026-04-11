@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'conflict_detector'
 require_relative 'ui'
 require_relative 'wizard_helpers'
 
@@ -28,13 +27,12 @@ module SnippetCli
 
     def resolve_triggers_from_flags(opts)
       list, is_regex, single = resolve_trigger_flags(opts)
-      check_conflicts(list, opts[:file], opts[:no_warn])
       TriggerResolution.new(list, is_regex, single)
     end
 
-    def resolve_triggers_interactively(opts)
+    def resolve_triggers_interactively(_opts)
       type = prompt!(Gum.choose('regular', 'regex', header: "Trigger type?\n"))
-      list, is_regex = collect_triggers(type, opts[:file], opts[:no_warn])
+      list, is_regex = collect_triggers(type)
       TriggerResolution.new(list, is_regex, false)
     end
 
@@ -55,23 +53,15 @@ module SnippetCli
       end
     end
 
-    def collect_triggers(type, file, no_warn)
+    def collect_triggers(type)
       if type == 'regex'
         UI.info(RUST_REGEX_GUIDANCE)
         puts
         trigger = prompt_non_empty_trigger('r"^(hello|bye)$"')
-
-        check_conflicts([trigger], file, no_warn)
         return [[trigger], true]
       end
 
-      collect_regular_triggers(file, no_warn)
-    end
-
-    def collect_regular_triggers(file, no_warn)
-      triggers = prompt_trigger_loop
-      check_conflicts(triggers, file, no_warn)
-      [triggers, false]
+      [prompt_trigger_loop, false]
     end
 
     def prompt_non_empty_trigger(placeholder, header: nil)
@@ -99,17 +89,6 @@ module SnippetCli
         break unless list_confirm!('trigger', triggers.map { |t| [t] }, ['Trigger'], 'Add another trigger?')
       end
       triggers
-    end
-
-    def check_conflicts(triggers, file, no_warn)
-      return unless file && File.exist?(file)
-
-      existing = ConflictDetector.extract_triggers(File.read(file))
-      existing_triggers = existing.map { |e| e[:trigger] }
-      conflicts = triggers.select { |t| existing_triggers.include?(t) }
-      return if conflicts.empty?
-
-      raise TriggerConflictError, "Warning: trigger(s) #{conflicts.join(', ')} already exist in #{file}" unless no_warn
     end
   end
 end
