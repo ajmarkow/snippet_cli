@@ -13,13 +13,23 @@ module SnippetCli
     private
 
     def var_error_clear(vars, replacement, global_var_names: [])
-      errors = VarUsageChecker.match_warnings(vars, replacement, global_var_names: global_var_names)
-      return nil if errors.empty?
+      result = VarUsageChecker.match_warnings(vars, replacement, global_var_names: global_var_names)
+      return nil if result[:unused].empty? && result[:undeclared].empty?
 
-      errors.each { |e| UI.warning(e) }
+      display_var_warnings(result)
       return nil if confirm!('Are you sure you want to continue?')
 
       -> {}
+    end
+
+    def display_var_warnings(result)
+      result[:unused].each do |name|
+        UI.warning("Variable '#{name}' is declared but unused — add {{#{name}}} to the replacement text.")
+      end
+      result[:undeclared].each do |name|
+        UI.warning("'{{#{name}}}' appears in the replacement but was not declared as a variable. " \
+                   "Remove {{#{name}}} from the replacement.")
+      end
     end
   end
 end
