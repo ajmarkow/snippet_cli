@@ -6,7 +6,7 @@ require_relative '../new_workflow'
 module SnippetCli
   module Commands
     class New < Dry::CLI::Command
-      desc 'Interactive wizard to build an Espanso match entry (alias: n). --bare and --no-vars are mutually exclusive.'
+      desc 'Build an Espanso match entry interactively (alias: n)'
 
       option :save,         type: :flag, default: false, aliases: ['-s'],
                             desc: 'Save snippet to Espanso match file'

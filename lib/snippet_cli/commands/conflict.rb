@@ -16,7 +16,7 @@ module SnippetCli
       include WizardHelpers::ErrorHandler
       include WizardHelpers::MatchFileSelector
 
-      desc 'Detect duplicate triggers in an Espanso match YAML file (alias: c)'
+      desc 'Detect duplicate triggers in a match file (alias: c)'
 
       option :file,    aliases: ['-f'], desc: 'Path to Espanso match YAML file'
       option :trigger, type: :array, aliases: ['-t'], desc: 'Trigger(s) to look up (comma-separated or repeated flag)'

@@ -7,7 +7,7 @@ require_relative '../ui'
 module SnippetCli
   module Commands
     class Version < Dry::CLI::Command
-      desc 'Print snippet_cli version'
+      desc 'Print the snippet_cli version'
 
       def call(**)
         UI.info("snippet_cli v#{SnippetCli::VERSION}")

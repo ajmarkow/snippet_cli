@@ -16,7 +16,7 @@ module SnippetCli
       include WizardHelpers::ErrorHandler
       include WizardHelpers::MatchFileSelector
 
-      desc 'Interactive var builder — outputs Espanso vars YAML block (alias: v)'
+      desc 'Build an Espanso vars block interactively (alias: v)'
 
       option :save, type: :flag, default: false, aliases: ['-s'],
                     desc: 'Save vars to Espanso match file under global_vars'
