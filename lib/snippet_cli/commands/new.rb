@@ -8,8 +8,7 @@ module SnippetCli
     class New < Dry::CLI::Command
       desc 'Interactive wizard to build an Espanso match entry (alias: n)'
 
-      option :trigger,      aliases: ['-t'],  desc: 'Single trigger string'
-      option :triggers,     aliases: ['-T'],  desc: 'Comma-separated list of triggers'
+      option :trigger,      aliases: ['-t'],  desc: 'Trigger string(s), comma-separated for multiple'
       option :regex,        aliases: ['-r'],  desc: 'Regex trigger pattern'
       option :replace,      aliases: ['-R'],  desc: 'Replacement text'
       option :save,         type: :flag, default: false, aliases: ['-s'],

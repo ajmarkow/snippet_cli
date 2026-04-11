@@ -16,9 +16,9 @@ module SnippetCli
     private
 
     def resolve_triggers(opts)
-      validate_trigger_flags!(opts[:trigger], opts[:triggers], opts[:regex])
+      validate_trigger_flags!(opts[:trigger], opts[:regex])
 
-      if opts[:trigger] || opts[:triggers] || opts[:regex]
+      if opts[:trigger] || opts[:regex]
         resolve_triggers_from_flags(opts)
       else
         resolve_triggers_interactively(opts)
@@ -36,20 +36,18 @@ module SnippetCli
       TriggerResolution.new(list, is_regex, false)
     end
 
-    def validate_trigger_flags!(trigger, triggers, regex)
-      provided = [trigger, triggers, regex].compact
-      return if provided.length <= 1
+    def validate_trigger_flags!(trigger, regex)
+      return unless trigger && regex
 
-      raise InvalidFlagsError, '--trigger, --triggers, and --regex are mutually exclusive. Provide only one.'
+      raise InvalidFlagsError, '--trigger and --regex are mutually exclusive. Provide only one.'
     end
 
     def resolve_trigger_flags(opts)
       if opts[:regex]
         [[opts[:regex]], true, false]
-      elsif opts[:triggers]
-        [opts[:triggers].split(',').map(&:strip), false, false]
       else
-        [[opts[:trigger]], false, true]
+        list = opts[:trigger].split(',').map(&:strip)
+        [list, false, list.size == 1]
       end
     end
 

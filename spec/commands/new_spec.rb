@@ -319,13 +319,20 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
-  context '--triggers flag with --replace' do
+  context '--trigger flag with comma-separated values' do
     it 'emits YAML with triggers: array containing both values' do
       captured = capture_display_input
-      command.call(triggers: ':ty,:thankyou', replace: 'Thank you')
+      command.call(trigger: ':ty,:thankyou', replace: 'Thank you')
       expect(captured.join).to include('triggers:')
       expect(captured.join).to match(/':ty'|":ty"/)
       expect(captured.join).to match(/':thankyou'|":thankyou"/)
+    end
+
+    it 'emits trigger: (singular) when only one value is given' do
+      captured = capture_display_input
+      command.call(trigger: ':ty', replace: 'Thank you')
+      expect(captured.join).to match(/trigger: ":ty"/)
+      expect(captured.join).not_to include('triggers:')
     end
   end
 
@@ -548,23 +555,9 @@ RSpec.describe SnippetCli::Commands::New do
   end
 
   context 'mutually exclusive trigger flags' do
-    it 'exits with non-zero status when --trigger and --triggers both provided' do
-      expect do
-        command.call(trigger: ':ty', triggers: ':ty,:thankyou', replace: 'x')
-      end.to raise_error(SystemExit) { |e| expect(e.status).to eq(1) }
-        .and output(/mutually exclusive/i).to_stderr
-    end
-
     it 'exits with non-zero status when --trigger and --regex both provided' do
       expect do
         command.call(trigger: ':ty', regex: '\bty\b', replace: 'x')
-      end.to raise_error(SystemExit) { |e| expect(e.status).to eq(1) }
-        .and output(/mutually exclusive/i).to_stderr
-    end
-
-    it 'exits with non-zero status when all three trigger flags provided' do
-      expect do
-        command.call(trigger: ':ty', triggers: ':a,:b', regex: '\bty\b', replace: 'x')
       end.to raise_error(SystemExit) { |e| expect(e.status).to eq(1) }
         .and output(/mutually exclusive/i).to_stderr
     end
