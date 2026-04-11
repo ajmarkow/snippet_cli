@@ -11,9 +11,9 @@ module SnippetCli
       option :save,         type: :flag, default: false, aliases: ['-s'],
                             desc: 'Save snippet to Espanso match file'
       option :no_vars,      type: :flag, default: false,
-                            desc: 'Skip variable collection; still prompts for replacement type and advanced options'
+                            desc: 'Skip variables; supports alt types (image_path, markdown, html) and advanced options'
       option :bare,         type: :flag, default: false,
-                            desc: 'Bare mode: trigger and plain replacement only, no variables or advanced options'
+                            desc: 'Trigger(s) and plaintext only (single/multi-line); no vars, alt types, or advanced'
 
       def call(**opts)
         NewWorkflow.new.run(opts)
