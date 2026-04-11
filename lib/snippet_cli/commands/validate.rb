@@ -4,6 +4,8 @@ require 'dry/cli'
 require_relative '../file_validator'
 require_relative '../ui'
 require_relative '../yaml_loader'
+require_relative '../yaml_line_resolver'
+require_relative '../table_formatter'
 require_relative '../wizard_helpers/error_handler'
 require_relative '../wizard_helpers/match_file_selector'
 require_relative '../espanso_config'
@@ -22,7 +24,7 @@ module SnippetCli
         handle_errors(NoMatchFilesError) do
           file ||= pick_match_file.last
           data = YamlLoader.load(file)
-          report(file, FileValidator.errors(data))
+          report(file, FileValidator.errors_structured(data))
         end
       rescue FileMissingError, InvalidYamlError => e
         warn e.message
@@ -34,7 +36,12 @@ module SnippetCli
       def report(file, errors)
         return UI.success("#{file} is valid.") if errors.empty?
 
-        errors.each { |e| warn "error: #{e}" }
+        rows = errors.map do |e|
+          line = YamlLineResolver.resolve(file, e[:pointer])
+          [line || '?', e[:pointer].empty? ? '(root)' : e[:pointer], e[:message]]
+        end
+        warn "\e[38;5;231mValidation errors found:\e[0m"
+        warn TableFormatter.render(rows, headers: %w[Line Location Error])
         exit 1
       end
     end

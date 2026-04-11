@@ -15,10 +15,18 @@ module SnippetCli
     # Returns an array of human-readable error strings with field pointers.
     # Empty array means the data is valid.
     def self.errors(data)
+      errors_structured(data).map do |e|
+        e[:pointer].empty? ? e[:message] : "at #{e[:pointer]}: #{e[:message]}"
+      end
+    end
+
+    # Returns an array of structured error hashes: { pointer: String, message: String }.
+    # Empty array means the data is valid.
+    def self.errors_structured(data)
       SchemaValidator.validate(HashUtils.stringify_keys_deep(data)).map do |error|
-        pointer = error['data_pointer']
+        pointer = error['data_pointer'].to_s
         message = error['error'] || error.fetch('type', 'validation error')
-        pointer.to_s.empty? ? message : "at #{pointer}: #{message}"
+        { pointer: pointer, message: message }
       end
     end
   end
