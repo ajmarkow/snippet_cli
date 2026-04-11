@@ -17,10 +17,10 @@ module SnippetCli
                             desc: 'Skip conflict warning'
       option :save,         type: :boolean, default: false, aliases: ['-s'],
                             desc: 'Save snippet to Espanso match file'
-      option :simple,       type: :boolean, default: false, aliases: ['-S'],
-                            desc: 'Simple mode: skip variables, keep alt types and advanced options'
-      option :simpler,      type: :boolean, default: false, aliases: ['-SS'],
-                            desc: 'Simpler mode: skip variables, alt types, label, and comment'
+      option :no_vars,      type: :boolean, default: false,
+                            desc: 'Skip variable collection; still prompts for replacement type and advanced options'
+      option :bare,         type: :boolean, default: false,
+                            desc: 'Bare mode: trigger and plain replacement only, no variables or advanced options'
 
       def call(**opts)
         NewWorkflow.new.run(opts)

@@ -993,9 +993,9 @@ RSpec.describe SnippetCli::Commands::New do
     $stdout = old
   end
 
-  # ── --simpler flag ──────────────────────────────────────────────────────────
+  # ── --bare flag ──────────────────────────────────────────────────────────
 
-  def stub_simpler_replace_prompts(multiline: false, replace: 'Test replacement')
+  def stub_bare_replace_prompts(multiline: false, replace: 'Test replacement')
     allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(multiline)
     if multiline
       allow(Gum).to receive(:write)
@@ -1005,63 +1005,63 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
-  context '--simpler flag with interactive triggers' do
+  context '--bare flag with interactive triggers' do
     before do
       stub_trigger_prompts
-      stub_simpler_replace_prompts
+      stub_bare_replace_prompts
       stub_gum_preview
     end
 
     it 'does not invoke VarBuilder' do
       allow(SnippetCli::VarBuilder).to receive(:run)
-      command.call(simpler: true)
+      command.call(bare: true)
       expect(SnippetCli::VarBuilder).not_to have_received(:run)
     end
 
     it 'does not prompt for alternative replacement type' do
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?', prompt_style: anything)
-      command.call(simpler: true)
+      command.call(bare: true)
       expect(Gum).not_to have_received(:confirm)
         .with('Alternative (non-plaintext) replacement type?', prompt_style: anything)
     end
 
     it 'does not prompt for advanced options' do
       allow(Gum).to receive(:confirm).with('Show advanced options?', prompt_style: anything)
-      command.call(simpler: true)
+      command.call(bare: true)
       expect(Gum).not_to have_received(:confirm).with('Show advanced options?', prompt_style: anything)
     end
 
     it 'outputs valid YAML with trigger and replace' do
       captured = capture_display_input
-      command.call(simpler: true)
+      command.call(bare: true)
       yaml = captured.join
       expect(yaml).to match(/trigger/)
       expect(yaml).to include('Test replacement')
     end
   end
 
-  context '--simpler flag with multiline replacement' do
+  context '--bare flag with multiline replacement' do
     before do
       stub_trigger_prompts
-      stub_simpler_replace_prompts(multiline: true, replace: "line1\nline2")
+      stub_bare_replace_prompts(multiline: true, replace: "line1\nline2")
       stub_gum_preview
     end
 
     it 'supports multiline replacement' do
       captured = capture_display_input
-      command.call(simpler: true)
+      command.call(bare: true)
       expect(captured.join).to include('line1')
     end
   end
 
-  context '--simpler flag with --trigger and --replace (fully non-interactive)' do
+  context '--bare flag with --trigger and --replace (fully non-interactive)' do
     it 'emits YAML without invoking any Gum prompts' do
       allow(Gum).to receive(:choose)
       allow(Gum).to receive(:input)
       allow(Gum).to receive(:confirm)
 
       captured = capture_display_input
-      command.call(simpler: true, trigger: ':ty', replace: 'Thank you')
+      command.call(bare: true, trigger: ':ty', replace: 'Thank you')
 
       expect(captured.join).to match(/trigger: ":ty"/)
       expect(Gum).not_to have_received(:choose)
@@ -1070,7 +1070,7 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
-  context '--simpler flag with --save' do
+  context '--bare flag with --save' do
     let(:match_dir) { '/home/user/.config/espanso/match' }
     let(:match_files) do
       ["#{match_dir}/base.yml", "#{match_dir}/code.yml"]
@@ -1088,19 +1088,19 @@ RSpec.describe SnippetCli::Commands::New do
     end
 
     it 'saves the snippet to the chosen file' do
-      command.call(simpler: true, trigger: ':ty', replace: 'Thank you', save: true)
+      command.call(bare: true, trigger: ':ty', replace: 'Thank you', save: true)
       expect(SnippetCli::MatchFileWriter).to have_received(:append).with("#{match_dir}/base.yml", anything)
     end
 
     it 'shows a success message' do
-      command.call(simpler: true, trigger: ':ty', replace: 'Thank you', save: true)
+      command.call(bare: true, trigger: ':ty', replace: 'Thank you', save: true)
       expect(SnippetCli::UI).to have_received(:success).with(/base\.yml/)
     end
   end
 
-  # ── --simple flag ───────────────────────────────────────────────────────────
+  # ── --no-vars flag ───────────────────────────────────────────────────────────
 
-  context '--simple flag with interactive triggers' do
+  context '--no-vars flag with interactive triggers' do
     before do
       stub_trigger_prompts
       stub_confirm_false('Alternative (non-plaintext) replacement type?')
@@ -1112,26 +1112,26 @@ RSpec.describe SnippetCli::Commands::New do
 
     it 'does not invoke VarBuilder' do
       allow(SnippetCli::VarBuilder).to receive(:run)
-      command.call(simple: true)
+      command.call(no_vars: true)
       expect(SnippetCli::VarBuilder).not_to have_received(:run)
     end
 
     it 'prompts for alternative replacement type' do
       alt_prompt = 'Alternative (non-plaintext) replacement type?'
       allow(Gum).to receive(:confirm).with(alt_prompt, prompt_style: anything).and_return(false)
-      command.call(simple: true)
+      command.call(no_vars: true)
       expect(Gum).to have_received(:confirm).with(alt_prompt, prompt_style: anything)
     end
 
     it 'prompts for advanced options' do
       allow(Gum).to receive(:confirm).with('Show advanced options?', prompt_style: anything).and_return(false)
-      command.call(simple: true)
+      command.call(no_vars: true)
       expect(Gum).to have_received(:confirm).with('Show advanced options?', prompt_style: anything)
     end
 
     it 'outputs valid YAML with trigger, replace, and no vars block' do
       captured = capture_display_input
-      command.call(simple: true)
+      command.call(no_vars: true)
       yaml = captured.join
       expect(yaml).to match(/trigger/)
       expect(yaml).to include('Test replacement')
@@ -1139,7 +1139,7 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
-  context '--simple flag with multiline replacement' do
+  context '--no-vars flag with multiline replacement' do
     before do
       stub_trigger_prompts
       stub_confirm_false('Alternative (non-plaintext) replacement type?')
@@ -1152,12 +1152,12 @@ RSpec.describe SnippetCli::Commands::New do
 
     it 'supports multiline replacement' do
       captured = capture_display_input
-      command.call(simple: true)
+      command.call(no_vars: true)
       expect(captured.join).to include('line1')
     end
   end
 
-  context '--simple flag with --trigger and --replace (fully non-interactive)' do
+  context '--no-vars flag with --trigger and --replace (fully non-interactive)' do
     it 'emits YAML without invoking VarBuilder or Gum prompts' do
       allow(Gum).to receive(:choose)
       allow(Gum).to receive(:input)
@@ -1165,7 +1165,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(SnippetCli::VarBuilder).to receive(:run)
 
       captured = capture_display_input
-      command.call(simple: true, trigger: ':ty', replace: 'Thank you')
+      command.call(no_vars: true, trigger: ':ty', replace: 'Thank you')
 
       expect(captured.join).to match(/trigger: ":ty"/)
       expect(SnippetCli::VarBuilder).not_to have_received(:run)

@@ -46,7 +46,7 @@ module SnippetCli
     def build_snippet(opts, context)
       resolution = resolve_triggers(opts)
       replacement_hash, summary_clear = resolve_replacement(
-        opts[:replace], simple: opts[:simple], simpler: opts[:simpler], global_var_names: context.global_var_names
+        opts[:replace], no_vars: opts[:no_vars], bare: opts[:bare], global_var_names: context.global_var_names
       )
       [assemble_yaml(resolution, replacement_hash), summary_clear]
     end
@@ -60,10 +60,10 @@ module SnippetCli
       )
     end
 
-    def resolve_replacement(replace_opt, simple: false, simpler: false, global_var_names: [])
+    def resolve_replacement(replace_opt, no_vars: false, bare: false, global_var_names: [])
       return [{ replace: replace_opt, vars: [], label: nil, comment: nil }, nil] if replace_opt
-      return [{ replace: collect_replace([]), vars: [], label: nil, comment: nil }, nil] if simpler
-      return [resolve_simple_replacement(global_var_names: global_var_names), nil] if simple
+      return [{ replace: collect_replace([]), vars: [], label: nil, comment: nil }, nil] if bare
+      return [resolve_no_vars_replacement(global_var_names: global_var_names), nil] if no_vars
 
       result = VarBuilder.run
       summary_clear = result[:summary_clear]
@@ -73,7 +73,7 @@ module SnippetCli
       [{ vars: vars, label: label, comment: comment, search_terms: search_terms }.merge(replacement), summary_clear]
     end
 
-    def resolve_simple_replacement(global_var_names: [])
+    def resolve_no_vars_replacement(global_var_names: [])
       replacement = collect_replacement([], global_var_names: global_var_names)
       label, comment, search_terms = collect_advanced
       { vars: [], label: label, comment: comment, search_terms: search_terms }.merge(replacement)
