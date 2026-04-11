@@ -265,6 +265,44 @@ RSpec.describe SnippetCli::SnippetBuilder do
       end
     end
 
+    context 'with word: true' do
+      it 'includes word: true' do
+        yaml = build(triggers: [':w'], replace: 'text', word: true)
+        expect(yaml).to include('word: true')
+      end
+
+      it 'omits word for image_path matches' do
+        yaml = build(triggers: [':img'], image_path: '/img.png', word: true)
+        expect(yaml).not_to include('word:')
+      end
+    end
+
+    context 'without word' do
+      it 'omits word key' do
+        yaml = build(triggers: [':w'], replace: 'text')
+        expect(yaml).not_to include('word:')
+      end
+    end
+
+    context 'with propagate_case: true' do
+      it 'includes propagate_case: true' do
+        yaml = build(triggers: [':pc'], replace: 'text', propagate_case: true)
+        expect(yaml).to include('propagate_case: true')
+      end
+
+      it 'omits propagate_case for image_path matches' do
+        yaml = build(triggers: [':img'], image_path: '/img.png', propagate_case: true)
+        expect(yaml).not_to include('propagate_case:')
+      end
+    end
+
+    context 'without propagate_case' do
+      it 'omits propagate_case key' do
+        yaml = build(triggers: [':pc'], replace: 'text')
+        expect(yaml).not_to include('propagate_case:')
+      end
+    end
+
     # TASK-18: echo var schema compliance
     context 'echo var' do
       let(:echo_opts) do

@@ -78,12 +78,14 @@ RSpec.describe SnippetCli::NewWorkflow do
         stub_confirm_false('Show advanced options?')
       end
 
-      it 'does not prompt for label, comment, or search terms' do
+      it 'does not prompt for label, comment, search terms, word, or propagate_case' do
         allow($stdout).to receive(:puts)
         workflow.run({})
         expect(Gum).not_to have_received(:confirm).with('Add a label?', anything)
         expect(Gum).not_to have_received(:confirm).with('Add a comment?', anything)
         expect(Gum).not_to have_received(:confirm).with('Add search terms?', anything)
+        expect(Gum).not_to have_received(:confirm).with('Word trigger?', anything)
+        expect(Gum).not_to have_received(:confirm).with('Propagate case?', anything)
       end
 
       it 'passes nil label and comment and empty search_terms to SnippetBuilder' do
@@ -103,6 +105,8 @@ RSpec.describe SnippetCli::NewWorkflow do
         allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('hello')
         stub_confirm_false('Add a label?')
         stub_confirm_false('Add a comment?')
+        stub_confirm_false('Word trigger?')
+        stub_confirm_false('Propagate case?')
         allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
         stub_gum_preview
         allow(Gum).to receive(:confirm).with('Show advanced options?', prompt_style: anything).and_return(true)
@@ -117,6 +121,31 @@ RSpec.describe SnippetCli::NewWorkflow do
         workflow.run({})
         expect(SnippetCli::SnippetBuilder).to have_received(:build)
           .with(hash_including(search_terms: %w[ruby array]))
+      end
+    end
+
+    context 'when user enables word and propagate_case in advanced options' do
+      before do
+        stub_trigger_prompts
+        stub_confirm_false('Alternative (non-plaintext) replacement type?')
+        stub_confirm_false('Multi-line replacement?')
+        allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('hello')
+        stub_confirm_false('Add a label?')
+        stub_confirm_false('Add a comment?')
+        stub_confirm_false('Add search terms?')
+        allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
+        stub_gum_preview
+        allow(Gum).to receive(:confirm).with('Show advanced options?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with('Word trigger?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with('Propagate case?', prompt_style: anything).and_return(true)
+      end
+
+      it 'passes word: true and propagate_case: true to SnippetBuilder' do
+        allow(SnippetCli::SnippetBuilder).to receive(:build).and_call_original
+        allow($stdout).to receive(:puts)
+        workflow.run({})
+        expect(SnippetCli::SnippetBuilder).to have_received(:build)
+          .with(hash_including(word: true, propagate_case: true))
       end
     end
 

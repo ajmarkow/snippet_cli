@@ -51,11 +51,25 @@ module SnippetCli
     private_class_method :block_scalar_lines
 
     def self.append_optional_fields(lines, opts)
-      lines << "  label: #{YamlScalar.quote(opts[:label])}" if opts[:label]&.then { !it.empty? }
-      lines << "  comment: #{YamlScalar.quote(opts[:comment])}" if opts[:comment]&.then { !it.empty? }
+      append_label_and_comment(lines, opts)
       append_search_terms(lines, opts[:search_terms])
+      append_trigger_modifiers(lines, opts)
     end
     private_class_method :append_optional_fields
+
+    def self.append_label_and_comment(lines, opts)
+      lines << "  label: #{YamlScalar.quote(opts[:label])}" if opts[:label]&.then { !it.empty? }
+      lines << "  comment: #{YamlScalar.quote(opts[:comment])}" if opts[:comment]&.then { !it.empty? }
+    end
+    private_class_method :append_label_and_comment
+
+    def self.append_trigger_modifiers(lines, opts)
+      return if opts[:image_path]
+
+      lines << '  word: true' if opts[:word]
+      lines << '  propagate_case: true' if opts[:propagate_case]
+    end
+    private_class_method :append_trigger_modifiers
 
     def self.append_search_terms(lines, terms)
       return unless terms&.any?
@@ -89,6 +103,8 @@ module SnippetCli
     def self.to_match_hash(opts)
       hash = build_trigger_hash(opts)
       merge_optional(hash, opts, :replace, :image_path, :html, :markdown, :vars, :label, :comment, :search_terms)
+      merge_optional(hash, opts, :word, :propagate_case) unless opts[:image_path]
+      hash
     end
     private_class_method :to_match_hash
 

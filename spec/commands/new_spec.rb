@@ -130,6 +130,8 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(true)
       allow(Gum).to receive(:input).with(placeholder: 'Comment').and_return('My comment')
       stub_confirm_false('Add search terms?')
+      stub_confirm_false('Word trigger?')
+      stub_confirm_false('Propagate case?')
     end
 
     it 'includes the label' do

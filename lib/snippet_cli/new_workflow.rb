@@ -66,17 +66,16 @@ module SnippetCli
       return [resolve_no_vars_replacement(global_var_names: global_var_names), nil] if no_vars
 
       result = VarBuilder.run
-      summary_clear = result[:summary_clear]
-      vars = result[:vars]
+      vars, summary_clear = result.values_at(:vars, :summary_clear)
       replacement = collect_replacement(vars, global_var_names: global_var_names)
-      label, comment, search_terms = collect_advanced
-      [{ vars: vars, label: label, comment: comment, search_terms: search_terms }.merge(replacement), summary_clear]
+      advanced = collect_advanced
+      [{ vars: vars }.merge(advanced).merge(replacement), summary_clear]
     end
 
     def resolve_no_vars_replacement(global_var_names: [])
       replacement = collect_replacement([], global_var_names: global_var_names)
-      label, comment, search_terms = collect_advanced
-      { vars: [], label: label, comment: comment, search_terms: search_terms }.merge(replacement)
+      advanced = collect_advanced
+      { vars: [] }.merge(advanced).merge(replacement)
     end
 
     def collect_replacement(vars, global_var_names: [])
@@ -126,12 +125,15 @@ module SnippetCli
     end
 
     def collect_advanced
-      return [nil, nil, []] unless confirm!('Show advanced options?')
+      return { label: nil, comment: nil, search_terms: [] } unless confirm!('Show advanced options?')
 
-      label        = optional_prompt('Add a label?')   { prompt!(Gum.input(placeholder: 'Label')) }
-      comment      = optional_prompt('Add a comment?') { prompt!(Gum.input(placeholder: 'Comment')) }
-      search_terms = collect_search_terms
-      [label, comment, search_terms]
+      {
+        label: optional_prompt('Add a label?') { prompt!(Gum.input(placeholder: 'Label')) },
+        comment: optional_prompt('Add a comment?') { prompt!(Gum.input(placeholder: 'Comment')) },
+        search_terms: collect_search_terms,
+        word: (true if confirm!('Word trigger?')),
+        propagate_case: (true if confirm!('Propagate case?'))
+      }
     end
   end
 end

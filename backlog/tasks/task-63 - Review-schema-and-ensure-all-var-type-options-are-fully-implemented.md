@@ -4,7 +4,7 @@ title: Review schema and ensure all var type options are fully implemented
 status: In Progress
 assignee: []
 created_date: '2026-04-08 21:05'
-updated_date: '2026-04-11 03:47'
+updated_date: '2026-04-11 14:47'
 labels:
   - feature
   - schema
@@ -49,9 +49,15 @@ Cross-referenced the app against the official Espanso source schema at `github.c
 - [x] #1 clipboard var type implemented (done — TASK-73)
 - [x] #2 debug/trim/tz params aligned with official schema (done — TASK-74)
 - [x] #3 form top-level replacement supported by wizard and SnippetBuilder
-- [ ] #4 word, propagate_case, uppercase_style collectable from wizard
+- [x] #4 word, propagate_case, uppercase_style collectable from wizard
 - [x] #5 search_terms collectable from wizard
 - [x] #6 global var type implemented in VAR_TYPES
-- [ ] #7 depends_on collectable on vars
+- [x] #7 depends_on collectable on vars
 - [x] #8 Real-world complex Espanso file produced and validated
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+AC4 scoped: `word` and `propagate_case` added as booleans in advanced options. `uppercase_style` skipped as rare/niche.
+<!-- SECTION:NOTES:END -->
