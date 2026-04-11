@@ -304,6 +304,14 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
+  context 'mutually exclusive mode flags' do
+    it 'exits 1 and prints an error to stderr when --bare and --no-vars are both provided' do
+      expect { command.call(bare: true, no_vars: true) }
+        .to raise_error(SystemExit) { |e| expect(e.status).to eq(1) }
+        .and output(/mutually exclusive/i).to_stderr
+    end
+  end
+
   context 'empty trigger input (regular)' do
     before do
       allow(Gum).to receive(:choose).with('regular', 'regex', header: "Trigger type?\n").and_return('regular')

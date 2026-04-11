@@ -6,7 +6,7 @@ require_relative '../new_workflow'
 module SnippetCli
   module Commands
     class New < Dry::CLI::Command
-      desc 'Interactive wizard to build an Espanso match entry (alias: n)'
+      desc 'Interactive wizard to build an Espanso match entry (alias: n). --bare and --no-vars are mutually exclusive.'
 
       option :save,         type: :flag, default: false, aliases: ['-s'],
                             desc: 'Save snippet to Espanso match file'
@@ -16,6 +16,10 @@ module SnippetCli
                             desc: 'Trigger(s) and plaintext only (single/multi-line); no vars, alt types, or advanced'
 
       def call(**opts)
+        if opts[:bare] && opts[:no_vars]
+          warn '--bare and --no-vars are mutually exclusive. Provide only one.'
+          exit 1
+        end
         NewWorkflow.new.run(opts)
       end
     end
