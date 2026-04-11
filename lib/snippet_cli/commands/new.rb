@@ -13,13 +13,13 @@ module SnippetCli
       option :regex,        aliases: ['-r'],  desc: 'Regex trigger pattern'
       option :replace,      aliases: ['-R'],  desc: 'Replacement text'
       option :file,         aliases: ['-f'],  desc: 'Espanso match file to check conflicts against'
-      option :no_warn,      type: :boolean, default: false, aliases: ['-nw'],
+      option :no_warn,      type: :flag, default: false, aliases: ['-nw'],
                             desc: 'Skip conflict warning'
-      option :save,         type: :boolean, default: false, aliases: ['-s'],
+      option :save,         type: :flag, default: false, aliases: ['-s'],
                             desc: 'Save snippet to Espanso match file'
-      option :no_vars,      type: :boolean, default: false,
+      option :no_vars,      type: :flag, default: false,
                             desc: 'Skip variable collection; still prompts for replacement type and advanced options'
-      option :bare,         type: :boolean, default: false,
+      option :bare,         type: :flag, default: false,
                             desc: 'Bare mode: trigger and plain replacement only, no variables or advanced options'
 
       def call(**opts)
