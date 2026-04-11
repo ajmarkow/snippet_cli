@@ -26,7 +26,18 @@ begin
   puts SnippetCli.banner
   puts
 
-  Dry::CLI.new(SnippetCli::CLI).call
+  require 'stringio'
+  cli_err = StringIO.new
+  begin
+    Dry::CLI.new(SnippetCli::CLI).call(err: cli_err)
+  rescue SystemExit => e
+    cli_error_output = cli_err.string
+    unless cli_error_output.empty?
+      message = cli_error_output.strip.sub(/\AERROR:\s*/, '')
+      SnippetCli::UI.error(message)
+    end
+    exit e.status
+  end
 rescue Interrupt
   if defined?(SnippetCli::UI)
     puts
