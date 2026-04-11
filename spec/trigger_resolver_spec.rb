@@ -12,7 +12,6 @@ class TriggerResolverHost
   public :prompt_trigger_loop
   public :collect_triggers
   public :resolve_triggers
-  public :resolve_triggers_from_flags
   public :resolve_triggers_interactively
 end
 
@@ -59,25 +58,6 @@ RSpec.describe SnippetCli::TriggerResolver do
     end
   end
 
-  describe '#validate_trigger_flags!' do
-    it 'raises InvalidFlagsError when --trigger and --regex are both provided' do
-      expect { host.send(:validate_trigger_flags!, ':foo', 'regex') }
-        .to raise_error(SnippetCli::InvalidFlagsError, /mutually exclusive/i)
-    end
-
-    it 'does not raise when only --trigger is provided' do
-      expect { host.send(:validate_trigger_flags!, ':foo', nil) }.not_to raise_error
-    end
-
-    it 'does not raise when only --regex is provided' do
-      expect { host.send(:validate_trigger_flags!, nil, 'regex') }.not_to raise_error
-    end
-
-    it 'does not raise when no flags are provided' do
-      expect { host.send(:validate_trigger_flags!, nil, nil) }.not_to raise_error
-    end
-  end
-
   describe 'TriggerResolution struct' do
     it 'is defined under SnippetCli::TriggerResolver' do
       expect(SnippetCli::TriggerResolver::TriggerResolution).to be_a(Class)
@@ -88,50 +68,6 @@ RSpec.describe SnippetCli::TriggerResolver do
       expect(r.list).to eq([':foo'])
       expect(r.is_regex).to be(false)
       expect(r.single_trigger).to be(true)
-    end
-  end
-
-  describe '#resolve_triggers_from_flags' do
-    context 'with a single --trigger value' do
-      let(:opts) { { trigger: ':foo', regex: nil } }
-
-      it 'returns a TriggerResolution struct' do
-        expect(host.resolve_triggers_from_flags(opts)).to be_a(SnippetCli::TriggerResolver::TriggerResolution)
-      end
-
-      it 'has list containing the trigger' do
-        expect(host.resolve_triggers_from_flags(opts).list).to eq([':foo'])
-      end
-
-      it 'has single_trigger true' do
-        expect(host.resolve_triggers_from_flags(opts).single_trigger).to be(true)
-      end
-
-      it 'has is_regex false' do
-        expect(host.resolve_triggers_from_flags(opts).is_regex).to be(false)
-      end
-    end
-
-    context 'with comma-separated --trigger values' do
-      let(:opts) { { trigger: ':foo,:bar', regex: nil } }
-
-      it 'splits into a list of triggers' do
-        expect(host.resolve_triggers_from_flags(opts).list).to eq([':foo', ':bar'])
-      end
-
-      it 'has single_trigger false' do
-        expect(host.resolve_triggers_from_flags(opts).single_trigger).to be(false)
-      end
-    end
-
-    context 'with --regex flag' do
-      let(:opts) { { trigger: nil, regex: ':(gr|great)ing' } }
-
-      it 'returns a TriggerResolution struct with is_regex true' do
-        result = host.resolve_triggers_from_flags(opts)
-        expect(result.is_regex).to be(true)
-        expect(result.single_trigger).to be(false)
-      end
     end
   end
 

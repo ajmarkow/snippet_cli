@@ -204,20 +204,5 @@ RSpec.describe SnippetCli::NewWorkflow do
         expect(Gum).to have_received(:confirm).with('Show advanced options?', prompt_style: anything)
       end
     end
-
-    context 'when --replace is provided (skip wizard replacement flow)' do
-      it 'does not invoke VarBuilder' do
-        allow(SnippetCli::VarBuilder).to receive(:run)
-        stub_gum_preview
-        allow(Gum).to receive(:choose).and_return('regular')
-        allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(':test')
-        allow(Gum).to receive(:confirm)
-          .with(a_string_including('Add another trigger?'), prompt_style: anything).and_return(false)
-
-        workflow.run(trigger: ':test', replace: 'Hello')
-
-        expect(SnippetCli::VarBuilder).not_to have_received(:run)
-      end
-    end
   end
 end

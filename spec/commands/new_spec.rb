@@ -293,61 +293,6 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
-  # ── CLI trigger flags (TASK-3) ──────────────────────────────────────────────
-
-  context '--trigger flag with --replace (skip wizard entirely)' do
-    it 'emits YAML with singular trigger: key' do
-      captured = capture_display_input
-      command.call(trigger: ':ty', replace: 'Thank you')
-      expect(captured.join).to match(/trigger: ":ty"/)
-    end
-
-    it 'does not emit triggers: array key' do
-      captured = capture_display_input
-      command.call(trigger: ':ty', replace: 'Thank you')
-      expect(captured.join).not_to include('triggers:')
-    end
-
-    it 'does not invoke any Gum prompts' do
-      allow(Gum).to receive(:choose)
-      allow(Gum).to receive(:input)
-      allow(Gum).to receive(:confirm)
-
-      command.call(trigger: ':ty', replace: 'Thank you')
-
-      expect(Gum).not_to have_received(:choose)
-      expect(Gum).not_to have_received(:input)
-      expect(Gum).not_to have_received(:confirm)
-    end
-  end
-
-  context '--trigger flag with comma-separated values' do
-    it 'emits YAML with triggers: array containing both values' do
-      captured = capture_display_input
-      command.call(trigger: ':ty,:thankyou', replace: 'Thank you')
-      expect(captured.join).to include('triggers:')
-      expect(captured.join).to match(/':ty'|":ty"/)
-      expect(captured.join).to match(/':thankyou'|":thankyou"/)
-    end
-
-    it 'emits trigger: (singular) when only one value is given' do
-      captured = capture_display_input
-      command.call(trigger: ':ty', replace: 'Thank you')
-      expect(captured.join).to match(/trigger: ":ty"/)
-      expect(captured.join).not_to include('triggers:')
-    end
-  end
-
-  context '--regex flag with --replace' do
-    it 'emits YAML with regex: key' do
-      captured = capture_display_input
-      command.call(regex: '\bty\b', replace: 'Thank you')
-      expect(captured.join).to include('regex:')
-      expect(captured.join).not_to include('triggers:')
-      expect(captured.join).not_to include('trigger:')
-    end
-  end
-
   context 'no trigger flags provided' do
     before { stub_happy_path }
 
@@ -553,41 +498,6 @@ RSpec.describe SnippetCli::Commands::New do
       captured = capture_display_input
       command.call
       expect(captured.join).to include('<b>Bold</b>')
-    end
-  end
-
-  context 'mutually exclusive trigger flags' do
-    it 'exits with non-zero status when --trigger and --regex both provided' do
-      expect do
-        command.call(trigger: ':ty', regex: '\bty\b', replace: 'x')
-      end.to raise_error(SystemExit) { |e| expect(e.status).to eq(1) }
-        .and output(/mutually exclusive/i).to_stderr
-    end
-  end
-
-  context '--trigger flag without --replace (partial wizard)' do
-    before do
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
-                                           prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Thank you')
-      stub_confirm_false('Show advanced options?')
-
-      allow(Gum::Command).to receive(:run_non_interactive).and_wrap_original do |_m, *_args, input: nil, **_opts|
-        input.to_s
-      end
-      allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
-    end
-
-    it 'skips trigger prompts but enters wizard for vars/replace' do
-      allow(Gum).to receive(:choose)
-      captured = capture_display_input
-
-      command.call(trigger: ':ty')
-
-      expect(captured.join).to match(/trigger:/)
-      expect(Gum).not_to have_received(:choose)
-      expect(SnippetCli::VarBuilder).to have_received(:run)
     end
   end
 
@@ -1024,22 +934,6 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
-  context '--bare flag with --trigger and --replace (fully non-interactive)' do
-    it 'emits YAML without invoking any Gum prompts' do
-      allow(Gum).to receive(:choose)
-      allow(Gum).to receive(:input)
-      allow(Gum).to receive(:confirm)
-
-      captured = capture_display_input
-      command.call(bare: true, trigger: ':ty', replace: 'Thank you')
-
-      expect(captured.join).to match(/trigger: ":ty"/)
-      expect(Gum).not_to have_received(:choose)
-      expect(Gum).not_to have_received(:input)
-      expect(Gum).not_to have_received(:confirm)
-    end
-  end
-
   context '--bare flag with --save' do
     let(:match_dir) { '/home/user/.config/espanso/match' }
     let(:match_files) do
@@ -1055,15 +949,18 @@ RSpec.describe SnippetCli::Commands::New do
       ).and_return('base.yml')
       allow(SnippetCli::MatchFileWriter).to receive(:append)
       allow(SnippetCli::UI).to receive(:success)
+      stub_trigger_prompts
+      stub_bare_replace_prompts
+      stub_gum_preview
     end
 
     it 'saves the snippet to the chosen file' do
-      command.call(bare: true, trigger: ':ty', replace: 'Thank you', save: true)
+      command.call(bare: true, save: true)
       expect(SnippetCli::MatchFileWriter).to have_received(:append).with("#{match_dir}/base.yml", anything)
     end
 
     it 'shows a success message' do
-      command.call(bare: true, trigger: ':ty', replace: 'Thank you', save: true)
+      command.call(bare: true, save: true)
       expect(SnippetCli::UI).to have_received(:success).with(/base\.yml/)
     end
   end
@@ -1127,21 +1024,6 @@ RSpec.describe SnippetCli::Commands::New do
     end
   end
 
-  context '--no-vars flag with --trigger and --replace (fully non-interactive)' do
-    it 'emits YAML without invoking VarBuilder or Gum prompts' do
-      allow(Gum).to receive(:choose)
-      allow(Gum).to receive(:input)
-      allow(Gum).to receive(:confirm)
-      allow(SnippetCli::VarBuilder).to receive(:run)
-
-      captured = capture_display_input
-      command.call(no_vars: true, trigger: ':ty', replace: 'Thank you')
-
-      expect(captured.join).to match(/trigger: ":ty"/)
-      expect(SnippetCli::VarBuilder).not_to have_received(:run)
-    end
-  end
-
   # ── --save flag (TASK-38 ACs 1-5) ──────────────────────────────────────────
 
   context '--save flag' do
@@ -1193,12 +1075,6 @@ RSpec.describe SnippetCli::Commands::New do
       command.call(save: true)
 
       expect(captured.join).to match(/triggers/)
-    end
-
-    it 'works with --trigger and --replace flags (no wizard)' do
-      command.call(trigger: ':test', replace: 'hello', save: true)
-
-      expect(SnippetCli::MatchFileWriter).to have_received(:append)
     end
 
     context 'when only one match file exists' do

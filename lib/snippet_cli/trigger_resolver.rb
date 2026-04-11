@@ -16,39 +16,13 @@ module SnippetCli
     private
 
     def resolve_triggers(opts)
-      validate_trigger_flags!(opts[:trigger], opts[:regex])
-
-      if opts[:trigger] || opts[:regex]
-        resolve_triggers_from_flags(opts)
-      else
-        resolve_triggers_interactively(opts)
-      end
-    end
-
-    def resolve_triggers_from_flags(opts)
-      list, is_regex, single = resolve_trigger_flags(opts)
-      TriggerResolution.new(list, is_regex, single)
+      resolve_triggers_interactively(opts)
     end
 
     def resolve_triggers_interactively(_opts)
       type = prompt!(Gum.choose('regular', 'regex', header: "Trigger type?\n"))
       list, is_regex = collect_triggers(type)
       TriggerResolution.new(list, is_regex, false)
-    end
-
-    def validate_trigger_flags!(trigger, regex)
-      return unless trigger && regex
-
-      raise InvalidFlagsError, '--trigger and --regex are mutually exclusive. Provide only one.'
-    end
-
-    def resolve_trigger_flags(opts)
-      if opts[:regex]
-        [[opts[:regex]], true, false]
-      else
-        list = opts[:trigger].split(',').map(&:strip)
-        [list, false, list.size == 1]
-      end
     end
 
     def collect_triggers(type)
