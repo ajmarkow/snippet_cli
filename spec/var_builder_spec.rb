@@ -84,7 +84,6 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
         allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
                                              prompt_style: anything).and_return(false)
-        allow(Gum).to receive(:confirm).with('Enable debug mode?', prompt_style: anything).and_return(true)
         allow(Gum).to receive(:confirm).with('Trim whitespace from output?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('result')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
@@ -98,14 +97,25 @@ RSpec.describe SnippetCli::VarBuilder do
         expect(var[:params][:args]).to eq(['/usr/bin/my_script', '--flag'])
       end
 
-      it 'includes debug when true' do
-        var = described_class.run[:vars].first
-        expect(var[:params][:debug]).to eq(true)
+      it 'does not prompt for debug' do
+        expect(Gum).not_to receive(:confirm).with('Enable debug mode?', prompt_style: anything)
+        described_class.run
       end
 
-      it 'omits trim when false' do
+      it 'omits trim when user declines' do
         var = described_class.run[:vars].first
         expect(var[:params]).not_to have_key(:trim)
+      end
+
+      context 'when user enables trim' do
+        before do
+          allow(Gum).to receive(:confirm).with('Trim whitespace from output?', prompt_style: anything).and_return(true)
+        end
+
+        it 'includes trim: true in params' do
+          var = described_class.run[:vars].first
+          expect(var[:params][:trim]).to eq(true)
+        end
       end
     end
 
@@ -116,6 +126,7 @@ RSpec.describe SnippetCli::VarBuilder do
                                              prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a timezone?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('dt')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('date')
@@ -133,6 +144,11 @@ RSpec.describe SnippetCli::VarBuilder do
         described_class.run
       end
 
+      it 'prompts for timezone (date-specific)' do
+        expect(Gum).to receive(:confirm).with('Add a timezone?', prompt_style: anything).and_return(false)
+        described_class.run
+      end
+
       it 'stores format in params' do
         var = described_class.run[:vars].first
         expect(var[:params][:format]).to eq('%Y-%m-%d')
@@ -146,6 +162,11 @@ RSpec.describe SnippetCli::VarBuilder do
       it 'omits locale when user declines' do
         var = described_class.run[:vars].first
         expect(var[:params]).not_to have_key(:locale)
+      end
+
+      it 'omits tz when user declines' do
+        var = described_class.run[:vars].first
+        expect(var[:params]).not_to have_key(:tz)
       end
 
       context 'when user adds an offset' do
@@ -169,6 +190,19 @@ RSpec.describe SnippetCli::VarBuilder do
         it 'stores locale as a string in params' do
           var = described_class.run[:vars].first
           expect(var[:params][:locale]).to eq('ja-JP')
+        end
+      end
+
+      context 'when user adds a timezone' do
+        before do
+          allow(Gum).to receive(:confirm).with('Add a timezone?', prompt_style: anything).and_return(true)
+          allow(Gum).to receive(:input).with(placeholder: 'IANA timezone (e.g. America/New_York)')
+                                       .and_return('America/New_York')
+        end
+
+        it 'stores tz as a string in params' do
+          var = described_class.run[:vars].first
+          expect(var[:params][:tz]).to eq('America/New_York')
         end
       end
     end
@@ -354,6 +388,35 @@ RSpec.describe SnippetCli::VarBuilder do
       end
     end
 
+    context 'when user adds a clipboard variable' do
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
+                                             prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('clip')
+        allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
+                                                                         header: 'Variable type')
+                                      .and_return('clipboard')
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'returns a clipboard var with empty params' do
+        var = described_class.run[:vars].first
+        expect(var[:type]).to eq('clipboard')
+        expect(var[:params]).to eq({})
+      end
+
+      it 'does not prompt for debug' do
+        expect(Gum).not_to receive(:confirm).with('Enable debug mode?', prompt_style: anything)
+        described_class.run
+      end
+
+      it 'does not prompt for trim' do
+        expect(Gum).not_to receive(:confirm).with('Trim whitespace from output?', prompt_style: anything)
+        described_class.run
+      end
+    end
+
     context 'duplicate name detection' do
       before do
         # Flow: add 'myvar' → try 'myvar' again (dup, next) → stop
@@ -390,6 +453,7 @@ RSpec.describe SnippetCli::VarBuilder do
                                              prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a timezone?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('dt')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('date')
@@ -431,6 +495,7 @@ RSpec.describe SnippetCli::VarBuilder do
           .and_return(true, false)
         allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a timezone?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('dt', 'cmd')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1, header: 'Variable type').and_return(
           'date', 'shell'
@@ -656,6 +721,7 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
         allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a timezone?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with(a_string_including('Add an additional variable?'),
                                              prompt_style: anything).and_return(false)
         allow(Gum).to receive(:table)
@@ -693,6 +759,7 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
         allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm).with('Add a timezone?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:filter).with(*described_class.platform_shells, limit: 1,
                                                                               header: 'Select shell').and_return('bash')
         allow(Gum).to receive(:input).with(placeholder: 'shell command').and_return('date')

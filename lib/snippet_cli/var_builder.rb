@@ -10,7 +10,7 @@ module SnippetCli
   module VarBuilder
     extend WizardHelpers
 
-    VAR_TYPES = %w[echo shell date random choice script form].freeze
+    VAR_TYPES = %w[echo shell date random choice script form clipboard].freeze
 
     # Characters that break variable-to-mapping resolution. Add more here as needed.
     PROHIBITED_CHARS = %w[-].freeze

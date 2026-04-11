@@ -18,10 +18,11 @@ module SnippetCli
         return collector.call(builder) if collector
 
         case type
-        when 'date'   then date(builder)
-        when 'shell'  then shell(builder)
-        when 'script' then script(builder)
-        when 'form'   then form(builder)
+        when 'date'      then date(builder)
+        when 'shell'     then shell(builder)
+        when 'script'    then script(builder)
+        when 'form'      then form(builder)
+        when 'clipboard' then clipboard(builder)
         else {}
         end
       end
@@ -51,21 +52,31 @@ module SnippetCli
             placeholder: '/path/to/script'
           )
         )
-        debug_trim(builder, args: raw.to_s.lines.map(&:chomp).reject(&:empty?))
+        params = { args: raw.to_s.lines.map(&:chomp).reject(&:empty?) }
+        params[:trim] = true if builder.confirm!('Trim whitespace from output?')
+        params
       end
       private_class_method :script
 
       def self.date(builder)
         params = { format: builder.prompt!(Gum.input(placeholder: 'date format (e.g. %Y-%m-%d)')) }
+        date_optional_params(builder, params)
+      end
+      private_class_method :date
+
+      def self.date_optional_params(builder, params)
         if builder.confirm!('Add an offset?')
           params[:offset] = builder.prompt!(Gum.input(placeholder: 'offset in seconds (e.g. 86400)')).to_i
         end
         if builder.confirm!('Add a locale?')
           params[:locale] = builder.prompt!(Gum.input(placeholder: 'BCP47 locale (e.g. en-US, ja-JP)'))
         end
+        if builder.confirm!('Add a timezone?')
+          params[:tz] = builder.prompt!(Gum.input(placeholder: 'IANA timezone (e.g. America/New_York)'))
+        end
         params
       end
-      private_class_method :date
+      private_class_method :date_optional_params
 
       def self.form(builder)
         layout = if builder.confirm!('Multi-line form?')
@@ -79,6 +90,11 @@ module SnippetCli
         params
       end
       private_class_method :form
+
+      def self.clipboard(_builder)
+        {}
+      end
+      private_class_method :clipboard
 
       def self.debug_trim(builder, params)
         params[:debug] = true if builder.confirm!('Enable debug mode?')
