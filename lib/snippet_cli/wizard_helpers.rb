@@ -97,19 +97,13 @@ module SnippetCli
       end
     end
 
-    # Prompts for search terms one at a time until blank is entered.
+    # Prompts for search terms via a multiline write block.
     # Returns an empty array if the user declines.
     def collect_search_terms
       return [] unless confirm!('Add search terms?')
 
-      terms = []
-      loop do
-        val = prompt!(Gum.input(placeholder: 'search term (blank to finish)'))
-        break if val.empty?
-
-        terms << val
-      end
-      terms
+      raw = prompt!(Gum.write(header: 'Put one search term per line'))
+      raw.to_s.lines.map(&:chomp).reject(&:empty?)
     end
   end
 end

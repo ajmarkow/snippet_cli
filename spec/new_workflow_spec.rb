@@ -107,8 +107,8 @@ RSpec.describe SnippetCli::NewWorkflow do
         stub_gum_preview
         allow(Gum).to receive(:confirm).with('Show advanced options?', prompt_style: anything).and_return(true)
         allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(true)
-        allow(Gum).to receive(:input).with(placeholder: 'search term (blank to finish)')
-                                     .and_return('ruby', 'array', '')
+        allow(Gum).to receive(:write).with(hash_including(header: 'Put one search term per line'))
+                                     .and_return("ruby\narray")
       end
 
       it 'passes search_terms to SnippetBuilder' do

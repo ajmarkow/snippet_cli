@@ -335,8 +335,8 @@ RSpec.describe SnippetCli::VarBuilder do
           allow(Gum).to receive(:filter).with(*field_types, limit: 1,
                                                             header: a_string_including('name'))
                                         .and_return('Choice box')
-          allow(Gum).to receive(:input).with(placeholder: 'name value (blank to finish)')
-                                       .and_return('Alice', 'Bob', '')
+          allow(Gum).to receive(:write).with(hash_including(header: 'Put one name value per line'))
+                                       .and_return("Alice\nBob")
           allow(Gum).to receive(:filter).with(*field_types, limit: 1,
                                                             header: a_string_including('city'))
                                         .and_return('Single-line text box')
@@ -348,8 +348,8 @@ RSpec.describe SnippetCli::VarBuilder do
           allow(Gum).to receive(:filter).with(*field_types, limit: 1,
                                                             header: a_string_including('name'))
                                         .and_return('List box')
-          allow(Gum).to receive(:input).with(placeholder: 'name value (blank to finish)')
-                                       .and_return('Alice', 'Bob', '')
+          allow(Gum).to receive(:write).with(hash_including(header: 'Put one name value per line'))
+                                       .and_return("Alice\nBob")
           allow(Gum).to receive(:filter).with(*field_types, limit: 1,
                                                             header: a_string_including('city'))
                                         .and_return('Single-line text box')
@@ -362,8 +362,8 @@ RSpec.describe SnippetCli::VarBuilder do
                                                             header: a_string_including('name'))
                                         .and_return('Choice box')
           # First attempt: only one value, re-prompted; second attempt: two values
-          allow(Gum).to receive(:input).with(placeholder: 'name value (blank to finish)')
-                                       .and_return('Alice', '', 'Alice', 'Bob', '')
+          allow(Gum).to receive(:write).with(hash_including(header: 'Put one name value per line'))
+                                       .and_return('Alice', "Alice\nBob")
           allow(Gum).to receive(:filter).with(*field_types, limit: 1,
                                                             header: a_string_including('city'))
                                         .and_return('Single-line text box')
@@ -376,8 +376,9 @@ RSpec.describe SnippetCli::VarBuilder do
           allow(Gum).to receive(:filter).with(*field_types, limit: 1,
                                                             header: a_string_including('name'))
                                         .and_return('List box')
-          allow(Gum).to receive(:input).with(placeholder: 'name value (blank to finish)')
-                                       .and_return('Alice', '', 'Alice', 'Bob', '')
+          # First attempt: only one value, re-prompted; second attempt: two values
+          allow(Gum).to receive(:write).with(hash_including(header: 'Put one name value per line'))
+                                       .and_return('Alice', "Alice\nBob")
           allow(Gum).to receive(:filter).with(*field_types, limit: 1,
                                                             header: a_string_including('city'))
                                         .and_return('Single-line text box')
@@ -701,12 +702,12 @@ RSpec.describe SnippetCli::VarBuilder do
       expect { described_class.run }.to raise_error(SnippetCli::WizardInterrupted)
     end
 
-    it 'raises WizardInterrupted when Gum.input returns nil during choice value collection' do
+    it 'raises WizardInterrupted when Gum.write returns nil during choice value collection' do
       allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('myvar')
       allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                        header: 'Variable type').and_return('choice')
-      allow(Gum).to receive(:input).with(placeholder: 'value (blank to finish)').and_return(nil)
+      allow(Gum).to receive(:write).with(hash_including(header: 'Put one choice per line')).and_return(nil)
 
       expect { described_class.run }.to raise_error(SnippetCli::WizardInterrupted)
     end

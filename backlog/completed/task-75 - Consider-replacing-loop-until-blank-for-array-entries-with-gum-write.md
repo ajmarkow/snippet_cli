@@ -1,9 +1,10 @@
 ---
 id: TASK-75
 title: Consider replacing loop-until-blank for array entries with gum write
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-11 03:34'
+updated_date: '2026-04-11 14:13'
 labels:
   - ux
 dependencies: []

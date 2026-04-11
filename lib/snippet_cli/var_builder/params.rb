@@ -9,8 +9,14 @@ module SnippetCli
     module Params
       COLLECTORS = {
         'echo' => ->(b) { { echo: b.prompt!(Gum.input(placeholder: 'echo value')) } },
-        'random' => ->(b) { { choices: Params.collect_list(b, 'choice value') } },
-        'choice' => ->(b) { { values: Params.collect_list(b, 'value') } }
+        'random' => lambda { |b|
+          raw = b.prompt!(Gum.write(header: 'Put one random choice per line'))
+          { choices: raw.to_s.lines.map(&:chomp).reject(&:empty?) }
+        },
+        'choice' => lambda { |b|
+          raw = b.prompt!(Gum.write(header: 'Put one choice per line'))
+          { values: raw.to_s.lines.map(&:chomp).reject(&:empty?) }
+        }
       }.freeze
 
       def self.collect(builder, type)
@@ -27,15 +33,9 @@ module SnippetCli
         end
       end
 
-      def self.collect_list(builder, item_label)
-        items = []
-        loop do
-          val = Gum.input(placeholder: "#{item_label} (blank to finish)")
-          break if val&.empty?
-
-          items << builder.prompt!(val)
-        end
-        items
+      def self.collect_list(builder, item_name)
+        raw = builder.prompt!(Gum.write(header: "Put one #{item_name} per line"))
+        raw.to_s.lines.map(&:chomp).reject(&:empty?)
       end
 
       def self.shell(builder)
