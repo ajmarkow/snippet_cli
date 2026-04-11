@@ -120,7 +120,7 @@ RSpec.describe SnippetCli::NewWorkflow do
       end
     end
 
-    context 'when --simple flag is used' do
+    context 'when --simpler flag is used' do
       before do
         stub_trigger_prompts
         stub_confirm_false('Multi-line replacement?')
@@ -130,8 +130,49 @@ RSpec.describe SnippetCli::NewWorkflow do
 
       it 'does not prompt for advanced options' do
         allow($stdout).to receive(:puts)
-        workflow.run({ simple: true })
+        workflow.run({ simpler: true })
         expect(Gum).not_to have_received(:confirm).with('Show advanced options?', anything)
+      end
+    end
+
+    context 'when --simple flag is used' do
+      before do
+        stub_trigger_prompts
+        stub_confirm_false('Alternative (non-plaintext) replacement type?')
+        stub_confirm_false('Multi-line replacement?')
+        allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('hello')
+        stub_confirm_false('Show advanced options?')
+        stub_gum_preview
+      end
+
+      it 'does not invoke VarBuilder' do
+        allow(SnippetCli::VarBuilder).to receive(:run)
+        allow($stdout).to receive(:puts)
+        workflow.run({ simple: true })
+        expect(SnippetCli::VarBuilder).not_to have_received(:run)
+      end
+
+      it 'passes vars: [] to SnippetBuilder' do
+        allow(SnippetCli::SnippetBuilder).to receive(:build).and_call_original
+        allow($stdout).to receive(:puts)
+        workflow.run({ simple: true })
+        expect(SnippetCli::SnippetBuilder).to have_received(:build)
+          .with(hash_including(vars: []))
+      end
+
+      it 'still prompts for alternative replacement type' do
+        alt_prompt = 'Alternative (non-plaintext) replacement type?'
+        allow(Gum).to receive(:confirm).with(alt_prompt, prompt_style: anything)
+        allow($stdout).to receive(:puts)
+        workflow.run({ simple: true })
+        expect(Gum).to have_received(:confirm).with(alt_prompt, prompt_style: anything)
+      end
+
+      it 'still prompts for advanced options' do
+        allow(Gum).to receive(:confirm).with('Show advanced options?', prompt_style: anything)
+        allow($stdout).to receive(:puts)
+        workflow.run({ simple: true })
+        expect(Gum).to have_received(:confirm).with('Show advanced options?', prompt_style: anything)
       end
     end
 

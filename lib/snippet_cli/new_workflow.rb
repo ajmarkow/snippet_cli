@@ -46,7 +46,7 @@ module SnippetCli
     def build_snippet(opts, context)
       resolution = resolve_triggers(opts)
       replacement_hash, summary_clear = resolve_replacement(
-        opts[:replace], simple: opts[:simple], global_var_names: context.global_var_names
+        opts[:replace], simple: opts[:simple], simpler: opts[:simpler], global_var_names: context.global_var_names
       )
       [assemble_yaml(resolution, replacement_hash), summary_clear]
     end
@@ -60,9 +60,10 @@ module SnippetCli
       )
     end
 
-    def resolve_replacement(replace_opt, simple: false, global_var_names: [])
+    def resolve_replacement(replace_opt, simple: false, simpler: false, global_var_names: [])
       return [{ replace: replace_opt, vars: [], label: nil, comment: nil }, nil] if replace_opt
-      return [resolve_simple_replacement, nil] if simple
+      return [{ replace: collect_replace([]), vars: [], label: nil, comment: nil }, nil] if simpler
+      return [resolve_simple_replacement(global_var_names: global_var_names), nil] if simple
 
       result = VarBuilder.run
       summary_clear = result[:summary_clear]
@@ -72,15 +73,17 @@ module SnippetCli
       [{ vars: vars, label: label, comment: comment, search_terms: search_terms }.merge(replacement), summary_clear]
     end
 
-    def resolve_simple_replacement
-      { replace: collect_replace([]), vars: [], label: nil, comment: nil }
+    def resolve_simple_replacement(global_var_names: [])
+      replacement = collect_replacement([], global_var_names: global_var_names)
+      label, comment, search_terms = collect_advanced
+      { vars: [], label: label, comment: comment, search_terms: search_terms }.merge(replacement)
     end
 
     def collect_replacement(vars, global_var_names: [])
       if confirm!('Alternative (non-plaintext) replacement type?')
         select_alt_type(vars, global_var_names: global_var_names)
       else
-        collect_replace_with_check(vars, global_var_names: global_var_names)
+        collect_with_check(vars, global_var_names: global_var_names) { { replace: collect_replace(vars) } }
       end
     end
 
@@ -95,10 +98,6 @@ module SnippetCli
         end
         return collect_alt_with_check(type.to_sym, vars, global_var_names: global_var_names)
       end
-    end
-
-    def collect_replace_with_check(vars, global_var_names: [])
-      collect_with_check(vars, global_var_names: global_var_names) { { replace: collect_replace(vars) } }
     end
 
     def collect_alt_with_check(type, vars, global_var_names: [])
