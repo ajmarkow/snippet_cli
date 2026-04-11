@@ -83,16 +83,21 @@ module SnippetCli
     end
 
     def select_alt_type(vars, global_var_names: [])
-      loop do
-        type = prompt!(Gum.filter('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type'))
-        if type == 'image_path' && vars.any?
-          UI.info('image_path replacements do not support vars — they will be discarded.')
-          next unless confirm!('Discard vars and continue with image_path?')
+      type = prompt!(Gum.filter('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type'))
+      return select_alt_type(vars, global_var_names: global_var_names) if image_path_discard_declined?(type, vars)
 
-          return collect_alt_with_check(:image_path, [], global_var_names: global_var_names).merge(vars: [])
-        end
-        return collect_alt_with_check(type.to_sym, vars, global_var_names: global_var_names)
+      if type == 'image_path'
+        collect_alt_with_check(:image_path, [], global_var_names: global_var_names).merge(vars: [])
+      else
+        collect_alt_with_check(type.to_sym, vars, global_var_names: global_var_names)
       end
+    end
+
+    def image_path_discard_declined?(type, vars)
+      return false unless type == 'image_path' && vars.any?
+
+      UI.info('image_path replacements do not support vars — they will be discarded.')
+      !confirm!('Discard vars and continue with image_path?')
     end
 
     def collect_alt_with_check(type, vars, global_var_names: [])
