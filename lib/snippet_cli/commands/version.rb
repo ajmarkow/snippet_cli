@@ -2,6 +2,7 @@
 
 require 'dry/cli'
 require_relative '../version'
+require_relative '../ui'
 
 module SnippetCli
   module Commands
@@ -9,11 +10,7 @@ module SnippetCli
       desc 'Print snippet_cli version'
 
       def call(**)
-        label = "  VERSION #{SnippetCli::VERSION}  "
-        bar   = '═' * label.length
-        puts "╔#{bar}╗"
-        puts "║#{label}║"
-        puts "╚#{bar}╝"
+        UI.info("snippet_cli v#{SnippetCli::VERSION}")
       end
     end
   end

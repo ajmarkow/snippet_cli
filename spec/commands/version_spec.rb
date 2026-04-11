@@ -5,7 +5,9 @@ require 'spec_helper'
 RSpec.describe SnippetCli::Commands::Version do
   subject(:command) { described_class.new }
 
-  it 'prints the version in a normal-line box' do
-    expect { command.call }.to output(/╔═+╗.*VERSION #{Regexp.escape(SnippetCli::VERSION)}.*╚═+╝/m).to_stdout
+  it 'renders the version via UI.info' do
+    allow(SnippetCli::UI).to receive(:info)
+    command.call
+    expect(SnippetCli::UI).to have_received(:info).with(/#{Regexp.escape(SnippetCli::VERSION)}/)
   end
 end
