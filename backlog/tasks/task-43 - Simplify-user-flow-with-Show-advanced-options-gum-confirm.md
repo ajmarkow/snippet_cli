@@ -1,10 +1,10 @@
 ---
 id: TASK-43
 title: Simplify user flow with 'Show advanced options' gum confirm
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-06 03:01'
-updated_date: '2026-04-09 20:46'
+updated_date: '2026-04-11 04:40'
 labels:
   - feature
   - ux
@@ -21,9 +21,10 @@ Add a `gum confirm "Show advanced options?"` prompt after the initial input phas
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A gum confirm prompt asks whether to show advanced options after initial input is collected
-- [ ] #2 Declining skips: comment, label, depends_on, and other advanced/debug fields
-- [ ] #3 Accepting shows the full current flow unchanged
-- [ ] #4 The --simple flag continues to work and bypasses this prompt entirely
-- [ ] #5 Specs cover both paths (advanced shown vs hidden)
+- [x] #1 A gum confirm prompt asks whether to show advanced options after initial input is collected
+- [x] #2 Declining skips: comment, label, depends_on, and other advanced/debug fields
+- [x] #3 Accepting shows the full current flow unchanged
+- [x] #4 The --simple flag continues to work and bypasses this prompt entirely
+- [x] #5 Specs cover both paths (advanced shown vs hidden)
+- [x] #6 search_terms also gated behind 'Show advanced options?'
 <!-- AC:END -->
