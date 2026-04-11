@@ -38,9 +38,7 @@ RSpec.describe SnippetCli::Commands::New do
   end
 
   def stub_post_replace_prompts
-    stub_confirm_false('Add a label?')
-    stub_confirm_false('Add a comment?')
-    stub_confirm_false('Add search terms?')
+    stub_confirm_false('Show advanced options?')
   end
 
   def stub_gum_preview
@@ -102,9 +100,7 @@ RSpec.describe SnippetCli::Commands::New do
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello')
-      allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(false)
+      stub_confirm_false('Show advanced options?')
 
       allow(Gum::Command).to receive(:run_non_interactive).and_wrap_original do |_m, *_args, input: nil, **_opts|
         input.to_s
@@ -128,10 +124,12 @@ RSpec.describe SnippetCli::Commands::New do
   context 'with label and comment' do
     before do
       stub_happy_path
+      allow(Gum).to receive(:confirm).with('Show advanced options?', prompt_style: anything).and_return(true)
       allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything).and_return(true)
       allow(Gum).to receive(:input).with(placeholder: 'Label').and_return('My label')
       allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(true)
       allow(Gum).to receive(:input).with(placeholder: 'Comment').and_return('My comment')
+      stub_confirm_false('Add search terms?')
     end
 
     it 'includes the label' do
@@ -303,9 +301,7 @@ RSpec.describe SnippetCli::Commands::New do
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hey!')
-      allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(false)
+      stub_confirm_false('Show advanced options?')
 
       allow(Gum::Command).to receive(:run_non_interactive).and_wrap_original do |_m, *_args, input: nil, **_opts|
         input.to_s
@@ -390,9 +386,7 @@ RSpec.describe SnippetCli::Commands::New do
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hi')
-      allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(false)
+      stub_confirm_false('Show advanced options?')
 
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
       stub_gum_preview
@@ -420,9 +414,7 @@ RSpec.describe SnippetCli::Commands::New do
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hi')
-      allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(false)
+      stub_confirm_false('Show advanced options?')
 
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
       stub_gum_preview
@@ -609,9 +601,7 @@ RSpec.describe SnippetCli::Commands::New do
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Thank you')
-      allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(false)
+      stub_confirm_false('Show advanced options?')
 
       allow(Gum::Command).to receive(:run_non_interactive).and_wrap_original do |_m, *_args, input: nil, **_opts|
         input.to_s
@@ -1035,12 +1025,10 @@ RSpec.describe SnippetCli::Commands::New do
         .with('Alternative (non-plaintext) replacement type?', prompt_style: anything)
     end
 
-    it 'does not prompt for label or comment' do
-      allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything)
-      allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything)
+    it 'does not prompt for advanced options' do
+      allow(Gum).to receive(:confirm).with('Show advanced options?', prompt_style: anything)
       command.call(simple: true)
-      expect(Gum).not_to have_received(:confirm).with('Add a label?', prompt_style: anything)
-      expect(Gum).not_to have_received(:confirm).with('Add a comment?', prompt_style: anything)
+      expect(Gum).not_to have_received(:confirm).with('Show advanced options?', prompt_style: anything)
     end
 
     it 'outputs valid YAML with trigger and replace' do

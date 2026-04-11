@@ -36,9 +36,7 @@ RSpec.describe SnippetCli::NewWorkflow do
     stub_confirm_false('Alternative (non-plaintext) replacement type?')
     stub_confirm_false('Multi-line replacement?')
     allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return(replace)
-    stub_confirm_false('Add a label?')
-    stub_confirm_false('Add a comment?')
-    stub_confirm_false('Add search terms?')
+    stub_confirm_false('Show advanced options?')
   end
 
   describe '#run' do
@@ -69,7 +67,35 @@ RSpec.describe SnippetCli::NewWorkflow do
       expect(SnippetCli::GlobalVarsWriter).not_to have_received(:read_names)
     end
 
-    context 'when user adds search terms' do
+    context 'when user declines advanced options' do
+      before do
+        stub_trigger_prompts
+        stub_confirm_false('Alternative (non-plaintext) replacement type?')
+        stub_confirm_false('Multi-line replacement?')
+        allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('hello')
+        allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
+        stub_gum_preview
+        stub_confirm_false('Show advanced options?')
+      end
+
+      it 'does not prompt for label, comment, or search terms' do
+        allow($stdout).to receive(:puts)
+        workflow.run({})
+        expect(Gum).not_to have_received(:confirm).with('Add a label?', anything)
+        expect(Gum).not_to have_received(:confirm).with('Add a comment?', anything)
+        expect(Gum).not_to have_received(:confirm).with('Add search terms?', anything)
+      end
+
+      it 'passes nil label and comment and empty search_terms to SnippetBuilder' do
+        allow(SnippetCli::SnippetBuilder).to receive(:build).and_call_original
+        allow($stdout).to receive(:puts)
+        workflow.run({})
+        expect(SnippetCli::SnippetBuilder).to have_received(:build)
+          .with(hash_including(label: nil, comment: nil, search_terms: []))
+      end
+    end
+
+    context 'when user accepts advanced options and adds search terms' do
       before do
         stub_trigger_prompts
         stub_confirm_false('Alternative (non-plaintext) replacement type?')
@@ -79,6 +105,7 @@ RSpec.describe SnippetCli::NewWorkflow do
         stub_confirm_false('Add a comment?')
         allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
         stub_gum_preview
+        allow(Gum).to receive(:confirm).with('Show advanced options?', prompt_style: anything).and_return(true)
         allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(true)
         allow(Gum).to receive(:input).with(placeholder: 'search term (blank to finish)')
                                      .and_return('ruby', 'array', '')
@@ -90,6 +117,21 @@ RSpec.describe SnippetCli::NewWorkflow do
         workflow.run({})
         expect(SnippetCli::SnippetBuilder).to have_received(:build)
           .with(hash_including(search_terms: %w[ruby array]))
+      end
+    end
+
+    context 'when --simple flag is used' do
+      before do
+        stub_trigger_prompts
+        stub_confirm_false('Multi-line replacement?')
+        allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('hello')
+        stub_gum_preview
+      end
+
+      it 'does not prompt for advanced options' do
+        allow($stdout).to receive(:puts)
+        workflow.run({ simple: true })
+        expect(Gum).not_to have_received(:confirm).with('Show advanced options?', anything)
       end
     end
 

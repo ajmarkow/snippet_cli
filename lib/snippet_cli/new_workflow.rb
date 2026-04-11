@@ -118,7 +118,7 @@ module SnippetCli
     def deliver_snippet(yaml, save_path, summary_clear)
       summary_clear&.call
       write_save(yaml, save_path) if save_path
-      output_result(yaml)
+      UI.deliver(yaml, label: 'Snippet')
     end
 
     def write_save(yaml, save_path)
@@ -126,11 +126,9 @@ module SnippetCli
       UI.success("Saved to #{File.basename(save_path)}")
     end
 
-    def output_result(yaml)
-      UI.deliver(yaml, label: 'Snippet')
-    end
-
     def collect_advanced
+      return [nil, nil, []] unless confirm!('Show advanced options?')
+
       label        = optional_prompt('Add a label?')   { prompt!(Gum.input(placeholder: 'Label')) }
       comment      = optional_prompt('Add a comment?') { prompt!(Gum.input(placeholder: 'Comment')) }
       search_terms = collect_search_terms
