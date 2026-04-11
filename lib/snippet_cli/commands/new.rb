@@ -12,7 +12,6 @@ module SnippetCli
       option :triggers,     aliases: ['-T'],  desc: 'Comma-separated list of triggers'
       option :regex,        aliases: ['-r'],  desc: 'Regex trigger pattern'
       option :replace,      aliases: ['-R'],  desc: 'Replacement text'
-      option :file,         aliases: ['-f'],  desc: 'Espanso match file to check conflicts against'
       option :no_warn,      type: :flag, default: false, aliases: ['-nw'],
                             desc: 'Skip conflict warning'
       option :save,         type: :flag, default: false, aliases: ['-s'],

@@ -44,7 +44,7 @@ module SnippetCli
     end
 
     def build_snippet(opts, context)
-      resolution = resolve_triggers(opts.merge(file: opts[:file] || context.save_path))
+      resolution = resolve_triggers(opts.merge(file: context.save_path))
       replacement_hash, summary_clear = resolve_replacement(
         opts[:replace], no_vars: opts[:no_vars], bare: opts[:bare], global_var_names: context.global_var_names
       )
