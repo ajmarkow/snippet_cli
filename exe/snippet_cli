@@ -31,10 +31,13 @@ begin
   begin
     Dry::CLI.new(SnippetCli::CLI).call(err: cli_err)
   rescue SystemExit => e
-    cli_error_output = cli_err.string
+    cli_error_output = cli_err.string.strip
     unless cli_error_output.empty?
-      message = cli_error_output.strip.sub(/\AERROR:\s*/, '')
-      SnippetCli::UI.error(message)
+      if cli_error_output.start_with?('ERROR:')
+        SnippetCli::UI.error(cli_error_output.sub(/\AERROR:\s*/, ''))
+      else
+        puts cli_error_output
+      end
     end
     exit e.status
   end
