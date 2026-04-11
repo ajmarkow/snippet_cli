@@ -18,7 +18,7 @@ module SnippetCli
 
       desc 'Interactive var builder — outputs Espanso vars YAML block'
 
-      option :save, type: :boolean, default: false, aliases: ['-s'],
+      option :save, type: :flag, default: false, aliases: ['-s'],
                     desc: 'Save vars to Espanso match file under global_vars'
 
       def call(**opts)
