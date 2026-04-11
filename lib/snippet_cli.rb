@@ -6,7 +6,7 @@ require_relative 'snippet_cli/commands/version'
 require_relative 'snippet_cli/commands/conflict'
 require_relative 'snippet_cli/commands/vars'
 require_relative 'snippet_cli/commands/new'
-require_relative 'snippet_cli/commands/validate'
+require_relative 'snippet_cli/commands/check'
 
 module SnippetCli
   # Raised when any Gum prompt is cancelled by Ctrl+C.
@@ -37,8 +37,8 @@ module SnippetCli
 
     register 'version',  Commands::Version
     register 'conflict', Commands::Conflict, aliases: ['c']
-    register 'vars',     Commands::Vars
-    register 'new',      Commands::New, aliases: ['n']
-    register 'validate', Commands::Validate
+    register 'vars',  Commands::Vars,  aliases: ['v']
+    register 'new',   Commands::New,   aliases: ['n']
+    register 'check', Commands::Check, aliases: ['k']
   end
 end

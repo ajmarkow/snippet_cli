@@ -12,13 +12,13 @@ require_relative '../espanso_config'
 
 module SnippetCli
   module Commands
-    class Validate < Dry::CLI::Command
+    class Check < Dry::CLI::Command
       include WizardHelpers::ErrorHandler
       include WizardHelpers::MatchFileSelector
 
-      desc 'Validate an Espanso match YAML file against the schema'
+      desc 'Check an Espanso match YAML file against the schema'
 
-      option :file, aliases: ['-f'], desc: 'Path to the Espanso match YAML file to validate'
+      option :file, aliases: ['-f'], desc: 'Path to the Espanso match YAML file to check'
 
       def call(file: nil, **)
         handle_errors(NoMatchFilesError) do

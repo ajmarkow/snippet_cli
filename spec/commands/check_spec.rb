@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'snippet_cli/commands/validate'
+require 'snippet_cli/commands/check'
 require 'snippet_cli/espanso_config'
 
-RSpec.describe SnippetCli::Commands::Validate do
+RSpec.describe SnippetCli::Commands::Check do
   subject(:command) { described_class.new }
 
   let(:valid_fixture)   { File.join(__dir__, '..', 'fixtures', 'valid_matchfile.yml') }
@@ -28,7 +28,7 @@ RSpec.describe SnippetCli::Commands::Validate do
         allow(SnippetCli::UI).to receive(:success)
       end
 
-      it 'auto-selects the file and validates it without prompting' do
+      it 'auto-selects the file and checks it without prompting' do
         expect { command.call }.not_to raise_error
         expect(SnippetCli::UI).to have_received(:success).with(/valid/i)
       end
@@ -53,7 +53,7 @@ RSpec.describe SnippetCli::Commands::Validate do
         expect(Gum).to have_received(:filter)
       end
 
-      it 'validates the chosen file' do
+      it 'checks the chosen file' do
         expect { command.call }.not_to raise_error
         expect(SnippetCli::UI).to have_received(:success).with(/valid/i)
       end
@@ -99,9 +99,9 @@ RSpec.describe SnippetCli::Commands::Validate do
     end
   end
 
-  # AC #4: validates at matchfile scope (matches array), not per-item scope.
+  # AC #4: checks at matchfile scope (matches array), not per-item scope.
   # A bare match object missing the top-level `matches` key must fail,
-  # proving the validator understands full-file structure rather than
+  # proving the checker understands full-file structure rather than
   # individual match entries.
   context 'full matchfile scope (not per-item)' do
     let(:bare_match_file) do
