@@ -16,7 +16,7 @@ module SnippetCli
       include WizardHelpers::ErrorHandler
       include WizardHelpers::MatchFileSelector
 
-      desc 'Validate an Espanso match YAML file against the schema (alias: v)'
+      desc 'Validate an Espanso match YAML file against the schema'
 
       option :file, aliases: ['-f'], desc: 'Path to the Espanso match YAML file to validate'
 

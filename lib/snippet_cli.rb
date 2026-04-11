@@ -38,7 +38,7 @@ module SnippetCli
     register 'version',  Commands::Version
     register 'conflict', Commands::Conflict, aliases: ['c']
     register 'vars',     Commands::Vars
-    register 'new',      Commands::New,      aliases: ['n']
-    register 'validate', Commands::Validate, aliases: ['v']
+    register 'new',      Commands::New, aliases: ['n']
+    register 'validate', Commands::Validate
   end
 end
