@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../ui'
-require_relative '../wizard_helpers'
+require_relative '../wizard_helpers/prompt_helpers'
+require_relative '../wizard_helpers/validation_loop'
 
 module SnippetCli
   module VarBuilder
@@ -9,7 +10,8 @@ module SnippetCli
     # name, validates it (non-empty, no prohibited chars, no duplicates), and
     # returns the accepted name or nil when a duplicate is detected.
     class NameCollector
-      include WizardHelpers
+      include WizardHelpers::PromptHelpers
+      include WizardHelpers::ValidationLoop
 
       def initialize(existing)
         @existing = existing

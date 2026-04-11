@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
 require_relative 'ui'
-require_relative 'wizard_helpers'
+require_relative 'wizard_helpers/prompt_helpers'
+require_relative 'wizard_helpers/validation_loop'
 
 module SnippetCli
   # Resolves trigger input from CLI flags or interactive prompts.
   module TriggerResolver
     TriggerResolution = Struct.new(:list, :is_regex, :single_trigger)
 
-    include WizardHelpers
+    include WizardHelpers::PromptHelpers
+    include WizardHelpers::ValidationLoop
 
     RUST_REGEX_GUIDANCE = "Espanso uses Rust Regex syntax, ensure this is a valid Rust regex.\n" \
                           'https://docs.rs/regex/1.1.8/regex/#syntax'

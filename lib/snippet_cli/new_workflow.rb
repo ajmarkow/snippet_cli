@@ -4,7 +4,9 @@ require 'gum'
 require_relative 'var_builder'
 require_relative 'snippet_builder'
 require_relative 'ui'
-require_relative 'wizard_helpers'
+require_relative 'wizard_helpers/prompt_helpers'
+require_relative 'wizard_helpers/match_file_selector'
+require_relative 'wizard_helpers/error_handler'
 require_relative 'wizard_context'
 require_relative 'trigger_resolver'
 require_relative 'replacement_text_collector'
@@ -17,7 +19,8 @@ module SnippetCli
   # Orchestrates the full new-snippet wizard.
   # Receives all state via WizardContext; no implicit instance-variable sharing.
   class NewWorkflow
-    include WizardHelpers
+    include WizardHelpers::MatchFileSelector
+    include WizardHelpers::ErrorHandler
     include TriggerResolver
     include ReplacementTextCollector
     include ReplacementValidator

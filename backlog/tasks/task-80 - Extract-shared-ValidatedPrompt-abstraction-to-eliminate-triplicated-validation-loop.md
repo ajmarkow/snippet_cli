@@ -3,9 +3,10 @@ id: TASK-80
 title: >-
   Extract shared ValidatedPrompt abstraction to eliminate triplicated validation
   loop
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-04-11 15:47'
+updated_date: '2026-04-11 20:08'
 labels:
   - architecture
   - refactor

@@ -5,14 +5,16 @@ require_relative '../var_builder'
 require_relative '../vars_block_renderer'
 require_relative '../snippet_builder'
 require_relative '../ui'
-require_relative '../wizard_helpers'
+require_relative '../wizard_helpers/error_handler'
+require_relative '../wizard_helpers/match_file_selector'
 require_relative '../espanso_config'
 require_relative '../global_vars_writer'
 
 module SnippetCli
   module Commands
     class Vars < Dry::CLI::Command
-      include WizardHelpers
+      include WizardHelpers::ErrorHandler
+      include WizardHelpers::MatchFileSelector
 
       desc 'Interactive var builder — outputs Espanso vars YAML block'
 

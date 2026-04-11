@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require 'gum'
-require_relative 'wizard_helpers'
+require_relative 'wizard_helpers/prompt_helpers'
 require_relative 'var_summary_renderer'
 require_relative 'var_builder/name_collector'
 require_relative 'var_builder/params'
 
 module SnippetCli
   module VarBuilder
-    extend WizardHelpers
+    extend WizardHelpers::PromptHelpers
 
     VAR_TYPES = %w[echo shell date random choice script form clipboard].freeze
 

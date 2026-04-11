@@ -1,9 +1,10 @@
 ---
 id: TASK-79
 title: 'Break up WizardHelpers monolith into focused, explicitly-depended-upon modules'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-11 15:47'
+updated_date: '2026-04-11 20:01'
 labels:
   - architecture
   - refactor
@@ -21,8 +22,14 @@ The goal is to split this into focused modules or classes so that dependencies a
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 WizardHelpers is split into at minimum: a prompt primitives module, a validation loop abstraction, and a file-selection helper
-- [ ] #2 No module includes more helpers than it actually uses
-- [ ] #3 The broad rescue in handle_errors is narrowed to specific exception types or removed in favor of the typed exception pattern from TASK-66
-- [ ] #4 All existing specs pass
+- [x] #1 WizardHelpers is split into at minimum: a prompt primitives module, a validation loop abstraction, and a file-selection helper
+- [x] #2 No module includes more helpers than it actually uses
+- [x] #3 The broad rescue in handle_errors is narrowed to specific exception types or removed in favor of the typed exception pattern from TASK-66
+- [x] #4 All existing specs pass
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Split `WizardHelpers` monolith into four focused sub-modules under `lib/snippet_cli/wizard_helpers/`:\n\n- `PromptHelpers` — `prompt!`, `confirm!`, `list_confirm!`, `optional_prompt`\n- `ValidationLoop` — `prompt_until_valid`, `prompt_non_empty`\n- `MatchFileSelector` — `pick_match_file`, `abort_no_match_files` (includes `PromptHelpers`)\n- `ErrorHandler` — `handle_errors`\n\n`wizard_helpers.rb` is now a convenience require-only file. All 8 includers updated to `include` only the specific modules they need. `collect_search_terms` inlined into `NewWorkflow` (sole caller). Specs split into `spec/wizard_helpers/` with one file per module. 698 examples, 0 failures.
+<!-- SECTION:FINAL_SUMMARY:END -->

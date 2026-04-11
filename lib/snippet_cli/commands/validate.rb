@@ -4,13 +4,15 @@ require 'dry/cli'
 require_relative '../file_validator'
 require_relative '../ui'
 require_relative '../yaml_loader'
-require_relative '../wizard_helpers'
+require_relative '../wizard_helpers/error_handler'
+require_relative '../wizard_helpers/match_file_selector'
 require_relative '../espanso_config'
 
 module SnippetCli
   module Commands
     class Validate < Dry::CLI::Command
-      include WizardHelpers
+      include WizardHelpers::ErrorHandler
+      include WizardHelpers::MatchFileSelector
 
       desc 'Validate an Espanso match YAML file against the schema (alias: v)'
 

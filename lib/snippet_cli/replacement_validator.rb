@@ -2,13 +2,13 @@
 
 require_relative 'ui'
 require_relative 'var_usage_checker'
-require_relative 'wizard_helpers'
+require_relative 'wizard_helpers/prompt_helpers'
 
 module SnippetCli
   # Validates replacement data against declared vars.
   # Returns a clear lambda when the user wants to retry, nil when they accept or there are no issues.
   module ReplacementValidator
-    include WizardHelpers
+    include WizardHelpers::PromptHelpers
 
     private
 

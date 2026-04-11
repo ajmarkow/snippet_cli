@@ -5,14 +5,16 @@ require 'gum'
 require 'yaml'
 require_relative '../conflict_detector'
 require_relative '../ui'
-require_relative '../wizard_helpers'
+require_relative '../wizard_helpers/error_handler'
+require_relative '../wizard_helpers/match_file_selector'
 require_relative '../file_helper'
 require_relative '../espanso_config'
 
 module SnippetCli
   module Commands
     class Conflict < Dry::CLI::Command
-      include WizardHelpers
+      include WizardHelpers::ErrorHandler
+      include WizardHelpers::MatchFileSelector
 
       desc 'Detect duplicate triggers in an Espanso match YAML file (alias: c)'
 

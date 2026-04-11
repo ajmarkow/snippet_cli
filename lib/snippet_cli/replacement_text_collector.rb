@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 require 'gum'
-require_relative 'wizard_helpers'
+require_relative 'wizard_helpers/prompt_helpers'
+require_relative 'wizard_helpers/validation_loop'
 
 module SnippetCli
   # Collects replacement text from interactive Gum prompts.
   # Handles plain-text (single and multi-line) and alt-type (markdown, html, image_path) inputs.
   module ReplacementTextCollector
-    include WizardHelpers
+    include WizardHelpers::PromptHelpers
+    include WizardHelpers::ValidationLoop
 
     EMPTY_REPLACE_WARNING = 'Replace value is empty. Continue with no replacement text?'
 
