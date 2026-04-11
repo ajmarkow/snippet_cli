@@ -2,6 +2,7 @@
 
 require 'yaml'
 require_relative 'file_helper'
+require_relative 'file_writer'
 require_relative 'global_vars_formatter'
 
 module SnippetCli
@@ -14,7 +15,7 @@ module SnippetCli
     def self.append(file_path, var_entries)
       existing = FileHelper.read_or_empty(file_path)
       content = GlobalVarsFormatter.build_content(existing, var_entries)
-      File.write(file_path, content)
+      FileWriter.write(file_path, content)
     end
 
     # Returns an array of var name strings from the global_vars key in the file.

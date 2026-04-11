@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'file_helper'
+require_relative 'file_writer'
 require_relative 'string_helper'
 
 module SnippetCli
@@ -13,7 +14,7 @@ module SnippetCli
       existing = FileHelper.read_or_empty(file_path)
       indented = snippet_yaml.lines.map { |line| "  #{line}" }.join
       content = build_content(existing, indented)
-      File.write(file_path, content)
+      FileWriter.write(file_path, content)
     end
 
     def self.build_content(existing, indented)

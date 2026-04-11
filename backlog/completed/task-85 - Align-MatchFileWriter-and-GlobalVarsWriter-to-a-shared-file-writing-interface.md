@@ -1,9 +1,10 @@
 ---
 id: TASK-85
 title: Align MatchFileWriter and GlobalVarsWriter to a shared file-writing interface
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-11 15:48'
+updated_date: '2026-04-11 16:05'
 labels:
   - architecture
   - refactor
@@ -21,8 +22,14 @@ The goal is a shared abstraction (base class, mixin, or shared `FileWriter` util
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 MatchFileWriter and GlobalVarsWriter share a common interface or base for the write operation
-- [ ] #2 Content-building (formatting) is consistently separated from file I/O in both writers
-- [ ] #3 Adding atomic write behavior requires a change in one place, not two
-- [ ] #4 All existing specs pass
+- [x] #1 MatchFileWriter and GlobalVarsWriter share a common interface or base for the write operation
+- [x] #2 Content-building (formatting) is consistently separated from file I/O in both writers
+- [x] #3 Adding atomic write behavior requires a change in one place, not two
+- [x] #4 All existing specs pass
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Extracted `FileWriter` module (`lib/snippet_cli/file_writer.rb`) with a single `self.write(path, content)` class method. Both `MatchFileWriter` and `GlobalVarsWriter` now require and delegate to `FileWriter.write` instead of calling `File.write` directly. Added `spec/file_writer_spec.rb` (2 examples). All 696 specs pass. Future atomic-write behavior requires a change in one place.
+<!-- SECTION:FINAL_SUMMARY:END -->
