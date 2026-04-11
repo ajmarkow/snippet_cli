@@ -3,9 +3,10 @@ id: TASK-84
 title: >-
   Refactor select_alt_type control flow — replace infinite loop + next with
   explicit state
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-11 15:48'
+updated_date: '2026-04-11 15:56'
 labels:
   - architecture
   - refactor

@@ -1,9 +1,10 @@
 ---
 id: TASK-82
 title: Return structured data from VarUsageChecker instead of pre-formatted strings
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-11 15:47'
+updated_date: '2026-04-11 15:56'
 labels:
   - architecture
   - refactor
