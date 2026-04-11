@@ -53,8 +53,17 @@ module SnippetCli
     def self.append_optional_fields(lines, opts)
       lines << "  label: #{YamlScalar.quote(opts[:label])}" if opts[:label]&.then { !it.empty? }
       lines << "  comment: #{YamlScalar.quote(opts[:comment])}" if opts[:comment]&.then { !it.empty? }
+      append_search_terms(lines, opts[:search_terms])
     end
     private_class_method :append_optional_fields
+
+    def self.append_search_terms(lines, terms)
+      return unless terms&.any?
+
+      lines << '  search_terms:'
+      terms.each { |t| lines << "    - #{YamlScalar.quote(t)}" }
+    end
+    private_class_method :append_search_terms
 
     def self.trigger_lines(triggers, is_regex, single_trigger)
       if is_regex
@@ -79,7 +88,7 @@ module SnippetCli
 
     def self.to_match_hash(opts)
       hash = build_trigger_hash(opts)
-      merge_optional(hash, opts, :replace, :image_path, :html, :markdown, :vars, :label, :comment)
+      merge_optional(hash, opts, :replace, :image_path, :html, :markdown, :vars, :label, :comment, :search_terms)
     end
     private_class_method :to_match_hash
 

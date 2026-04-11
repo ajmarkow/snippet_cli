@@ -40,6 +40,7 @@ RSpec.describe SnippetCli::Commands::New do
   def stub_post_replace_prompts
     stub_confirm_false('Add a label?')
     stub_confirm_false('Add a comment?')
+    stub_confirm_false('Add search terms?')
   end
 
   def stub_gum_preview
@@ -103,6 +104,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello')
       allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(false)
+      allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(false)
 
       allow(Gum::Command).to receive(:run_non_interactive).and_wrap_original do |_m, *_args, input: nil, **_opts|
         input.to_s
@@ -303,6 +305,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hey!')
       allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(false)
+      allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(false)
 
       allow(Gum::Command).to receive(:run_non_interactive).and_wrap_original do |_m, *_args, input: nil, **_opts|
         input.to_s
@@ -389,6 +392,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hi')
       allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(false)
+      allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(false)
 
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
       stub_gum_preview
@@ -418,6 +422,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hi')
       allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(false)
+      allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(false)
 
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
       stub_gum_preview
@@ -606,6 +611,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Thank you')
       allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(false)
+      allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(false)
 
       allow(Gum::Command).to receive(:run_non_interactive).and_wrap_original do |_m, *_args, input: nil, **_opts|
         input.to_s

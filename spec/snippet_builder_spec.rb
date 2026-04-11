@@ -245,6 +245,26 @@ RSpec.describe SnippetCli::SnippetBuilder do
       end
     end
 
+    context 'with search_terms' do
+      it 'includes search_terms key' do
+        yaml = build(triggers: [':st'], replace: 'text', search_terms: %w[ruby array])
+        expect(yaml).to include('search_terms:')
+      end
+
+      it 'renders each term as a list item' do
+        yaml = build(triggers: [':st'], replace: 'text', search_terms: %w[ruby array])
+        expect(yaml).to include("    - 'ruby'")
+        expect(yaml).to include("    - 'array'")
+      end
+    end
+
+    context 'without search_terms' do
+      it 'omits search_terms key' do
+        yaml = build(triggers: [':simple'], replace: 'text')
+        expect(yaml).not_to include('search_terms:')
+      end
+    end
+
     # TASK-18: echo var schema compliance
     context 'echo var' do
       let(:echo_opts) do

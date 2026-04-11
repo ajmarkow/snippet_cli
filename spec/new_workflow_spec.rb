@@ -38,6 +38,7 @@ RSpec.describe SnippetCli::NewWorkflow do
     allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return(replace)
     stub_confirm_false('Add a label?')
     stub_confirm_false('Add a comment?')
+    stub_confirm_false('Add search terms?')
   end
 
   describe '#run' do
@@ -66,6 +67,30 @@ RSpec.describe SnippetCli::NewWorkflow do
 
       expect(SnippetCli::MatchFileWriter).not_to have_received(:append)
       expect(SnippetCli::GlobalVarsWriter).not_to have_received(:read_names)
+    end
+
+    context 'when user adds search terms' do
+      before do
+        stub_trigger_prompts
+        stub_confirm_false('Alternative (non-plaintext) replacement type?')
+        stub_confirm_false('Multi-line replacement?')
+        allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('hello')
+        stub_confirm_false('Add a label?')
+        stub_confirm_false('Add a comment?')
+        allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
+        stub_gum_preview
+        allow(Gum).to receive(:confirm).with('Add search terms?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:input).with(placeholder: 'search term (blank to finish)')
+                                     .and_return('ruby', 'array', '')
+      end
+
+      it 'passes search_terms to SnippetBuilder' do
+        allow(SnippetCli::SnippetBuilder).to receive(:build).and_call_original
+        allow($stdout).to receive(:puts)
+        workflow.run({})
+        expect(SnippetCli::SnippetBuilder).to have_received(:build)
+          .with(hash_including(search_terms: %w[ruby array]))
+      end
     end
 
     context 'when --replace is provided (skip wizard replacement flow)' do

@@ -68,8 +68,8 @@ module SnippetCli
       summary_clear = result[:summary_clear]
       vars = result[:vars]
       replacement = collect_replacement(vars, global_var_names: global_var_names)
-      label, comment = collect_advanced
-      [{ vars: vars, label: label, comment: comment }.merge(replacement), summary_clear]
+      label, comment, search_terms = collect_advanced
+      [{ vars: vars, label: label, comment: comment, search_terms: search_terms }.merge(replacement), summary_clear]
     end
 
     def resolve_simple_replacement
@@ -131,9 +131,10 @@ module SnippetCli
     end
 
     def collect_advanced
-      label   = optional_prompt('Add a label?')   { prompt!(Gum.input(placeholder: 'Label')) }
-      comment = optional_prompt('Add a comment?') { prompt!(Gum.input(placeholder: 'Comment')) }
-      [label, comment]
+      label        = optional_prompt('Add a label?')   { prompt!(Gum.input(placeholder: 'Label')) }
+      comment      = optional_prompt('Add a comment?') { prompt!(Gum.input(placeholder: 'Comment')) }
+      search_terms = collect_search_terms
+      [label, comment, search_terms]
     end
   end
 end

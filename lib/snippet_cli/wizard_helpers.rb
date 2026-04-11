@@ -96,5 +96,20 @@ module SnippetCli
         [value, value.strip.empty? ? warning_message : nil]
       end
     end
+
+    # Prompts for search terms one at a time until blank is entered.
+    # Returns an empty array if the user declines.
+    def collect_search_terms
+      return [] unless confirm!('Add search terms?')
+
+      terms = []
+      loop do
+        val = prompt!(Gum.input(placeholder: 'search term (blank to finish)'))
+        break if val.empty?
+
+        terms << val
+      end
+      terms
+    end
   end
 end
