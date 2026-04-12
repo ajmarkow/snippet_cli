@@ -41,6 +41,65 @@ RSpec.describe SnippetCli::NewWorkflow do
   end
 
   describe '#run' do
+    context 'with --save flag and single match file' do
+      let(:match_file) do
+        Tempfile.new(['base', '.yml']).tap do |f|
+          f.write('matches: []')
+          f.close
+        end
+      end
+
+      after { match_file.unlink }
+
+      before do
+        stub_happy_path
+        allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return([match_file.path])
+        allow(SnippetCli::GlobalVarsWriter).to receive(:read_names).and_return([])
+        allow(SnippetCli::MatchFileWriter).to receive(:append)
+        allow(SnippetCli::UI).to receive(:success)
+        allow(SnippetCli::UI).to receive(:note)
+      end
+
+      it 'emits UI.note with the filename before the wizard begins' do
+        workflow.run(save: true)
+        expect(SnippetCli::UI).to have_received(:note).with("Using #{File.basename(match_file.path)}")
+      end
+    end
+
+    context 'with --save flag and multiple match files' do
+      let(:match_file1) do
+        Tempfile.new(['base', '.yml']).tap do |f|
+          f.write('matches: []')
+          f.close
+        end
+      end
+      let(:match_file2) do
+        Tempfile.new(['extras', '.yml']).tap do |f|
+          f.write('matches: []')
+          f.close
+        end
+      end
+
+      after do
+        match_file1.unlink
+        match_file2.unlink
+      end
+
+      before do
+        stub_happy_path
+        allow(SnippetCli::EspansoConfig).to receive(:match_files).and_return([match_file1.path, match_file2.path])
+        allow(Gum).to receive(:filter).and_return(File.basename(match_file1.path))
+        allow(SnippetCli::GlobalVarsWriter).to receive(:read_names).and_return([])
+        allow(SnippetCli::MatchFileWriter).to receive(:append)
+        allow(SnippetCli::UI).to receive(:success)
+      end
+
+      it 'does not emit a UI.note for the file' do
+        expect(SnippetCli::UI).not_to receive(:note).with(/Using/)
+        workflow.run(save: true)
+      end
+    end
+
     it 'completes a basic wizard run without error' do
       stub_happy_path
       expect { workflow.run({}) }.not_to raise_error

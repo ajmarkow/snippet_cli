@@ -35,7 +35,8 @@ module SnippetCli
       pipe_output = SnippetCli.pipe_output
       return WizardContext.new(pipe_output: pipe_output) unless opts[:save]
 
-      _chosen, save_path = pick_match_file
+      chosen, save_path = pick_match_file
+      UI.note("Using #{chosen}") if EspansoConfig.match_files.size == 1
       global_var_names = GlobalVarsWriter.read_names(save_path)
       WizardContext.new(save_path: save_path, global_var_names: global_var_names, pipe_output: pipe_output)
     end
