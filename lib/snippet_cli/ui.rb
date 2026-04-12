@@ -60,8 +60,9 @@ module SnippetCli
     end
 
     # Delivers YAML output: pipes to stdout if piped, or displays with a label if interactive.
-    def self.deliver(yaml, label:)
-      pipe = SnippetCli.pipe_output
+    # context must respond to #pipe_output (nil = interactive mode).
+    def self.deliver(yaml, label:, context: nil)
+      pipe = context&.pipe_output
       if pipe
         pipe.print yaml
       else

@@ -25,18 +25,19 @@ module SnippetCli
       handle_errors(ValidationError, EspansoConfigError, YamlScalar::InvalidCharacterError, NoMatchFilesError) do
         context = prepare_context(opts)
         yaml, summary_clear = build_snippet(opts, context)
-        deliver_snippet(yaml, context.save_path, summary_clear)
+        deliver_snippet(yaml, context, summary_clear)
       end
     end
 
     private
 
     def prepare_context(opts)
-      return WizardContext.new unless opts[:save]
+      pipe_output = SnippetCli.pipe_output
+      return WizardContext.new(pipe_output: pipe_output) unless opts[:save]
 
       _chosen, save_path = pick_match_file
       global_var_names = GlobalVarsWriter.read_names(save_path)
-      WizardContext.new(save_path: save_path, global_var_names: global_var_names)
+      WizardContext.new(save_path: save_path, global_var_names: global_var_names, pipe_output: pipe_output)
     end
 
     def build_snippet(opts, context)
@@ -81,10 +82,10 @@ module SnippetCli
       [{ vars: vars }.merge(advanced).merge(replacement), summary_clear]
     end
 
-    def deliver_snippet(yaml, save_path, summary_clear)
+    def deliver_snippet(yaml, context, summary_clear)
       summary_clear&.call
-      write_save(yaml, save_path) if save_path
-      UI.deliver(yaml, label: 'Snippet')
+      write_save(yaml, context.save_path) if context.save_path
+      UI.deliver(yaml, label: 'Snippet', context: context)
     end
 
     def write_save(yaml, save_path)

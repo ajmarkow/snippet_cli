@@ -843,10 +843,8 @@ RSpec.describe SnippetCli::Commands::New do
 
     before do
       stub_happy_path
-      SnippetCli.pipe_output = pipe_io
+      allow(SnippetCli).to receive(:pipe_output).and_return(pipe_io)
     end
-
-    after { SnippetCli.pipe_output = nil }
 
     it 'writes raw YAML to pipe_output' do
       command.call

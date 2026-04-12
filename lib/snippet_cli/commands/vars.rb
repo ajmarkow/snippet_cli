@@ -5,6 +5,7 @@ require_relative '../var_builder'
 require_relative '../vars_block_renderer'
 require_relative '../snippet_builder'
 require_relative '../ui'
+require_relative '../wizard_context'
 require_relative '../wizard_helpers/error_handler'
 require_relative '../wizard_helpers/match_file_selector'
 require_relative '../espanso_config'
@@ -23,16 +24,17 @@ module SnippetCli
 
       def call(**opts)
         handle_errors(EspansoConfigError, NoMatchFilesError) do
+          context = WizardContext.new(pipe_output: SnippetCli.pipe_output)
           result = VarBuilder.run(skip_initial_prompt: true)
           save_vars(result[:vars]) if opts[:save]
-          deliver_vars(result[:vars])
+          deliver_vars(result[:vars], context)
         end
       end
 
       private
 
-      def deliver_vars(vars)
-        UI.deliver(vars_yaml(vars), label: 'Vars')
+      def deliver_vars(vars, context)
+        UI.deliver(vars_yaml(vars), label: 'Vars', context: context)
       end
 
       def save_vars(vars)

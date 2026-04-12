@@ -59,9 +59,7 @@ RSpec.describe SnippetCli::Commands::Vars do
   context 'pipe output (SnippetCli.pipe_output set)' do
     let(:pipe_io) { StringIO.new }
 
-    before { SnippetCli.pipe_output = pipe_io }
-
-    after { SnippetCli.pipe_output = nil }
+    before { allow(SnippetCli).to receive(:pipe_output).and_return(pipe_io) }
 
     it 'writes raw vars YAML to pipe_output' do
       command.call

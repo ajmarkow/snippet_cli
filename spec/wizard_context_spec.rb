@@ -14,6 +14,10 @@ RSpec.describe SnippetCli::WizardContext do
     it 'sets save_path to nil' do
       expect(ctx.save_path).to be_nil
     end
+
+    it 'sets pipe_output to nil' do
+      expect(ctx.pipe_output).to be_nil
+    end
   end
 
   describe 'with explicit values' do
@@ -25,6 +29,12 @@ RSpec.describe SnippetCli::WizardContext do
     it 'stores save_path' do
       ctx = described_class.new(save_path: '/path/to/match.yml')
       expect(ctx.save_path).to eq('/path/to/match.yml')
+    end
+
+    it 'stores pipe_output' do
+      io = StringIO.new
+      ctx = described_class.new(pipe_output: io)
+      expect(ctx.pipe_output).to be(io)
     end
   end
 
