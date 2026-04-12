@@ -1,9 +1,10 @@
 ---
 id: TASK-87
 title: Audit application copy for consistency
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-11 21:21'
+updated_date: '2026-04-12 23:50'
 labels:
   - ui
   - copy
