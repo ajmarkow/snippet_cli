@@ -25,7 +25,7 @@ RSpec.describe SnippetCli::Commands::New do
 
   def stub_trigger_prompts(trigger_type: 'regular', trigger: ':test')
     allow(Gum).to receive(:choose)
-      .with('regular', 'regex', header: "Trigger type?\n").and_return(trigger_type)
+      .with('regular', 'regex', hash_including(header: "Trigger type?\n")).and_return(trigger_type)
     allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(trigger)
     stub_confirm_false(a_string_including('Add another trigger?'))
   end
@@ -33,7 +33,7 @@ RSpec.describe SnippetCli::Commands::New do
   def stub_replace_prompts(replace: 'Test replacement')
     stub_confirm_false('Alternative (non-plaintext) replacement type?')
     stub_confirm_false('Multi-line replacement?')
-    allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return(replace)
+    allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return(replace)
     stub_post_replace_prompts
   end
 
@@ -94,12 +94,13 @@ RSpec.describe SnippetCli::Commands::New do
 
   context 'regex trigger type' do
     before do
-      allow(Gum).to receive(:choose).with('regular', 'regex', header: "Trigger type?\n").and_return('regex')
-      allow(Gum).to receive(:input).with(placeholder: 'r"^(hello|bye)$"').and_return('(gr|great)ing')
+      allow(Gum).to receive(:choose).with('regular', 'regex',
+                                          hash_including(header: "Trigger type?\n")).and_return('regex')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'r"^(hello|bye)$"')).and_return('(gr|great)ing')
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hello')
       stub_confirm_false('Show advanced options?')
 
       allow(Gum::Command).to receive(:run_non_interactive).and_wrap_original do |_m, *_args, input: nil, **_opts|
@@ -126,9 +127,9 @@ RSpec.describe SnippetCli::Commands::New do
       stub_happy_path
       allow(Gum).to receive(:confirm).with('Show advanced options?', prompt_style: anything).and_return(true)
       allow(Gum).to receive(:confirm).with('Add a label?', prompt_style: anything).and_return(true)
-      allow(Gum).to receive(:input).with(placeholder: 'Label').and_return('My label')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Label')).and_return('My label')
       allow(Gum).to receive(:confirm).with('Add a comment?', prompt_style: anything).and_return(true)
-      allow(Gum).to receive(:input).with(placeholder: 'Comment').and_return('My comment')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Comment')).and_return('My comment')
       stub_confirm_false('Add search terms?')
       stub_confirm_false('Word trigger?')
       stub_confirm_false('Propagate case?')
@@ -192,7 +193,8 @@ RSpec.describe SnippetCli::Commands::New do
     end
 
     it 'exits immediately with interrupted message when Gum.input returns nil mid-wizard (Ctrl+C at trigger input)' do
-      allow(Gum).to receive(:choose).with('regular', 'regex', header: "Trigger type?\n").and_return('regular')
+      allow(Gum).to receive(:choose).with('regular', 'regex',
+                                          hash_including(header: "Trigger type?\n")).and_return('regular')
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(nil)
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?'),
                                            prompt_style: anything).and_return(false)
@@ -202,7 +204,8 @@ RSpec.describe SnippetCli::Commands::New do
     end
 
     it 'exits immediately with interrupted message when Gum.input returns nil at replace prompt' do
-      allow(Gum).to receive(:choose).with('regular', 'regex', header: "Trigger type?\n").and_return('regular')
+      allow(Gum).to receive(:choose).with('regular', 'regex',
+                                          hash_including(header: "Trigger type?\n")).and_return('regular')
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(':test')
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?'),
                                            prompt_style: anything).and_return(false)
@@ -210,14 +213,15 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return(nil)
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return(nil)
 
       expect { command.call }
         .to output(/Interrupted.*exiting snippet_cli/im).to_stdout
     end
 
     it 'does not call SnippetBuilder when interrupted at replace prompt' do
-      allow(Gum).to receive(:choose).with('regular', 'regex', header: "Trigger type?\n").and_return('regular')
+      allow(Gum).to receive(:choose).with('regular', 'regex',
+                                          hash_including(header: "Trigger type?\n")).and_return('regular')
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(':test')
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?'),
                                            prompt_style: anything).and_return(false)
@@ -225,7 +229,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return(nil)
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return(nil)
       allow(SnippetCli::SnippetBuilder).to receive(:build)
 
       expect { command.call }.to output(anything).to_stdout
@@ -233,7 +237,8 @@ RSpec.describe SnippetCli::Commands::New do
     end
 
     it 'exits immediately when Ctrl+C on Gum.confirm (exit code 130) at "Add another trigger?"' do
-      allow(Gum).to receive(:choose).with('regular', 'regex', header: "Trigger type?\n").and_return('regular')
+      allow(Gum).to receive(:choose).with('regular', 'regex',
+                                          hash_including(header: "Trigger type?\n")).and_return('regular')
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(':test')
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?'), prompt_style: anything) do
         # Simulate system() setting $? to exit 130 (Ctrl+C)
@@ -248,7 +253,8 @@ RSpec.describe SnippetCli::Commands::New do
     end
 
     it 'exits immediately when Ctrl+C on Gum.confirm (exit code 130) at "Multi-line replacement?"' do
-      allow(Gum).to receive(:choose).with('regular', 'regex', header: "Trigger type?\n").and_return('regular')
+      allow(Gum).to receive(:choose).with('regular', 'regex',
+                                          hash_including(header: "Trigger type?\n")).and_return('regular')
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(':test')
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?'),
                                            prompt_style: anything).and_return(false)
@@ -259,7 +265,7 @@ RSpec.describe SnippetCli::Commands::New do
         system('exit 130')
         false
       end
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text'))
 
       expect { command.call }
         .to output(/Interrupted.*exiting snippet_cli/im).to_stdout
@@ -269,7 +275,8 @@ RSpec.describe SnippetCli::Commands::New do
 
   context 'multiple regular triggers' do
     before do
-      allow(Gum).to receive(:choose).with('regular', 'regex', header: "Trigger type?\n").and_return('regular')
+      allow(Gum).to receive(:choose).with('regular', 'regex',
+                                          hash_including(header: "Trigger type?\n")).and_return('regular')
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(':hello', ':hi')
       allow(Gum).to receive(:confirm)
         .with(a_string_including('Add another trigger?'), prompt_style: anything)
@@ -277,7 +284,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hey!')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hey!')
       stub_confirm_false('Show advanced options?')
 
       allow(Gum::Command).to receive(:run_non_interactive).and_wrap_original do |_m, *_args, input: nil, **_opts|
@@ -300,7 +307,7 @@ RSpec.describe SnippetCli::Commands::New do
       captured = capture_display_input
       command.call
       expect(captured.join).to match(/triggers/)
-      expect(Gum).to have_received(:choose).with('regular', 'regex', header: "Trigger type?\n")
+      expect(Gum).to have_received(:choose).with('regular', 'regex', hash_including(header: "Trigger type?\n"))
     end
   end
 
@@ -314,7 +321,8 @@ RSpec.describe SnippetCli::Commands::New do
 
   context 'empty trigger input (regular)' do
     before do
-      allow(Gum).to receive(:choose).with('regular', 'regex', header: "Trigger type?\n").and_return('regular')
+      allow(Gum).to receive(:choose).with('regular', 'regex',
+                                          hash_including(header: "Trigger type?\n")).and_return('regular')
       # First input empty, second valid
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return('', ':hello')
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?'),
@@ -322,7 +330,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hi')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hi')
       stub_confirm_false('Show advanced options?')
 
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
@@ -344,13 +352,15 @@ RSpec.describe SnippetCli::Commands::New do
 
   context 'empty trigger input (regex)' do
     before do
-      allow(Gum).to receive(:choose).with('regular', 'regex', header: "Trigger type?\n").and_return('regex')
+      allow(Gum).to receive(:choose).with('regular', 'regex',
+                                          hash_including(header: "Trigger type?\n")).and_return('regex')
       # First input empty, second valid
-      allow(Gum).to receive(:input).with(placeholder: 'r"^(hello|bye)$"').and_return('', '(gr|great)ing')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'r"^(hello|bye)$"')).and_return('',
+                                                                                                     '(gr|great)ing')
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hi')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hi')
       stub_confirm_false('Show advanced options?')
 
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
@@ -377,7 +387,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('')
       allow(Gum).to receive(:confirm).with(a_string_matching(/empty.*continue/i),
                                            prompt_style: anything).and_return(true)
       stub_post_replace_prompts
@@ -406,7 +416,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Multi-line replacement?',
                                            prompt_style: anything).and_return(false)
       # First input empty (declined), second valid
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('', 'Hello world')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('', 'Hello world')
       allow(Gum).to receive(:confirm).with(a_string_matching(/empty.*continue/i),
                                            prompt_style: anything).and_return(false)
       stub_post_replace_prompts
@@ -428,10 +438,11 @@ RSpec.describe SnippetCli::Commands::New do
                                            prompt_style: anything).and_return(false)
       # First attempt: multiline with empty (declined), second attempt: single-line with valid
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(true, false)
-      allow(Gum).to receive(:write).with(header: 'Replacement', placeholder: 'Type expansion text...').and_return('')
+      allow(Gum).to receive(:write).with(hash_including(header: 'Replacement',
+                                                        placeholder: 'Type expansion text...')).and_return('')
       allow(Gum).to receive(:confirm).with(a_string_matching(/empty.*continue/i),
                                            prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello world')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hello world')
       stub_post_replace_prompts
       stub_gum_preview
     end
@@ -453,7 +464,7 @@ RSpec.describe SnippetCli::Commands::New do
         .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
         .and_return('image_path')
       # First input empty, second valid
-      allow(Gum).to receive(:input).with(placeholder: '/path/to/image.png')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: '/path/to/image.png'))
                                    .and_return('', '/img/logo.png')
       stub_post_replace_prompts
       stub_gum_preview
@@ -490,7 +501,7 @@ RSpec.describe SnippetCli::Commands::New do
         .and_return('html')
       # First input empty, second valid
       allow(Gum).to receive(:write)
-        .with(header: 'Html', placeholder: 'Enter html...')
+        .with(hash_including(header: 'Html', placeholder: 'Enter html...'))
         .and_return('', '<b>Bold</b>')
       stub_post_replace_prompts
       stub_gum_preview
@@ -531,7 +542,8 @@ RSpec.describe SnippetCli::Commands::New do
   context 'alternative replacement type: image_path' do
     before do
       stub_alt_type_prompts(type: 'image_path') do
-        allow(Gum).to receive(:input).with(placeholder: '/path/to/image.png').and_return('/img/logo.png')
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: '/path/to/image.png')).and_return('/img/logo.png')
       end
     end
 
@@ -558,7 +570,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_alt_type_prompts(type: 'html') do
         allow(Gum).to receive(:write)
-          .with(header: 'Html', placeholder: 'Enter html...')
+          .with(hash_including(header: 'Html', placeholder: 'Enter html...'))
           .and_return('<b>Bold</b>')
       end
     end
@@ -580,7 +592,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_alt_type_prompts(type: 'markdown') do
         allow(Gum).to receive(:write)
-          .with(header: 'Markdown', placeholder: 'Enter markdown...')
+          .with(hash_including(header: 'Markdown', placeholder: 'Enter markdown...'))
           .and_return('**Bold**')
       end
     end
@@ -609,7 +621,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('plain text')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('plain text')
       allow(SnippetCli::UI).to receive(:warning)
       allow(Gum).to receive(:confirm).with('Are you sure you want to continue?',
                                            prompt_style: anything).and_return(true)
@@ -636,7 +648,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello {{ghost}}')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hello {{ghost}}')
       allow(SnippetCli::UI).to receive(:warning)
       allow(Gum).to receive(:confirm).with('Are you sure you want to continue?',
                                            prompt_style: anything).and_return(true)
@@ -658,7 +670,8 @@ RSpec.describe SnippetCli::Commands::New do
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       # First: doesn't use {{myvar}}. Second: uses it — no warning → proceeds.
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('plain text', '{{myvar}} is great')
+      allow(Gum).to receive(:input)
+        .with(hash_including(placeholder: 'Replacement text')).and_return('plain text', '{{myvar}} is great')
       allow(SnippetCli::UI).to receive(:warning)
       allow(Gum).to receive(:confirm).with('Are you sure you want to continue?',
                                            prompt_style: anything).and_return(false)
@@ -668,7 +681,7 @@ RSpec.describe SnippetCli::Commands::New do
 
     it 'prompts for replacement text twice' do
       command.call
-      expect(Gum).to have_received(:input).with(placeholder: 'Replacement text').twice
+      expect(Gum).to have_received(:input).with(hash_including(placeholder: 'Replacement text')).twice
     end
 
     it 'uses the second (corrected) replacement in the output' do
@@ -688,7 +701,7 @@ RSpec.describe SnippetCli::Commands::New do
         .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
         .and_return('image_path')
       # First path: undeclared ref → warning. Second path: plain path → no warnings.
-      allow(Gum).to receive(:input).with(placeholder: '/path/to/image.png')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: '/path/to/image.png'))
                                    .and_return('/imgs/{{ghost}}.png', '/imgs/logo.png')
       allow(SnippetCli::UI).to receive(:warning)
       allow(Gum).to receive(:confirm).with('Are you sure you want to continue?',
@@ -699,7 +712,7 @@ RSpec.describe SnippetCli::Commands::New do
 
     it 're-prompts for the image path without re-asking the type gate' do
       command.call
-      expect(Gum).to have_received(:input).with(placeholder: '/path/to/image.png').twice
+      expect(Gum).to have_received(:input).with(hash_including(placeholder: '/path/to/image.png')).twice
       expect(Gum).to have_received(:filter).once
     end
   end
@@ -718,7 +731,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(SnippetCli::UI).to receive(:info)
       allow(Gum).to receive(:confirm).with('Discard vars and continue with image_path?',
                                            prompt_style: anything).and_return(true)
-      allow(Gum).to receive(:input).with(placeholder: '/path/to/image.png').and_return('/img/logo.png')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: '/path/to/image.png')).and_return('/img/logo.png')
       stub_post_replace_prompts
       stub_gum_preview
     end
@@ -755,7 +768,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Discard vars and continue with image_path?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:write)
-        .with(header: 'Markdown', placeholder: 'Enter markdown...')
+        .with(hash_including(header: 'Markdown', placeholder: 'Enter markdown...'))
         .and_return('**bold**')
       allow(SnippetCli::UI).to receive(:warning)
       allow(Gum).to receive(:confirm).with('Are you sure you want to continue?',
@@ -781,7 +794,8 @@ RSpec.describe SnippetCli::Commands::New do
   context 'image_path selected with no vars: no discard gate shown' do
     before do
       stub_alt_type_prompts(type: 'image_path') do
-        allow(Gum).to receive(:input).with(placeholder: '/path/to/image.png').and_return('/img/logo.png')
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: '/path/to/image.png')).and_return('/img/logo.png')
       end
       allow(SnippetCli::UI).to receive(:info)
     end
@@ -800,7 +814,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello {{myvar}}')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hello {{myvar}}')
       stub_post_replace_prompts
       stub_gum_preview
     end
@@ -826,7 +840,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Hello {{myvar}}')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hello {{myvar}}')
       stub_post_replace_prompts
       stub_gum_preview
     end
@@ -883,12 +897,16 @@ RSpec.describe SnippetCli::Commands::New do
 
   def stub_bare_replace_prompts(multiline: false, replace: 'Test replacement')
     allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(multiline)
-    if multiline
-      allow(Gum).to receive(:write)
-        .with(header: 'Replacement', placeholder: 'Type expansion text...').and_return(replace)
-    else
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return(replace)
-    end
+    multiline ? stub_bare_multiline_replace(replace) : stub_bare_single_replace(replace)
+  end
+
+  def stub_bare_multiline_replace(replace)
+    allow(Gum).to receive(:write)
+      .with(hash_including(header: 'Replacement', placeholder: 'Type expansion text...')).and_return(replace)
+  end
+
+  def stub_bare_single_replace(replace)
+    allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return(replace)
   end
 
   context '--bare flag with interactive triggers' do
@@ -978,7 +996,7 @@ RSpec.describe SnippetCli::Commands::New do
       stub_trigger_prompts
       stub_confirm_false('Alternative (non-plaintext) replacement type?')
       stub_confirm_false('Multi-line replacement?')
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('Test replacement')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Test replacement')
       stub_confirm_false('Show advanced options?')
       stub_gum_preview
     end
@@ -1018,7 +1036,7 @@ RSpec.describe SnippetCli::Commands::New do
       stub_confirm_false('Alternative (non-plaintext) replacement type?')
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(true)
       allow(Gum).to receive(:write)
-        .with(header: 'Replacement', placeholder: 'Type expansion text...').and_return("line1\nline2")
+        .with(hash_including(header: 'Replacement', placeholder: 'Type expansion text...')).and_return("line1\nline2")
       stub_confirm_false('Show advanced options?')
       stub_gum_preview
     end

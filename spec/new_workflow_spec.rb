@@ -27,7 +27,8 @@ RSpec.describe SnippetCli::NewWorkflow do
   end
 
   def stub_trigger_prompts(trigger: ':test')
-    allow(Gum).to receive(:choose).with('regular', 'regex', header: "Trigger type?\n").and_return('regular')
+    allow(Gum).to receive(:choose).with('regular', 'regex',
+                                        hash_including(header: "Trigger type?\n")).and_return('regular')
     allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return(trigger)
     stub_confirm_false(a_string_including('Add another trigger?'))
   end
@@ -35,7 +36,7 @@ RSpec.describe SnippetCli::NewWorkflow do
   def stub_replace_prompts(replace: 'Test replacement')
     stub_confirm_false('Alternative (non-plaintext) replacement type?')
     stub_confirm_false('Multi-line replacement?')
-    allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return(replace)
+    allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return(replace)
     stub_confirm_false('Show advanced options?')
   end
 
@@ -72,7 +73,7 @@ RSpec.describe SnippetCli::NewWorkflow do
         stub_trigger_prompts
         stub_confirm_false('Alternative (non-plaintext) replacement type?')
         stub_confirm_false('Multi-line replacement?')
-        allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('hello')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('hello')
         allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
         stub_gum_preview
         stub_confirm_false('Show advanced options?')
@@ -102,7 +103,7 @@ RSpec.describe SnippetCli::NewWorkflow do
         stub_trigger_prompts
         stub_confirm_false('Alternative (non-plaintext) replacement type?')
         stub_confirm_false('Multi-line replacement?')
-        allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('hello')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('hello')
         stub_confirm_false('Add a label?')
         stub_confirm_false('Add a comment?')
         stub_confirm_false('Word trigger?')
@@ -129,7 +130,7 @@ RSpec.describe SnippetCli::NewWorkflow do
         stub_trigger_prompts
         stub_confirm_false('Alternative (non-plaintext) replacement type?')
         stub_confirm_false('Multi-line replacement?')
-        allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('hello')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('hello')
         stub_confirm_false('Add a label?')
         stub_confirm_false('Add a comment?')
         stub_confirm_false('Add search terms?')
@@ -153,7 +154,7 @@ RSpec.describe SnippetCli::NewWorkflow do
       before do
         stub_trigger_prompts
         stub_confirm_false('Multi-line replacement?')
-        allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('hello')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('hello')
         stub_gum_preview
       end
 
@@ -169,7 +170,7 @@ RSpec.describe SnippetCli::NewWorkflow do
         stub_trigger_prompts
         stub_confirm_false('Alternative (non-plaintext) replacement type?')
         stub_confirm_false('Multi-line replacement?')
-        allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('hello')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('hello')
         stub_confirm_false('Show advanced options?')
         stub_gum_preview
       end

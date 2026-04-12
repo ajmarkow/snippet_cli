@@ -24,7 +24,7 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('greeting')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
-        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('John')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'echo value')).and_return('John')
         allow($stdout).to receive(:puts)
       end
 
@@ -52,7 +52,7 @@ RSpec.describe SnippetCli::VarBuilder do
                                                                          header: 'Variable type').and_return('shell')
         allow(Gum).to receive(:filter).with(*described_class.platform_shells, limit: 1,
                                                                               header: 'Select shell').and_return('bash')
-        allow(Gum).to receive(:input).with(placeholder: 'shell command').and_return('date')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'shell command')).and_return('date')
         allow($stdout).to receive(:puts)
       end
 
@@ -130,7 +130,8 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('dt')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('date')
-        allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'date format (e.g. %Y-%m-%d)')).and_return('%Y-%m-%d')
         allow($stdout).to receive(:puts)
       end
 
@@ -172,7 +173,8 @@ RSpec.describe SnippetCli::VarBuilder do
       context 'when user adds an offset' do
         before do
           allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(true)
-          allow(Gum).to receive(:input).with(placeholder: 'offset in seconds (e.g. 86400)').and_return('86400')
+          allow(Gum).to receive(:input)
+            .with(hash_including(placeholder: 'offset in seconds (e.g. 86400)')).and_return('86400')
         end
 
         it 'stores offset as an integer in params' do
@@ -184,7 +186,8 @@ RSpec.describe SnippetCli::VarBuilder do
       context 'when user adds a locale' do
         before do
           allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(true)
-          allow(Gum).to receive(:input).with(placeholder: 'BCP47 locale (e.g. en-US, ja-JP)').and_return('ja-JP')
+          allow(Gum).to receive(:input)
+            .with(hash_including(placeholder: 'BCP47 locale (e.g. en-US, ja-JP)')).and_return('ja-JP')
         end
 
         it 'stores locale as a string in params' do
@@ -196,7 +199,7 @@ RSpec.describe SnippetCli::VarBuilder do
       context 'when user adds a timezone' do
         before do
           allow(Gum).to receive(:confirm).with('Add a timezone?', prompt_style: anything).and_return(true)
-          allow(Gum).to receive(:input).with(placeholder: 'IANA timezone (e.g. America/New_York)')
+          allow(Gum).to receive(:input).with(hash_including(placeholder: 'IANA timezone (e.g. America/New_York)'))
                                        .and_return('America/New_York')
         end
 
@@ -215,7 +218,7 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('greeting')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
-        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'echo value')).and_return('hello')
         allow($stdout).to receive(:puts)
       end
 
@@ -433,7 +436,7 @@ RSpec.describe SnippetCli::VarBuilder do
                                                                          header: 'Variable type').and_return('shell')
         allow(Gum).to receive(:filter).with(*described_class.platform_shells, limit: 1,
                                                                               header: 'Select shell').and_return('bash')
-        allow(Gum).to receive(:input).with(placeholder: 'shell command').and_return('date')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'shell command')).and_return('date')
         allow($stdout).to receive(:puts)
       end
 
@@ -458,7 +461,8 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('dt')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('date')
-        allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'date format (e.g. %Y-%m-%d)')).and_return('%Y-%m-%d')
         allow(Gum).to receive(:table)
         allow($stdout).to receive(:puts)
       end
@@ -501,10 +505,11 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1, header: 'Variable type').and_return(
           'date', 'shell'
         )
-        allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'date format (e.g. %Y-%m-%d)')).and_return('%Y-%m-%d')
         allow(Gum).to receive(:filter).with(*described_class.platform_shells, limit: 1,
                                                                               header: 'Select shell').and_return('bash')
-        allow(Gum).to receive(:input).with(placeholder: 'shell command').and_return('whoami')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'shell command')).and_return('whoami')
         allow(Gum).to receive(:confirm).with('Enable debug mode?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Trim whitespace from output?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:table)
@@ -538,7 +543,7 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:filter).with(*field_types, limit: 1,
                                                           header: a_string_matching(/field type/i))
                                       .and_return('Single-line text box')
-        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hi')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'echo value')).and_return('hi')
         allow(Gum).to receive(:table)
         allow($stdout).to receive(:puts)
       end
@@ -635,7 +640,7 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:filter).with(*field_types, limit: 1,
                                                           header: a_string_matching(/field type/i))
                                       .and_return('Single-line text box')
-        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'echo value')).and_return('hello')
         allow(Gum).to receive(:table)
         allow($stdout).to receive(:puts)
       end
@@ -719,7 +724,8 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('dt')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('date')
-        allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'date format (e.g. %Y-%m-%d)')).and_return('%Y-%m-%d')
         allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a timezone?', prompt_style: anything).and_return(false)
@@ -757,13 +763,14 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:filter)
           .with(*described_class::VAR_TYPES, limit: 1, header: 'Variable type')
           .and_return('date', 'shell')
-        allow(Gum).to receive(:input).with(placeholder: 'date format (e.g. %Y-%m-%d)').and_return('%Y-%m-%d')
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'date format (e.g. %Y-%m-%d)')).and_return('%Y-%m-%d')
         allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a timezone?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:filter).with(*described_class.platform_shells, limit: 1,
                                                                               header: 'Select shell').and_return('bash')
-        allow(Gum).to receive(:input).with(placeholder: 'shell command').and_return('date')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'shell command')).and_return('date')
         allow(Gum).to receive(:confirm).with('Enable debug mode?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Trim whitespace from output?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm)
@@ -795,7 +802,7 @@ RSpec.describe SnippetCli::VarBuilder do
           .with(hash_including(placeholder: 'Your variable name')).and_return('', 'good_name')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
-        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'echo value')).and_return('hello')
         allow(Gum).to receive(:table)
         allow(SnippetCli::UI).to receive(:info)
         allow(SnippetCli::UI).to receive(:warning)
@@ -826,7 +833,7 @@ RSpec.describe SnippetCli::VarBuilder do
           .with(hash_including(placeholder: 'Your variable name')).and_return('bad-name', 'good_name')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
-        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'echo value')).and_return('hello')
         allow(Gum).to receive(:table)
         allow(SnippetCli::UI).to receive(:info)
         allow(SnippetCli::UI).to receive(:warning)
@@ -857,7 +864,7 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('my_var_2')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
-        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'echo value')).and_return('hello')
         allow(Gum).to receive(:table)
         allow(SnippetCli::UI).to receive(:info)
         allow($stdout).to receive(:puts)
@@ -884,7 +891,7 @@ RSpec.describe SnippetCli::VarBuilder do
           .with(hash_including(placeholder: 'Your variable name')).and_return('bad-name', 'good_name')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
-        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hello')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'echo value')).and_return('hello')
         allow(Gum).to receive(:table)
         allow(SnippetCli::UI).to receive(:info)
         allow(SnippetCli::UI).to receive(:warning)
@@ -922,7 +929,7 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('myvar')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
                                                                          header: 'Variable type').and_return('echo')
-        allow(Gum).to receive(:input).with(placeholder: 'echo value').and_return('hi')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'echo value')).and_return('hi')
         allow(Gum).to receive(:table)
         allow(SnippetCli::UI).to receive(:info)
         allow($stdout).to receive(:puts)

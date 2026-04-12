@@ -36,7 +36,7 @@ module SnippetCli
       private
 
       def prompt_name(first)
-        opts = { placeholder: 'Your variable name' }
+        opts = { placeholder: 'Your variable name', prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE }
         opts[:header] = FIRST_VAR_HEADER if first
         [prompt!(Gum.input(**opts)), false]
       end

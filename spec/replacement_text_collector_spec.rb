@@ -19,7 +19,7 @@ RSpec.describe SnippetCli::ReplacementTextCollector do
         allow(Gum).to receive(:confirm)
           .with('Multi-line replacement?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input)
-          .with(placeholder: 'Replacement text').and_return('Hello world')
+          .with(hash_including(placeholder: 'Replacement text')).and_return('Hello world')
       end
 
       it 'returns the entered text' do
@@ -32,7 +32,8 @@ RSpec.describe SnippetCli::ReplacementTextCollector do
         allow(Gum).to receive(:confirm)
           .with('Multi-line replacement?', prompt_style: anything).and_return(true)
         allow(Gum).to receive(:write)
-          .with(header: 'Replacement', placeholder: 'Type expansion text...').and_return("line one\nline two")
+          .with(hash_including(header: 'Replacement',
+                               placeholder: 'Type expansion text...')).and_return("line one\nline two")
       end
 
       it 'returns the multi-line text' do
@@ -45,7 +46,7 @@ RSpec.describe SnippetCli::ReplacementTextCollector do
         allow(Gum).to receive(:confirm)
           .with('Multi-line replacement?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input)
-          .with(placeholder: 'Replacement text').and_return('   ', 'actual text')
+          .with(hash_including(placeholder: 'Replacement text')).and_return('   ', 'actual text')
         allow(Gum).to receive(:confirm)
           .with(SnippetCli::ReplacementTextCollector::EMPTY_REPLACE_WARNING,
                 prompt_style: anything).and_return(false, true)
@@ -62,7 +63,7 @@ RSpec.describe SnippetCli::ReplacementTextCollector do
     context 'image_path type' do
       before do
         allow(Gum).to receive(:input)
-          .with(placeholder: '/path/to/image.png').and_return('/img/logo.png')
+          .with(hash_including(placeholder: '/path/to/image.png')).and_return('/img/logo.png')
       end
 
       it 'uses Gum.input with image path placeholder' do
@@ -73,7 +74,7 @@ RSpec.describe SnippetCli::ReplacementTextCollector do
     context 'markdown type' do
       before do
         allow(Gum).to receive(:write)
-          .with(header: 'Markdown', placeholder: 'Enter markdown...').and_return('**bold**')
+          .with(hash_including(header: 'Markdown', placeholder: 'Enter markdown...')).and_return('**bold**')
       end
 
       it 'uses Gum.write with capitalised header' do
@@ -84,7 +85,7 @@ RSpec.describe SnippetCli::ReplacementTextCollector do
     context 'html type' do
       before do
         allow(Gum).to receive(:write)
-          .with(header: 'Html', placeholder: 'Enter html...').and_return('<b>bold</b>')
+          .with(hash_including(header: 'Html', placeholder: 'Enter html...')).and_return('<b>bold</b>')
       end
 
       it 'uses Gum.write with capitalised header' do

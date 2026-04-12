@@ -22,7 +22,7 @@ module SnippetCli
     end
 
     def resolve_triggers_interactively(_opts)
-      type = prompt!(Gum.choose('regular', 'regex', header: "Trigger type?\n"))
+      type = prompt!(Gum.choose('regular', 'regex', header: "Trigger type?\n", header_style: UI::PROMPT_STYLE))
       list, is_regex = collect_triggers(type)
       TriggerResolution.new(list, is_regex, false)
     end
@@ -50,7 +50,7 @@ module SnippetCli
     end
 
     def trigger_input_opts(placeholder, header)
-      opts = { placeholder: placeholder }
+      opts = { placeholder: placeholder, prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE }
       opts[:header] = header if header
       opts
     end

@@ -8,13 +8,17 @@ module SnippetCli
     # Interactive collection of Espanso `params` hashes per variable type.
     module Params
       COLLECTORS = {
-        'echo' => ->(b) { { echo: b.prompt!(Gum.input(placeholder: 'echo value')) } },
+        'echo' => lambda { |b|
+          { echo: b.prompt!(Gum.input(placeholder: 'echo value', prompt_style: UI::PROMPT_STYLE,
+                                      header_style: UI::PROMPT_STYLE)) }
+        },
         'random' => lambda { |b|
-          raw = b.prompt!(Gum.write(header: 'Put one random choice per line'))
+          raw = b.prompt!(Gum.write(header: 'Put one random choice per line', prompt_style: UI::PROMPT_STYLE,
+                                    header_style: UI::PROMPT_STYLE))
           { choices: raw.to_s.lines.map(&:chomp).reject(&:empty?) }
         },
         'choice' => lambda { |b|
-          raw = b.prompt!(Gum.write(header: 'Put one choice per line'))
+          raw = b.prompt!(Gum.write(header: 'Put one choice per line', prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE))
           { values: raw.to_s.lines.map(&:chomp).reject(&:empty?) }
         }
       }.freeze
@@ -34,13 +38,14 @@ module SnippetCli
       end
 
       def self.collect_list(builder, item_name)
-        raw = builder.prompt!(Gum.write(header: "Put one #{item_name} per line"))
+        raw = builder.prompt!(Gum.write(header: "Put one #{item_name} per line", prompt_style: UI::PROMPT_STYLE,
+                                        header_style: UI::PROMPT_STYLE))
         raw.to_s.lines.map(&:chomp).reject(&:empty?)
       end
 
       def self.shell(builder)
         sh = builder.prompt!(Gum.filter(*builder.platform_shells, limit: 1, header: 'Select shell'))
-        cmd = builder.prompt!(Gum.input(placeholder: 'shell command'))
+        cmd = builder.prompt!(Gum.input(placeholder: 'shell command', prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE))
         debug_trim(builder, cmd: cmd, shell: sh)
       end
       private_class_method :shell
@@ -49,7 +54,8 @@ module SnippetCli
         raw = builder.prompt!(
           Gum.write(
             header: 'Script args — one per line, each line becomes a separate argument',
-            placeholder: '/path/to/script'
+            placeholder: '/path/to/script',
+            prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE
           )
         )
         params = { args: raw.to_s.lines.map(&:chomp).reject(&:empty?) }
@@ -59,37 +65,49 @@ module SnippetCli
       private_class_method :script
 
       def self.date(builder)
-        params = { format: builder.prompt!(Gum.input(placeholder: 'date format (e.g. %Y-%m-%d)')) }
+        params = { format: builder.prompt!(Gum.input(placeholder: 'date format (e.g. %Y-%m-%d)',
+                                                     prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE)) }
         date_optional_params(builder, params)
       end
       private_class_method :date
 
+      DATE_OPT_FIELDS = [
+        [:offset, 'Add an offset?', 'offset in seconds (e.g. 86400)', :to_i],
+        [:locale, 'Add a locale?', 'BCP47 locale (e.g. en-US, ja-JP)', nil],
+        [:tz,     'Add a timezone?', 'IANA timezone (e.g. America/New_York)', nil]
+      ].freeze
+
       def self.date_optional_params(builder, params)
-        if builder.confirm!('Add an offset?')
-          params[:offset] = builder.prompt!(Gum.input(placeholder: 'offset in seconds (e.g. 86400)')).to_i
-        end
-        if builder.confirm!('Add a locale?')
-          params[:locale] = builder.prompt!(Gum.input(placeholder: 'BCP47 locale (e.g. en-US, ja-JP)'))
-        end
-        if builder.confirm!('Add a timezone?')
-          params[:tz] = builder.prompt!(Gum.input(placeholder: 'IANA timezone (e.g. America/New_York)'))
+        style = UI::PROMPT_STYLE
+        DATE_OPT_FIELDS.each do |key, prompt, ph, conv|
+          next unless builder.confirm!(prompt)
+
+          val = builder.prompt!(Gum.input(placeholder: ph, prompt_style: style, header_style: style))
+          params[key] = conv ? val.public_send(conv) : val
         end
         params
       end
       private_class_method :date_optional_params
 
       def self.form(builder)
-        layout = if builder.confirm!('Multi-line form?')
-                   builder.prompt!(Gum.write(header: 'Form layout (use [[field_name]] for fields)'))
-                 else
-                   builder.prompt!(Gum.input(placeholder: 'Form layout (use [[field_name]] for fields)'))
-                 end
+        layout = form_layout(builder)
         fields = FormFields.collect(builder, layout)
         params = { layout: layout }
         params[:fields] = fields if fields.any?
         params
       end
-      private_class_method :form
+
+      def self.form_layout(builder)
+        ps = UI::PROMPT_STYLE
+        ph = 'Form layout (use [[field_name]] for fields)'
+        gum = if builder.confirm!('Multi-line form?')
+                Gum.write(header: ph, prompt_style: ps, header_style: ps)
+              else
+                Gum.input(placeholder: ph, prompt_style: ps, header_style: ps)
+              end
+        builder.prompt!(gum)
+      end
+      private_class_method :form, :form_layout
 
       def self.clipboard(_builder)
         {}

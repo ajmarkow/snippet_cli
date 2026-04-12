@@ -6,6 +6,7 @@ require_relative 'cursor_helper'
 module SnippetCli
   module UI
     BASE_FLAGS = ['--border=rounded', '--padding=0 4'].freeze
+    PROMPT_STYLE = { padding: '0 1', margin: '0' }.freeze
 
     STYLE_FLAGS = {
       info: [],

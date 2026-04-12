@@ -24,7 +24,7 @@ module SnippetCli
       # that $? records the child's exit code 130.
       # SIGINT can also raise Interrupt in Ruby before $? is read.
       def confirm!(text)
-        result = Gum.confirm(text, prompt_style: { padding: '0 1', margin: '0' })
+        result = Gum.confirm(text, prompt_style: UI::PROMPT_STYLE)
         raise WizardInterrupted if result.nil?
         raise WizardInterrupted if $CHILD_STATUS.respond_to?(:exitstatus) && $CHILD_STATUS.exitstatus == 130
 
@@ -49,7 +49,7 @@ module SnippetCli
       def collect_search_terms
         return [] unless confirm!('Add search terms?')
 
-        raw = prompt!(Gum.write(header: 'Put one search term per line'))
+        raw = prompt!(Gum.write(header: 'Put one search term per line', prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE))
         raw.to_s.lines.map(&:chomp).reject(&:empty?)
       end
     end

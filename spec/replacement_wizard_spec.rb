@@ -15,7 +15,7 @@ RSpec.describe SnippetCli::ReplacementWizard do
   describe '#collect_plain_replace' do
     it 'prompts for replacement text and returns it' do
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('hello world')
+      allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('hello world')
       expect(wizard.collect_plain_replace).to eq('hello world')
     end
   end
@@ -25,7 +25,7 @@ RSpec.describe SnippetCli::ReplacementWizard do
       before do
         stub_confirm('Alternative (non-plaintext) replacement type?', false)
         stub_confirm('Multi-line replacement?', false)
-        allow(Gum).to receive(:input).with(placeholder: 'Replacement text').and_return('simple text')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('simple text')
       end
 
       it 'returns a hash with replace key' do
@@ -54,7 +54,7 @@ RSpec.describe SnippetCli::ReplacementWizard do
         stub_confirm('Alternative (non-plaintext) replacement type?', true)
         allow(Gum).to receive(:filter).with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
                                       .and_return('image_path')
-        allow(Gum).to receive(:input).with(placeholder: '/path/to/image.png').and_return('/img.png')
+        allow(Gum).to receive(:input).with(hash_including(placeholder: '/path/to/image.png')).and_return('/img.png')
       end
 
       it 'returns image_path key and vars: []' do

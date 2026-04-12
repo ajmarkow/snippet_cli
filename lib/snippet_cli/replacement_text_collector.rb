@@ -17,15 +17,20 @@ module SnippetCli
 
     def collect_replace(_vars)
       loop do
-        use_multiline = confirm!('Multi-line replacement?')
-        value = if use_multiline
-                  prompt!(Gum.write(header: 'Replacement', placeholder: 'Type expansion text...'))
-                else
-                  prompt!(Gum.input(placeholder: 'Replacement text'))
-                end
+        value = prompt!(gum_replace_input(confirm!('Multi-line replacement?')))
         next if value.strip.empty? && !confirm!(EMPTY_REPLACE_WARNING)
 
         return value
+      end
+    end
+
+    def gum_replace_input(multiline)
+      style = UI::PROMPT_STYLE
+      if multiline
+        Gum.write(header: 'Replacement', placeholder: 'Type expansion text...',
+                  prompt_style: style, header_style: style)
+      else
+        Gum.input(placeholder: 'Replacement text', prompt_style: style, header_style: style)
       end
     end
 
@@ -34,10 +39,12 @@ module SnippetCli
     end
 
     def prompt_alt_input(type)
+      style = UI::PROMPT_STYLE
       if type == :image_path
-        prompt!(Gum.input(placeholder: '/path/to/image.png'))
+        prompt!(Gum.input(placeholder: '/path/to/image.png', prompt_style: style, header_style: style))
       else
-        prompt!(Gum.write(header: type.to_s.capitalize, placeholder: "Enter #{type}..."))
+        prompt!(Gum.write(header: type.to_s.capitalize, placeholder: "Enter #{type}...",
+                          prompt_style: style, header_style: style))
       end
     end
 

@@ -28,13 +28,7 @@ module SnippetCli
     def collect_advanced_options
       return { label: nil, comment: nil, search_terms: [] } unless confirm!('Show advanced options?')
 
-      {
-        label: optional_prompt('Add a label?') { prompt!(Gum.input(placeholder: 'Label')) },
-        comment: optional_prompt('Add a comment?') { prompt!(Gum.input(placeholder: 'Comment')) },
-        search_terms: collect_search_terms,
-        word: (true if confirm!('Word trigger?')),
-        propagate_case: (true if confirm!('Propagate case?'))
-      }
+      advanced_options_hash
     end
 
     # Collects plain replacement text only (used for --bare mode).
@@ -43,6 +37,28 @@ module SnippetCli
     end
 
     private
+
+    def advanced_options_hash
+      {
+        label: optional_label,
+        comment: optional_comment,
+        search_terms: collect_search_terms,
+        word: (true if confirm!('Word trigger?')),
+        propagate_case: (true if confirm!('Propagate case?'))
+      }
+    end
+
+    def optional_label
+      optional_prompt('Add a label?') do
+        prompt!(Gum.input(placeholder: 'Label', prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE))
+      end
+    end
+
+    def optional_comment
+      optional_prompt('Add a comment?') do
+        prompt!(Gum.input(placeholder: 'Comment', prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE))
+      end
+    end
 
     def collect_replacement(vars, global_var_names: [])
       if confirm!('Alternative (non-plaintext) replacement type?')
