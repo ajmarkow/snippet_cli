@@ -1,9 +1,10 @@
 ---
 id: TASK-88
 title: Show active match file context in UI
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-04-11 21:30'
+updated_date: '2026-04-12 23:29'
 labels:
   - ui
   - ux
@@ -25,9 +26,9 @@ Applies to any command that targets a match file: `new`, `vars --save`, `check`,
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Single match file: a UI note showing the filename is printed before wizard/output begins
-- [ ] #2 Multiple match files: no extra hint (picker is sufficient)
+- [x] #1 Single match file: a UI note showing the filename is printed before wizard/output begins
+- [x] #2 Multiple match files: no extra hint (picker is sufficient)
 - [ ] #3 --file provided: a UI note confirms the explicit path
-- [ ] #4 Note uses existing UI.note or equivalent — no new styling introduced
-- [ ] #5 Behaviour is consistent across new, vars --save, check, and conflict
+- [x] #4 Note uses existing UI.note or equivalent — no new styling introduced
+- [x] #5 Behaviour is consistent across new, vars --save, check, and conflict
 <!-- AC:END -->
