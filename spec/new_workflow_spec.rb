@@ -57,12 +57,19 @@ RSpec.describe SnippetCli::NewWorkflow do
         allow(SnippetCli::GlobalVarsWriter).to receive(:read_names).and_return([])
         allow(SnippetCli::MatchFileWriter).to receive(:append)
         allow(SnippetCli::UI).to receive(:success)
-        allow(SnippetCli::UI).to receive(:note)
+        allow(SnippetCli::UI).to receive(:transient_note).and_return(-> {})
       end
 
-      it 'emits UI.note with the filename before the wizard begins' do
+      it 'emits UI.transient_note with the filename' do
         workflow.run(save: true)
-        expect(SnippetCli::UI).to have_received(:note).with("Using #{File.basename(match_file.path)}")
+        expect(SnippetCli::UI).to have_received(:transient_note).with("Using #{File.basename(match_file.path)}")
+      end
+
+      it 'calls the clear lambda returned by transient_note after trigger type selection' do
+        clear = double('clear', call: nil)
+        allow(SnippetCli::UI).to receive(:transient_note).and_return(clear)
+        workflow.run(save: true)
+        expect(clear).to have_received(:call)
       end
     end
 
@@ -94,8 +101,8 @@ RSpec.describe SnippetCli::NewWorkflow do
         allow(SnippetCli::UI).to receive(:success)
       end
 
-      it 'does not emit a UI.note for the file' do
-        expect(SnippetCli::UI).not_to receive(:note).with(/Using/)
+      it 'does not emit UI.transient_note' do
+        expect(SnippetCli::UI).not_to receive(:transient_note)
         workflow.run(save: true)
       end
     end

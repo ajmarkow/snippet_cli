@@ -30,6 +30,12 @@ module SnippetCli
 
     # Renders a warning and returns a lambda that erases it via line-count tracking.
     # The warning is always rendered; the clear lambda is a no-op when not a TTY.
+    def self.transient_note(text)
+      puts "\e[38;5;231m #{text}\e[0m"
+      puts
+      erase_lambda(2)
+    end
+
     def self.transient_warning(text)
       warning(text)
       erase_lambda(text.lines.count + 2)

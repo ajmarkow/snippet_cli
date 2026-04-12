@@ -124,6 +124,42 @@ RSpec.describe SnippetCli::UI do
     end
   end
 
+  describe '.transient_note' do
+    it 'prints the text with a leading space' do
+      expect($stdout).to receive(:puts).with("\e[38;5;231m Using base.yml\e[0m")
+      allow($stdout).to receive(:puts).with(no_args)
+      described_class.transient_note('Using base.yml')
+    end
+
+    it 'prints a blank line after the text' do
+      allow($stdout).to receive(:puts).with(anything)
+      expect($stdout).to receive(:puts).with(no_args)
+      described_class.transient_note('text')
+    end
+
+    it 'returns a callable' do
+      allow($stdout).to receive(:puts)
+      expect(described_class.transient_note('text')).to respond_to(:call)
+    end
+
+    it 'returned lambda is a no-op when stdout is not a TTY' do
+      allow($stdout).to receive(:tty?).and_return(false)
+      allow($stdout).to receive(:puts)
+      clear = described_class.transient_note('text')
+      expect { clear.call }.not_to output.to_stdout
+    end
+
+    it 'returned lambda moves cursor up 2 lines (text + blank line)' do
+      allow($stdout).to receive(:tty?).and_return(true)
+      allow($stdout).to receive(:puts)
+      printed = []
+      allow($stdout).to receive(:print) { |arg| printed << arg }
+      clear = described_class.transient_note('text')
+      clear.call
+      expect(printed).to include(TTY::Cursor.up(2))
+    end
+  end
+
   describe '.transient_info' do
     it 'always calls UI.info with the text regardless of TTY' do
       allow($stdout).to receive(:tty?).and_return(false)

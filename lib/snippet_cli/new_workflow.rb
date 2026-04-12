@@ -36,13 +36,14 @@ module SnippetCli
       return WizardContext.new(pipe_output: pipe_output) unless opts[:save]
 
       chosen, save_path = pick_match_file
-      UI.note("Using #{chosen}") if EspansoConfig.match_files.size == 1
+      @file_note_clear = UI.transient_note("Using #{chosen}") if EspansoConfig.match_files.size == 1
       global_var_names = GlobalVarsWriter.read_names(save_path)
       WizardContext.new(save_path: save_path, global_var_names: global_var_names, pipe_output: pipe_output)
     end
 
     def build_snippet(opts, context)
       resolution = resolve_triggers(opts)
+      @file_note_clear&.call
       replacement_hash, summary_clear = resolve_replacement(
         no_vars: opts[:no_vars], bare: opts[:bare], global_var_names: context.global_var_names
       )
