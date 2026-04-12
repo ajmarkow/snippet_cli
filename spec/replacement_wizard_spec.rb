@@ -23,7 +23,7 @@ RSpec.describe SnippetCli::ReplacementWizard do
   describe '#collect' do
     context 'when user picks plain replacement' do
       before do
-        stub_confirm('Alternative (non-plaintext) replacement type?', false)
+        stub_confirm('Use a non-plaintext replacement type?', false)
         stub_confirm('Multi-line replacement?', false)
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('simple text')
       end
@@ -36,7 +36,7 @@ RSpec.describe SnippetCli::ReplacementWizard do
 
     context 'when user picks an alt type (markdown)' do
       before do
-        stub_confirm('Alternative (non-plaintext) replacement type?', true)
+        stub_confirm('Use a non-plaintext replacement type?', true)
         allow(Gum).to receive(:filter).with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
                                       .and_return('markdown')
         allow(Gum).to receive(:write).with(hash_including(header: 'Markdown'))
@@ -51,7 +51,7 @@ RSpec.describe SnippetCli::ReplacementWizard do
 
     context 'when user picks image_path with no vars' do
       before do
-        stub_confirm('Alternative (non-plaintext) replacement type?', true)
+        stub_confirm('Use a non-plaintext replacement type?', true)
         allow(Gum).to receive(:filter).with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
                                       .and_return('image_path')
         allow(Gum).to receive(:input).with(hash_including(placeholder: '/path/to/image.png')).and_return('/img.png')

@@ -61,7 +61,7 @@ module SnippetCli
     end
 
     def collect_replacement(vars, global_var_names: [])
-      if confirm!('Alternative (non-plaintext) replacement type?')
+      if confirm!('Use a non-plaintext replacement type?')
         select_alt_type(vars, global_var_names: global_var_names)
       else
         collect_with_check(vars, global_var_names: global_var_names) { { replace: collect_replace(vars) } }
@@ -82,8 +82,8 @@ module SnippetCli
     def image_path_discard_declined?(type, vars)
       return false unless type == 'image_path' && vars.any?
 
-      UI.info('image_path replacements do not support vars — they will be discarded.')
-      !confirm!('Discard vars and continue with image_path?')
+      UI.info('image_path does not support vars — they will be dropped.')
+      !confirm!('Drop vars and continue with image_path?')
     end
 
     def collect_alt_with_check(type, vars, global_var_names: [])

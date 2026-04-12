@@ -12,7 +12,7 @@ module SnippetCli
     include WizardHelpers::PromptHelpers
     include WizardHelpers::ValidationLoop
 
-    RUST_REGEX_GUIDANCE = "Espanso uses Rust Regex syntax, ensure this is a valid Rust regex.\n" \
+    RUST_REGEX_GUIDANCE = "Espanso uses Rust Regex syntax. Ensure this is a valid Rust regex.\n" \
                           'https://docs.rs/regex/1.1.8/regex/#syntax'
 
     private
@@ -45,8 +45,7 @@ module SnippetCli
     end
 
     def multi_trigger_header
-      "Multiple triggers can share one replacement.\n" \
-        "Enter them one at a time, you'll be asked to add another after each.\n"
+      "Multiple triggers can share one replacement.\nEnter them one at a time.\n"
     end
 
     def trigger_input_opts(placeholder, header)

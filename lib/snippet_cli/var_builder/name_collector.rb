@@ -19,8 +19,7 @@ module SnippetCli
 
       # Returns the validated name string, or nil for a duplicate.
       # Raises WizardInterrupted on Ctrl+C / nil input.
-      FIRST_VAR_HEADER = "One replacement may use multiple variables.\n" \
-                         "Enter names one at a time, you'll be asked to add another after each.\n"
+      FIRST_VAR_HEADER = "One replacement may use multiple variables.\nEnter names one at a time.\n"
 
       def collect
         first = @existing.empty?

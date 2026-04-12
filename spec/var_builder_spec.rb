@@ -729,7 +729,7 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a timezone?', prompt_style: anything).and_return(false)
-        allow(Gum).to receive(:confirm).with(a_string_including('Add an additional variable?'),
+        allow(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
                                              prompt_style: anything).and_return(false)
         allow(Gum).to receive(:table)
         allow($stdout).to receive(:puts)
@@ -745,8 +745,8 @@ RSpec.describe SnippetCli::VarBuilder do
         expect(vars.first[:name]).to eq('dt')
       end
 
-      it 'asks "Add an additional variable?" after the first variable' do
-        expect(Gum).to receive(:confirm).with(a_string_including('Add an additional variable?'),
+      it 'asks "Add another variable?" after the first variable' do
+        expect(Gum).to receive(:confirm).with(a_string_including('Add another variable?'),
                                               prompt_style: anything).and_return(false)
         described_class.run(skip_initial_prompt: true)
       end
@@ -774,7 +774,7 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:confirm).with('Enable debug mode?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Trim whitespace from output?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm)
-          .with(a_string_including('Add an additional variable?'), prompt_style: anything)
+          .with(a_string_including('Add another variable?'), prompt_style: anything)
           .and_return(true, false)
         allow(Gum).to receive(:table)
         allow($stdout).to receive(:puts)
@@ -785,7 +785,7 @@ RSpec.describe SnippetCli::VarBuilder do
         expect(vars.size).to eq(2)
       end
 
-      it 'does not ask "Add another variable?" (old prompt text)' do
+      it 'never calls confirm with bare "Add another variable?" — always wrapped in table context' do
         expect(Gum).not_to receive(:confirm).with('Add another variable?', prompt_style: anything)
         described_class.run(skip_initial_prompt: true)
       end

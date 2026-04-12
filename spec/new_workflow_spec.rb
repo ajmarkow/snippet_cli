@@ -34,7 +34,7 @@ RSpec.describe SnippetCli::NewWorkflow do
   end
 
   def stub_replace_prompts(replace: 'Test replacement')
-    stub_confirm_false('Alternative (non-plaintext) replacement type?')
+    stub_confirm_false('Use a non-plaintext replacement type?')
     stub_confirm_false('Multi-line replacement?')
     allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return(replace)
     stub_confirm_false('Show advanced options?')
@@ -137,7 +137,7 @@ RSpec.describe SnippetCli::NewWorkflow do
     context 'when user declines advanced options' do
       before do
         stub_trigger_prompts
-        stub_confirm_false('Alternative (non-plaintext) replacement type?')
+        stub_confirm_false('Use a non-plaintext replacement type?')
         stub_confirm_false('Multi-line replacement?')
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('hello')
         allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
@@ -167,7 +167,7 @@ RSpec.describe SnippetCli::NewWorkflow do
     context 'when user accepts advanced options and adds search terms' do
       before do
         stub_trigger_prompts
-        stub_confirm_false('Alternative (non-plaintext) replacement type?')
+        stub_confirm_false('Use a non-plaintext replacement type?')
         stub_confirm_false('Multi-line replacement?')
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('hello')
         stub_confirm_false('Add a label?')
@@ -194,7 +194,7 @@ RSpec.describe SnippetCli::NewWorkflow do
     context 'when user enables word and propagate_case in advanced options' do
       before do
         stub_trigger_prompts
-        stub_confirm_false('Alternative (non-plaintext) replacement type?')
+        stub_confirm_false('Use a non-plaintext replacement type?')
         stub_confirm_false('Multi-line replacement?')
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('hello')
         stub_confirm_false('Add a label?')
@@ -234,7 +234,7 @@ RSpec.describe SnippetCli::NewWorkflow do
     context 'when --no-vars flag is used' do
       before do
         stub_trigger_prompts
-        stub_confirm_false('Alternative (non-plaintext) replacement type?')
+        stub_confirm_false('Use a non-plaintext replacement type?')
         stub_confirm_false('Multi-line replacement?')
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('hello')
         stub_confirm_false('Show advanced options?')
@@ -257,7 +257,7 @@ RSpec.describe SnippetCli::NewWorkflow do
       end
 
       it 'still prompts for alternative replacement type' do
-        alt_prompt = 'Alternative (non-plaintext) replacement type?'
+        alt_prompt = 'Use a non-plaintext replacement type?'
         allow(Gum).to receive(:confirm).with(alt_prompt, prompt_style: anything)
         allow($stdout).to receive(:puts)
         workflow.run({ no_vars: true })

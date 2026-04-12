@@ -31,7 +31,7 @@ RSpec.describe SnippetCli::Commands::New do
   end
 
   def stub_replace_prompts(replace: 'Test replacement')
-    stub_confirm_false('Alternative (non-plaintext) replacement type?')
+    stub_confirm_false('Use a non-plaintext replacement type?')
     stub_confirm_false('Multi-line replacement?')
     allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return(replace)
     stub_post_replace_prompts
@@ -97,7 +97,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:choose).with('regular', 'regex',
                                           hash_including(header: "Trigger type?\n")).and_return('regex')
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'r"^(hello|bye)$"')).and_return('(gr|great)ing')
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hello')
@@ -210,7 +210,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?'),
                                            prompt_style: anything).and_return(false)
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return(nil)
@@ -226,7 +226,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?'),
                                            prompt_style: anything).and_return(false)
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return(nil)
@@ -259,7 +259,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?'),
                                            prompt_style: anything).and_return(false)
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything) do
         system('exit 130')
@@ -281,7 +281,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:confirm)
         .with(a_string_including('Add another trigger?'), prompt_style: anything)
         .and_return(true, false)
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hey!')
@@ -327,7 +327,7 @@ RSpec.describe SnippetCli::Commands::New do
       allow(Gum).to receive(:input).with(hash_including(placeholder: ':trigger')).and_return('', ':hello')
       allow(Gum).to receive(:confirm).with(a_string_including('Add another trigger?'),
                                            prompt_style: anything).and_return(false)
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hi')
@@ -357,7 +357,7 @@ RSpec.describe SnippetCli::Commands::New do
       # First input empty, second valid
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'r"^(hello|bye)$"')).and_return('',
                                                                                                      '(gr|great)ing')
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hi')
@@ -384,7 +384,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('')
@@ -411,7 +411,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?',
                                            prompt_style: anything).and_return(false)
@@ -434,7 +434,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       # First attempt: multiline with empty (declined), second attempt: single-line with valid
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(true, false)
@@ -458,7 +458,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(true)
       allow(Gum).to receive(:filter)
         .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
@@ -494,7 +494,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(true)
       allow(Gum).to receive(:filter)
         .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
@@ -532,7 +532,7 @@ RSpec.describe SnippetCli::Commands::New do
 
   def stub_alt_gate(type)
     allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
-    allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+    allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                          prompt_style: anything).and_return(true)
     allow(Gum).to receive(:filter)
       .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
@@ -618,7 +618,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [echo_var], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('plain text')
@@ -645,7 +645,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hello {{ghost}}')
@@ -666,7 +666,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [echo_var], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       # First: doesn't use {{myvar}}. Second: uses it — no warning → proceeds.
@@ -695,7 +695,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(true)
       allow(Gum).to receive(:filter)
         .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
@@ -723,13 +723,13 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [echo_var], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(true)
       allow(Gum).to receive(:filter)
         .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
         .and_return('image_path')
       allow(SnippetCli::UI).to receive(:info)
-      allow(Gum).to receive(:confirm).with('Discard vars and continue with image_path?',
+      allow(Gum).to receive(:confirm).with('Drop vars and continue with image_path?',
                                            prompt_style: anything).and_return(true)
       allow(Gum).to receive(:input).with(hash_including(placeholder: '/path/to/image.png')).and_return('/img/logo.png')
       stub_post_replace_prompts
@@ -739,7 +739,7 @@ RSpec.describe SnippetCli::Commands::New do
     it 'shows the discard warning via UI.info' do
       command.call
       expect(SnippetCli::UI).to have_received(:info)
-        .with('image_path replacements do not support vars — they will be discarded.')
+        .with('image_path does not support vars — they will be dropped.')
     end
 
     it 'emits image_path: key in the YAML' do
@@ -759,13 +759,13 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [echo_var], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(true)
       allow(Gum).to receive(:filter)
         .with('markdown', 'html', 'image_path', limit: 1, header: 'Replacement type')
         .and_return('image_path', 'markdown')
       allow(SnippetCli::UI).to receive(:info)
-      allow(Gum).to receive(:confirm).with('Discard vars and continue with image_path?',
+      allow(Gum).to receive(:confirm).with('Drop vars and continue with image_path?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:write)
         .with(hash_including(header: 'Markdown', placeholder: 'Enter markdown...'))
@@ -802,7 +802,7 @@ RSpec.describe SnippetCli::Commands::New do
 
     it 'does not show the discard confirmation' do
       command.call
-      expect(Gum).not_to have_received(:confirm).with('Discard vars and continue with image_path?',
+      expect(Gum).not_to have_received(:confirm).with('Drop vars and continue with image_path?',
                                                       prompt_style: anything)
     end
   end
@@ -811,7 +811,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [echo_var], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hello {{myvar}}')
@@ -837,7 +837,7 @@ RSpec.describe SnippetCli::Commands::New do
     before do
       stub_trigger_prompts
       allow(SnippetCli::VarBuilder).to receive(:run).and_return({ vars: [echo_var], summary_clear: -> {} })
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?',
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?',
                                            prompt_style: anything).and_return(false)
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(false)
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Hello {{myvar}}')
@@ -923,10 +923,10 @@ RSpec.describe SnippetCli::Commands::New do
     end
 
     it 'does not prompt for alternative replacement type' do
-      allow(Gum).to receive(:confirm).with('Alternative (non-plaintext) replacement type?', prompt_style: anything)
+      allow(Gum).to receive(:confirm).with('Use a non-plaintext replacement type?', prompt_style: anything)
       command.call(bare: true)
       expect(Gum).not_to have_received(:confirm)
-        .with('Alternative (non-plaintext) replacement type?', prompt_style: anything)
+        .with('Use a non-plaintext replacement type?', prompt_style: anything)
     end
 
     it 'does not prompt for advanced options' do
@@ -994,7 +994,7 @@ RSpec.describe SnippetCli::Commands::New do
   context '--no-vars flag with interactive triggers' do
     before do
       stub_trigger_prompts
-      stub_confirm_false('Alternative (non-plaintext) replacement type?')
+      stub_confirm_false('Use a non-plaintext replacement type?')
       stub_confirm_false('Multi-line replacement?')
       allow(Gum).to receive(:input).with(hash_including(placeholder: 'Replacement text')).and_return('Test replacement')
       stub_confirm_false('Show advanced options?')
@@ -1008,7 +1008,7 @@ RSpec.describe SnippetCli::Commands::New do
     end
 
     it 'prompts for alternative replacement type' do
-      alt_prompt = 'Alternative (non-plaintext) replacement type?'
+      alt_prompt = 'Use a non-plaintext replacement type?'
       allow(Gum).to receive(:confirm).with(alt_prompt, prompt_style: anything).and_return(false)
       command.call(no_vars: true)
       expect(Gum).to have_received(:confirm).with(alt_prompt, prompt_style: anything)
@@ -1033,7 +1033,7 @@ RSpec.describe SnippetCli::Commands::New do
   context '--no-vars flag with multiline replacement' do
     before do
       stub_trigger_prompts
-      stub_confirm_false('Alternative (non-plaintext) replacement type?')
+      stub_confirm_false('Use a non-plaintext replacement type?')
       allow(Gum).to receive(:confirm).with('Multi-line replacement?', prompt_style: anything).and_return(true)
       allow(Gum).to receive(:write)
         .with(hash_including(header: 'Replacement', placeholder: 'Type expansion text...')).and_return("line1\nline2")

@@ -72,10 +72,9 @@ module SnippetCli
     private_class_method :confirm_next?
 
     def self.confirm_question(vars, skip_initial_prompt)
-      if skip_initial_prompt then 'Add an additional variable?'
-      elsif vars.empty?      then 'Add a variable?'
-      else                        'Add another variable?'
-      end
+      return 'Add a variable?' if vars.empty? && !skip_initial_prompt
+
+      'Add another variable?'
     end
     private_class_method :confirm_question
 

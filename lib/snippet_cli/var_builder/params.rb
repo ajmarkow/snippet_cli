@@ -64,7 +64,7 @@ module SnippetCli
       end
 
       def self.script(builder)
-        gum = Gum.write(header: 'Script args — one per line, each line becomes a separate argument',
+        gum = Gum.write(header: 'Script args — one per line',
                         placeholder: '/path/to/script', prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE)
         raw = builder.prompt!(gum)
         params = { args: raw.to_s.lines.map(&:chomp).reject(&:empty?) }
