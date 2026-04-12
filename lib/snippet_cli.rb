@@ -24,6 +24,9 @@ module SnippetCli
   # Raised by WizardHelpers when no Espanso match files are found.
   class NoMatchFilesError < StandardError; end
 
+  # Raised by VarBuilder::Params when collected params violate the type's schema.
+  class InvalidParamsError < StandardError; end
+
   # When stdout is piped, holds the original stdout IO for structured output (YAML).
   # All UI continues through $stdout (redirected to the terminal).
   @pipe_output = nil

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'gum'
+require_relative 'param_schema'
 require_relative 'form_fields'
 
 module SnippetCli
@@ -24,6 +25,20 @@ module SnippetCli
       }.freeze
 
       def self.collect(builder, type)
+        params = collect_raw(builder, type)
+        validate!(type, params)
+        params
+      end
+
+      def self.validate!(type, params)
+        return unless ParamSchema.known_type?(type)
+        return if ParamSchema.valid_params?(type, params)
+
+        raise SnippetCli::InvalidParamsError,
+              "Invalid params #{params.inspect} for var type '#{type}'"
+      end
+
+      def self.collect_raw(builder, type)
         collector = COLLECTORS[type]
         return collector.call(builder) if collector
 
@@ -32,7 +47,6 @@ module SnippetCli
         when 'shell'     then shell(builder)
         when 'script'    then script(builder)
         when 'form'      then form(builder)
-        when 'clipboard' then clipboard(builder)
         else {}
         end
       end
@@ -48,28 +62,21 @@ module SnippetCli
         cmd = builder.prompt!(Gum.input(placeholder: 'shell command', prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE))
         debug_trim(builder, cmd: cmd, shell: sh)
       end
-      private_class_method :shell
 
       def self.script(builder)
-        raw = builder.prompt!(
-          Gum.write(
-            header: 'Script args — one per line, each line becomes a separate argument',
-            placeholder: '/path/to/script',
-            prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE
-          )
-        )
+        gum = Gum.write(header: 'Script args — one per line, each line becomes a separate argument',
+                        placeholder: '/path/to/script', prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE)
+        raw = builder.prompt!(gum)
         params = { args: raw.to_s.lines.map(&:chomp).reject(&:empty?) }
         params[:trim] = true if builder.confirm!('Trim whitespace from output?')
         params
       end
-      private_class_method :script
 
       def self.date(builder)
         params = { format: builder.prompt!(Gum.input(placeholder: 'date format (e.g. %Y-%m-%d)',
                                                      prompt_style: UI::PROMPT_STYLE, header_style: UI::PROMPT_STYLE)) }
         date_optional_params(builder, params)
       end
-      private_class_method :date
 
       DATE_OPT_FIELDS = [
         [:offset, 'Add an offset?', 'offset in seconds (e.g. 86400)', :to_i],
@@ -87,7 +94,6 @@ module SnippetCli
         end
         params
       end
-      private_class_method :date_optional_params
 
       def self.form(builder)
         layout = form_layout(builder)
@@ -107,19 +113,15 @@ module SnippetCli
               end
         builder.prompt!(gum)
       end
-      private_class_method :form, :form_layout
-
-      def self.clipboard(_builder)
-        {}
-      end
-      private_class_method :clipboard
 
       def self.debug_trim(builder, params)
         params[:debug] = true if builder.confirm!('Enable debug mode?')
         params[:trim] = true if builder.confirm!('Trim whitespace from output?')
         params
       end
-      private_class_method :debug_trim
+
+      private_class_method :collect_raw, :shell, :script, :date,
+                           :date_optional_params, :form, :form_layout, :debug_trim
     end
   end
 end
