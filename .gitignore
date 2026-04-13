@@ -35,6 +35,13 @@ backlog/
 .claude/
 # Agents
 .agents/
+# RTK (Rust Token Killer) — local dev tooling
+.rtk
+.github/hooks/
+.github/copilot-instructions.md
+
+# Scratch planning docs
+docs/plan-rev1.md
 # Local scratch notes
 refactor.md
 snippet_new_thoughts.md
