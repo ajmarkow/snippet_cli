@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+# Runtime dependencies only — used to generate gemset.nix for the nixpkgs derivation.
+# Keep in sync with the runtime deps in snippet_cli.gemspec.
+gem 'dry-cli',      '~> 1.0'
+gem 'gum',          '~> 0.3'
+gem 'json_schemer', '~> 2.0'
+gem 'tty-cursor',   '~> 0.7'

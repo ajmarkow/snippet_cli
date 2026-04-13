@@ -8,7 +8,7 @@ module SnippetCli
   # Callers are responsible for stringifying keys before passing data.
   module SchemaValidator
     SCHEMA_PATH = File.expand_path(
-      '../../vendor/espanso-schema-json/schemas/Espanso_Merged_Matchfile_Schema.json', __dir__
+      'Espanso_Merged_Matchfile_Schema.json', __dir__
     ).freeze
 
     def self.valid?(data)
