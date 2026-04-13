@@ -24,7 +24,7 @@
     platforms = [];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "13k9rk9jzv05rmx1z98ygln05ja6i14n3pivzqkdazcsapxjycab";
+      sha256 = "0mqyjck7fzq72p98d6q47k1w8yh1khypc90gacn1png51majp002";
       type = "gem";
     };
     version = "0.3.2";
@@ -69,6 +69,17 @@
       type = "gem";
     };
     version = "0.2.3";
+  };
+  snippet_cli = {
+    dependencies = ["dry-cli" "gum" "json_schemer" "tty-cursor"];
+    groups = ["default"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "19icz680p8c6l1gvvgp1r6wccpisqn59p64aggs9mjw5ymqxha2f";
+      type = "gem";
+    };
+    version = "0.5.2";
   };
   tty-cursor = {
     groups = ["default"];
