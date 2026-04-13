@@ -1,3 +1,0 @@
-[submodule "vendor/espanso-schema-json"]
-	path = vendor/espanso-schema-json
-	url = https://github.com/ajmarkow/espanso-schema-json.git
