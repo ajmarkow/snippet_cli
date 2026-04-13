@@ -24,6 +24,8 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master' && contains(github.event.head_commit.message, 'gem-release-ready')
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
 
@@ -32,6 +34,10 @@ jobs:
           ruby-version: "3.4"
           bundler-cache: true
 
+      - name: Get version
+        id: version
+        run: echo "version=$(ruby -e "require_relative 'lib/snippet_cli/version'; puts SnippetCli::VERSION")" >> $GITHUB_OUTPUT
+
       - name: Build gem
         run: gem build *.gemspec
 
@@ -39,3 +45,17 @@ jobs:
         env:
           GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
         run: gem push *.gem
+
+      - name: Push git tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag v${{ steps.version.outputs.version }}
+          git push origin v${{ steps.version.outputs.version }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          generate_release_notes: true
