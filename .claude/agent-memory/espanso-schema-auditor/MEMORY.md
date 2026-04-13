@@ -1,2 +1,0 @@
-- [project_schema_audit_findings.md](project_schema_audit_findings.md) - Key structural differences between official and custom Espanso schemas from 2026-03-26 audit
-- [reference_schema_urls.md](reference_schema_urls.md) - URLs for official and custom Espanso match schemas
