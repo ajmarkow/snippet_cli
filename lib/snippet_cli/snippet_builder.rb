@@ -58,8 +58,8 @@ module SnippetCli
     private_class_method :append_optional_fields
 
     def self.append_label_and_comment(lines, opts)
-      lines << "  label: #{YamlScalar.quote(opts[:label])}" if opts[:label]&.then { !it.empty? }
-      lines << "  comment: #{YamlScalar.quote(opts[:comment])}" if opts[:comment]&.then { !it.empty? }
+      lines << "  label: #{YamlScalar.quote(opts[:label])}" if opts[:label]&.then { |v| !v.empty? }
+      lines << "  comment: #{YamlScalar.quote(opts[:comment])}" if opts[:comment]&.then { |v| !v.empty? }
     end
     private_class_method :append_label_and_comment
 
