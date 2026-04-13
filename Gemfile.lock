@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    snippet_cli (0.4.0)
+    snippet_cli (0.5.0)
       dry-cli (~> 1.0)
       gum (~> 0.3)
       json_schemer (~> 2.0)
