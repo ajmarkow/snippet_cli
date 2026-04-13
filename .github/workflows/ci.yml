@@ -26,6 +26,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master' && contains(github.event.head_commit.message, 'gem-release-ready')
     permissions:
       contents: write
+      packages: write
     steps:
       - uses: actions/checkout@v5
 
@@ -45,6 +46,15 @@ jobs:
         env:
           GEM_HOST_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
         run: gem push *.gem
+
+      - name: Push to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p ~/.gem
+          printf -- "---\n:github: Bearer ${GITHUB_TOKEN}\n" > ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
+          gem push --key github --host https://rubygems.pkg.github.com/${{ github.repository_owner }} *.gem
 
       - name: Push git tag
         run: |
