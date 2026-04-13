@@ -498,6 +498,9 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:confirm)
           .with(a_string_including('Add another variable?'), prompt_style: anything)
           .and_return(true, false)
+        allow(Gum).to receive(:confirm)
+          .with('Reorder variables for evaluation order?', prompt_style: anything)
+          .and_return(false)
         allow(Gum).to receive(:confirm).with('Add an offset?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a locale?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:confirm).with('Add a timezone?', prompt_style: anything).and_return(false)
@@ -533,6 +536,9 @@ RSpec.describe SnippetCli::VarBuilder do
       before do
         allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
         allow(Gum).to receive(:confirm).with('Multi-line form?', prompt_style: anything).and_return(false)
+        allow(Gum).to receive(:confirm)
+          .with('Reorder variables for evaluation order?', prompt_style: anything)
+          .and_return(false)
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name'))
                                      .and_return('test', 'greeting')
         allow(Gum).to receive(:filter).with(*described_class::VAR_TYPES, limit: 1,
@@ -629,6 +635,9 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:confirm)
           .with(a_string_including('Add another variable?'), prompt_style: anything)
           .and_return(true, false)
+        allow(Gum).to receive(:confirm)
+          .with('Reorder variables for evaluation order?', prompt_style: anything)
+          .and_return(false)
         allow(Gum).to receive(:confirm).with('Multi-line form?', prompt_style: anything).and_return(false)
         allow(Gum).to receive(:input).with(hash_including(placeholder: 'Your variable name')).and_return('myform',
                                                                                                          'greeting')
@@ -776,6 +785,9 @@ RSpec.describe SnippetCli::VarBuilder do
         allow(Gum).to receive(:confirm)
           .with(a_string_including('Add another variable?'), prompt_style: anything)
           .and_return(true, false)
+        allow(Gum).to receive(:confirm)
+          .with('Reorder variables for evaluation order?', prompt_style: anything)
+          .and_return(false)
         allow(Gum).to receive(:table)
         allow($stdout).to receive(:puts)
       end
@@ -948,6 +960,138 @@ RSpec.describe SnippetCli::VarBuilder do
         allow($stdout).to receive(:print) { |arg| printed << arg }
         result[:summary_clear].call
         expect(printed).to include(TTY::Cursor.up(9))
+      end
+    end
+  end
+
+  describe 'variable reordering' do
+    context 'when user declines reorder prompt' do
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm)
+          .with(a_string_including('Add another variable?'), prompt_style: anything)
+          .and_return(true, false)
+        allow(Gum).to receive(:confirm)
+          .with('Reorder variables for evaluation order?', prompt_style: anything)
+          .and_return(false)
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'Your variable name'))
+          .and_return('greeting', 'today')
+        allow(Gum).to receive(:filter)
+          .with(*described_class::VAR_TYPES, limit: 1, header: 'Variable type')
+          .and_return('echo', 'echo')
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'echo value'))
+          .and_return('Hello', 'Monday')
+        allow(Gum).to receive(:table)
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'preserves the original collection order' do
+        vars = described_class.run[:vars]
+        expect(vars.map { |v| v[:name] }).to eq(%w[greeting today])
+      end
+
+      it 'does not call Gum.choose for reordering' do
+        expect(Gum).not_to receive(:choose).with(a_string_including('greeting'), any_args)
+        described_class.run
+      end
+    end
+
+    context 'when user reorders first var to end then chooses Done' do
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm)
+          .with(a_string_including('Add another variable?'), prompt_style: anything)
+          .and_return(true, false)
+        allow(Gum).to receive(:confirm)
+          .with('Reorder variables for evaluation order?', prompt_style: anything)
+          .and_return(true)
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'Your variable name'))
+          .and_return('greeting', 'today')
+        allow(Gum).to receive(:filter)
+          .with(*described_class::VAR_TYPES, limit: 1, header: 'Variable type')
+          .and_return('echo', 'echo')
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'echo value'))
+          .and_return('Hello', 'Monday')
+        allow(Gum).to receive(:choose)
+          .with('1. greeting (echo)', '2. today (echo)', 'Done — keep this order',
+                hash_including(header: 'Select a variable to move:'))
+          .and_return('1. greeting (echo)')
+        allow(Gum).to receive(:choose)
+          .with('1. Before today', '2. At end',
+                hash_including(header: 'Move "greeting" to:'))
+          .and_return('2. At end')
+        allow(Gum).to receive(:choose)
+          .with('1. today (echo)', '2. greeting (echo)', 'Done — keep this order',
+                hash_including(header: 'Select a variable to move:'))
+          .and_return('Done — keep this order')
+        allow(Gum).to receive(:table)
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'returns vars in the user-chosen order' do
+        vars = described_class.run[:vars]
+        expect(vars.map { |v| v[:name] }).to eq(%w[today greeting])
+      end
+    end
+
+    context 'when user picks Done immediately without moving anything' do
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm)
+          .with(a_string_including('Add another variable?'), prompt_style: anything)
+          .and_return(true, false)
+        allow(Gum).to receive(:confirm)
+          .with('Reorder variables for evaluation order?', prompt_style: anything)
+          .and_return(true)
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'Your variable name'))
+          .and_return('greeting', 'today')
+        allow(Gum).to receive(:filter)
+          .with(*described_class::VAR_TYPES, limit: 1, header: 'Variable type')
+          .and_return('echo', 'echo')
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'echo value'))
+          .and_return('Hello', 'Monday')
+        allow(Gum).to receive(:choose)
+          .with('1. greeting (echo)', '2. today (echo)', 'Done — keep this order',
+                hash_including(header: 'Select a variable to move:'))
+          .and_return('Done — keep this order')
+        allow(Gum).to receive(:table)
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'preserves the original order' do
+        vars = described_class.run[:vars]
+        expect(vars.map { |v| v[:name] }).to eq(%w[greeting today])
+      end
+    end
+
+    context 'when fewer than 2 vars are collected' do
+      before do
+        allow(Gum).to receive(:confirm).with('Add a variable?', prompt_style: anything).and_return(true)
+        allow(Gum).to receive(:confirm)
+          .with(a_string_including('Add another variable?'), prompt_style: anything)
+          .and_return(false)
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'Your variable name'))
+          .and_return('greeting')
+        allow(Gum).to receive(:filter)
+          .with(*described_class::VAR_TYPES, limit: 1, header: 'Variable type')
+          .and_return('echo')
+        allow(Gum).to receive(:input)
+          .with(hash_including(placeholder: 'echo value'))
+          .and_return('Hello')
+        allow(Gum).to receive(:table)
+        allow($stdout).to receive(:puts)
+      end
+
+      it 'does not call Gum.confirm for reorder' do
+        expect(Gum).not_to receive(:confirm).with('Reorder variables for evaluation order?', anything)
+        described_class.run
       end
     end
   end

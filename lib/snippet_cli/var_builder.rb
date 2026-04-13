@@ -54,10 +54,46 @@ module SnippetCli
 
         append_var!(vars)
       end
+      reorder_vars!(vars)
       summary_clear = vars.empty? ? -> {} : VarSummaryRenderer.show(vars)
       { vars: vars, summary_clear: summary_clear }
     end
     private_class_method :interactive_session
+
+    def self.reorder_vars!(vars)
+      return if vars.size < 2
+      return unless confirm!('Reorder variables for evaluation order?')
+
+      loop do
+        selection = choose_var_to_move(vars)
+        break if selection.start_with?('Done')
+
+        move_var!(vars, selection)
+      end
+    end
+    private_class_method :reorder_vars!
+
+    def self.choose_var_to_move(vars)
+      choices = vars.each_with_index.map { |v, i| "#{i + 1}. #{v[:name]} (#{v[:type]})" }
+      choices << 'Done — keep this order'
+      prompt!(Gum.choose(*choices, header: 'Select a variable to move:', header_style: UI::PROMPT_STYLE))
+    end
+    private_class_method :choose_var_to_move
+
+    def self.move_var!(vars, selection)
+      from_idx = selection.match(/^(\d+)\./)[1].to_i - 1
+      item = vars.delete_at(from_idx)
+      vars.insert(choose_target_position(vars, item[:name]), item)
+    end
+    private_class_method :move_var!
+
+    def self.choose_target_position(vars, name)
+      positions = vars.each_with_index.map { |v, i| "#{i + 1}. Before #{v[:name]}" }
+      positions << "#{vars.size + 1}. At end"
+      result = prompt!(Gum.choose(*positions, header: "Move \"#{name}\" to:", header_style: UI::PROMPT_STYLE))
+      result.match(/^(\d+)\./)[1].to_i - 1
+    end
+    private_class_method :choose_target_position
 
     def self.confirm_next?(vars, skip_initial_prompt)
       return true if vars.empty? && skip_initial_prompt
