@@ -4,8 +4,8 @@ require_relative 'hash_utils'
 require_relative 'schema_validator'
 
 module SnippetCli
-  # Validates an Espanso match entry (as a Ruby hash) against the vendored
-  # merged schema at vendor/espanso-schema-json/schemas/Espanso_Merged_Matchfile_Schema.json.
+  # Validates an Espanso match entry (as a Ruby hash) against the merged
+  # schema embedded at lib/snippet_cli/Espanso_Merged_Matchfile_Schema.json.
   # Uses json_schemer which supports JSON Schema draft-07 (required for
   # the if/then conditionals used in the Espanso match schema).
   module MatchValidator
