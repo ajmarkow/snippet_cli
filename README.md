@@ -1,8 +1,7 @@
-# SnippetCli
+# snippet_cli
+[![Gem Version](https://badge.fury.io/rb/snippet_cli.svg)](https://badge.fury.io/rb/snippet_cli)
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/snippet_cli`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+snippet_cli is a gem for generating valid yaml configurations for snippets for the program Espanso.  Additionally, it includes a few espanso related utilities, like commands to check your matchfile for validity against the Espanso schema, or for conflicting triggers in your matchfile.
 
 ## Installation
 
@@ -16,7 +15,7 @@ TODO: Write usage instructions here
 
 ## Development
 
-This project uses [devenv](https://devenv.sh) (Nix-based) for environment management. Do not use rbenv, rvm, asdf, or Homebrew Ruby.
+This project uses [devenv](https://devenv.sh) (Nix-based) for environment management. 
 
 ### First-time setup
 
