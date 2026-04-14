@@ -73,6 +73,7 @@ Install it using command:
 ### First-time setup
 <details>
 <Summary>Includes Devenv Install Instructions</Summary>
+
 1. [Install Nix](https://nixos.org/download) and [devenv](https://devenv.sh/getting-started/)
 2. Clone the repo:
    ```bash
