@@ -49,7 +49,7 @@ snippet_cli is a gem for generating valid yaml configurations for snippets for t
 ### Flags
 <details>
 <Summary>More Info</Summary>
- | Flag | Alias | Commands | Description |
+| Flag | Alias | Commands | Description |
 |------|-------|---------|-------------|
 | `--save` | `-s` | `new`, `vars` | Save output to match file |
 | `--no-vars` | `-n` | `new` | Skip variable builder; still offers alt types and advanced options |
