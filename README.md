@@ -43,7 +43,7 @@ A CLI gem for generating valid YAML snippet configs for [Espanso](https://espans
 ## Commands
 
 <details open>
-<Summary>More Info</Summary>
+<summary>More Info</summary>
 
 | Command    | Alias | Description                                                            |
 | ---------- | ----- | ---------------------------------------------------------------------- |
@@ -58,7 +58,7 @@ A CLI gem for generating valid YAML snippet configs for [Espanso](https://espans
 ### Flags
 
 <details>
-<Summary>More Info</Summary>
+<summary>More Info</summary>
 
 | Flag        | Alias | Commands            | Description                                                        |
 | ----------- | ----- | ------------------- | ------------------------------------------------------------------ |
@@ -67,27 +67,29 @@ A CLI gem for generating valid YAML snippet configs for [Espanso](https://espans
 | `--bare`    | `-b`  | `new`               | Trigger(s) + plaintext only; no vars, alt types, or advanced       |
 | `--file`    | `-f`  | `check`, `conflict` | Path to match file                                                 |
 | `--trigger` | `-t`  | `conflict`          | Trigger(s) to look up (comma-separated or repeated)                |
-| `--help     | `-h`  | all                 | Show help info for commands                                        |
+| `--help`    | `-h`  | all                 | Show help info for commands                                        |
 
 </details>
- 
+
 ## Installation
 
-Install it using command:
+Install with:
 
-    $ sudo gem install snippet_cli
+```bash
+gem install snippet_cli
+```
 
 ---
 
 ## Development
 
 > [!NOTE]
-> This project uses [devenv](https://devenv.sh) (Nix-based) for environment management. You may use other tools for environment management, but need to target at least the minimum ruby version listed on the rubygems gem listing.
+> This project uses [devenv](https://devenv.sh) (Nix-based) for environment management. Use `devenv shell` for local development.
 
 ### First-time setup
 
 <details>
-<Summary>Devenv Install Instructions</Summary>
+<summary>Devenv Install Instructions</summary>
 
 1. [Install Nix](https://nixos.org/download) and [devenv](https://devenv.sh/getting-started/)
 2. Clone the repo:
@@ -107,12 +109,12 @@ Install it using command:
    ```bash
    bundle exec rake spec
    ```
-   </details>
+</details>
 
 ### Releasing a new version
 
 <details>
-<Summary> Instructions </Summary>
+<summary>Instructions</summary>
 
 1. Update the version number in `lib/snippet_cli/version.rb`
 2. Commit with the message containing `gem-release-ready` — CI will build and push the gem to RubyGems automatically once tests pass
@@ -122,14 +124,14 @@ Install it using command:
 ### Additional Info
 
 <details>
-<Summary> Contributing, Code of Conduct </Summary>
-   
-## Contributing
+<summary>Contributing, Code of Conduct</summary>
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/snippet_cli. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/snippet_cli/blob/master/CODE_OF_CONDUCT.md).
+#### Contributing
 
-## Code of Conduct
+Bug reports and pull requests are welcome on GitHub at [ajmarkow/snippet_cli](https://github.com/ajmarkow/snippet_cli). This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/ajmarkow/snippet_cli/blob/master/CODE_OF_CONDUCT.md).
 
-Everyone interacting in the SnippetCli project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/snippet_cli/blob/master/CODE_OF_CONDUCT.md).
+#### Code of Conduct
+
+Everyone interacting in the SnippetCli project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/ajmarkow/snippet_cli/blob/master/CODE_OF_CONDUCT.md).
 
 </details>
