@@ -14,6 +14,7 @@ vendor/bundle
 
 # Ruby gem convention (lockfile not committed)
 Gemfile.lock
+/*.gem
 
 # OS
 .DS_Store
@@ -52,4 +53,5 @@ temp-plan.md
 # Local machine/generated files
 /.mcp.json
 /request.jsonl
+/result
 /~/
