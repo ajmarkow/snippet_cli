@@ -28,6 +28,7 @@ plan-snippet-commands.md
 
 # devenv local state (track devenv.nix, devenv.yaml, devenv.lock at repo root only)
 .devenv/
+/.devenv.flake.nix
 
 # Backlog task management (local tooling, not part of the gem)
 backlog/
