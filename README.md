@@ -39,11 +39,11 @@ snippet_cli is a gem for generating valid yaml configurations for snippets for t
 
 | Command | Alias | Description |
 |---|---|---|
-|  new | n | Interactively build and optionally save to your match file|
-|  vars | v | Interactively build a vars block and optionally save it to global_vars |
-|  check | k | Validate a match file against the Espanso schema |
-|  conflict | c | Detect duplicate triggers in a match file |
-|  version | — | Print the current version |
+|  `new` | `n` | Interactively build and optionally save to your match file|
+|  `vars` | `v` | Interactively build a vars block and optionally save it to global_vars |
+|  `check` | `k` | Validate a match file against the Espanso schema |
+|  `conflict` | `c` | Detect duplicate triggers in a match file |
+|  `version` | — | Print the current version |
 </details>
 
 ### Flags
@@ -57,6 +57,7 @@ snippet_cli is a gem for generating valid yaml configurations for snippets for t
 | `--bare` | `-b` | `new` | Trigger(s) + plaintext only; no vars, alt types, or advanced |
 | `--file` | `-f` | `check`, `conflict` | Path to match file |
 | `--trigger` | `-t` | `conflict` | Trigger(s) to look up (comma-separated or repeated) |
+| `--help | `-h` | all | Show help info for commands
 </details>
  
 ## Installation
