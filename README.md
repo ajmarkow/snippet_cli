@@ -66,10 +66,11 @@ Install it using command:
 
     $ sudo gem install snippet_cli
 
+---
 ## Development
 
 > [!NOTE]
-> This project uses [devenv](https://devenv.sh) (Nix-based) for environment management. 
+> This project uses [devenv](https://devenv.sh) (Nix-based) for environment management.  You may use other tools for environment management, but need to target at least the minimum ruby version listed on the rubygems gem listing.
 
 ### First-time setup
 <details>
@@ -104,6 +105,11 @@ Install it using command:
 
 </details>
 
+### Additional Info
+
+<details>
+<Summary> Contributing, Code of Conduct </Summary>
+   
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/snippet_cli. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/snippet_cli/blob/master/CODE_OF_CONDUCT.md).
@@ -112,6 +118,4 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/[USERN
 
 Everyone interacting in the SnippetCli project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/snippet_cli/blob/master/CODE_OF_CONDUCT.md).
 
-## Copyright
-
-Copyright (c) 2020 AJ Markow. See [MIT License](LICENSE.txt) for further details.
+</details>
