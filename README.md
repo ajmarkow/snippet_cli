@@ -34,7 +34,7 @@ snippet_cli is a gem for generating valid yaml configurations for snippets for t
 - Detect duplicate triggers in a match file (`conflict` command).
 
 ## Commands
-<details>
+<details open>
 <Summary>More Info</Summary>
 
 | Command | Alias | Description |
