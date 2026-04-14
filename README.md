@@ -102,6 +102,7 @@ Install it using command:
 2. Commit with the message containing `gem-release-ready` — CI will build and push the gem to RubyGems automatically once tests pass
 
 </details>
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/snippet_cli. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/snippet_cli/blob/master/CODE_OF_CONDUCT.md).
