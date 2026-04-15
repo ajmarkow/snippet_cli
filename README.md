@@ -6,6 +6,8 @@ A CLI gem for generating valid YAML snippet configs for [Espanso](https://espans
 
 ![snippet_cli demo](https://raw.githubusercontent.com/ajmarkow/snippet_cli/83dc3016f88e7f1e4862d7a0eb166ef4e456a6c2/assets/snippet.gif)
 
+To get started, run `snippet_cli new --save` to build a snippet interactively and append it directly to your config file.
+
 ## Features
 
 ### Interactive Snippet Builder
