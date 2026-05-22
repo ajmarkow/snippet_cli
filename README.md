@@ -1,6 +1,8 @@
 # snippet_cli
 
-[![Gem Version](https://badge.fury.io/rb/snippet_cli.svg)](https://badge.fury.io/rb/snippet_cli)
+![Gem Total Downloads](https://img.shields.io/gem/dt/snippet_cli)  ![Gem Version](https://img.shields.io/gem/v/snippet_cli)
+
+
 
 A CLI gem for generating valid YAML snippet configs for [Espanso](https://espanso.org), with utilities to validate match files and detect conflicting triggers.
 
