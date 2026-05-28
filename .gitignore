@@ -51,6 +51,9 @@ sunday-plan.md
 plan-rev1.md
 temp-plan.md
 
+# Pre-commit config (local tooling)
+.pre-commit-config.yaml
+
 # Local machine/generated files
 /.mcp.json
 /request.jsonl
