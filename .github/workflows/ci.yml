@@ -6,7 +6,45 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: test (ruby ${{ matrix.ruby }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    # Ruby 4.0 is informational until the gemspec claims support for it.
+    continue-on-error: ${{ matrix.experimental || false }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Covers the range the gemspec promises (required_ruby_version >= 3.1.0).
+        os: [ubuntu-latest, macos-latest]
+        ruby: ["3.1", "3.2", "3.3", "3.4"]
+        include:
+          - os: ubuntu-latest
+            ruby: "4.0"
+            experimental: true
+          - os: macos-latest
+            ruby: "4.0"
+            experimental: true
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+
+      - name: Run tests
+        run: bundle exec rake spec
+
+  # Installs the built .gem and runs it from outside the checkout, so a file
+  # missing from spec.files fails here instead of in a user's install.
+  package:
+    name: packaged gem (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v5
         with:
@@ -15,13 +53,21 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.4"
-          bundler-cache: true
 
-      - name: Run tests
-        run: bundle exec rake spec
+      - name: Build gem
+        run: gem build snippet_cli.gemspec
+
+      - name: Install the built gem
+        run: gem install ./snippet_cli-*.gem
+
+      - name: Run the installed gem outside the checkout
+        working-directory: ${{ runner.temp }}
+        env:
+          SNIPPET_CLI_NO_REDIRECT: "1"
+        run: snippet_cli version
 
   publish:
-    needs: test
+    needs: [test, package]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master' && contains(github.event.head_commit.message, 'gem-release-ready')
     permissions:

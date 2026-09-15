@@ -11,6 +11,18 @@ A CLI gem for generating valid YAML snippet configs for [Espanso](https://espans
 
 ## Installation
 
+Needs Ruby 3.1 or newer.
+
+| Platform                        | Supported |
+| ------------------------------- | --------- |
+| macOS (Apple Silicon and Intel) | Yes       |
+| Linux (`x86_64`, `arm64`)       | Yes       |
+| Windows                         | No        |
+
+`snippet_cli` drives its prompts with [`gum`](https://github.com/charmbracelet/gum),
+which ships as a platform-specific gem. No Windows build of that gem is published,
+so Windows is not supported. WSL works, since it installs the Linux build.
+
 ### RubyGems
 
 ```bash
