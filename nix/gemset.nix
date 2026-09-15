@@ -86,10 +86,10 @@
     platforms = [ ];
     source = {
       remotes = [ "https://rubygems.org" ];
-      sha256 = "1x36alwfjbpka4cgmdk4jsl7xiszwjm0dn5fgy89yz1a56m58c9a";
+      sha256 = "0wvyadgj1s76lfdvmyzg2dqzbfyiq74ywl29pngggqc3drb41v9v";
       type = "gem";
     };
-    version = "0.5.3";
+    version = "0.6.0";
   };
   tty-cursor = {
     groups = [ "default" ];
