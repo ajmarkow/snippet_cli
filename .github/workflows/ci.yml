@@ -57,6 +57,64 @@ jobs:
           SNIPPET_CLI_NO_REDIRECT: "1"
         run: snippet_cli version
 
+  # nix/gemset.nix pins the published gem, so it lags lib/snippet_cli/version.rb
+  # until bundix reruns. When it lags, `nix run github:ajmarkow/snippet_cli`
+  # silently installs the previous release. A version.rb bump RubyGems has not
+  # indexed yet is a release in flight rather than drift, so that case passes --
+  # update-gemset repins it once publish finishes. Keying off RubyGems instead of
+  # a commit marker keeps this correct on pull_request events, where
+  # github.event.head_commit is null.
+  gemset-check:
+    name: nix pins match version.rb
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+
+      - name: Compare nix pins to version.rb
+        run: |
+          ruby -e '
+            require "net/http"
+            require_relative "lib/snippet_cli/version"
+            expected = SnippetCli::VERSION
+
+            gemset = File.read("nix/gemset.nix")
+            start = gemset.index(/^  snippet_cli = \{$/)
+            abort("could not find the snippet_cli block in nix/gemset.nix") unless start
+            # Anchored at four spaces so it cannot match inside the nested source block.
+            pinned = gemset[start..][/^    version = "([^"]+)";/, 1]
+            abort("could not read snippet_cli version from nix/gemset.nix") unless pinned
+
+            locked = File.read("nix/Gemfile.lock")[/^    snippet_cli \(([^)]+)\)$/, 1]
+            abort("could not read snippet_cli version from nix/Gemfile.lock") unless locked
+
+            stale = { "nix/gemset.nix" => pinned, "nix/Gemfile.lock" => locked }
+                      .reject { |_, v| v == expected }
+            exit 0 if stale.empty?
+
+            uri = URI("https://rubygems.org/api/v2/rubygems/snippet_cli/versions/#{expected}.json")
+            published = begin
+              Net::HTTP.get_response(uri).is_a?(Net::HTTPSuccess)
+            rescue StandardError => e
+              warn("could not reach RubyGems (#{e.class}); treating #{expected} as unpublished")
+              false
+            end
+
+            unless published
+              puts("::notice::version.rb is #{expected}, which RubyGems has not indexed yet. " \
+                   "Release in flight -- update-gemset repins after publish.")
+              exit 0
+            end
+
+            stale.each { |f, v| puts("::error file=#{f}::pins #{v}, but #{expected} is already published") }
+            abort("Nix pins lag the published gem. Regenerate with:\n" \
+                  "  nix develop --command bash -c \"cd nix && bundle lock --update snippet_cli && bundix\"\n" \
+                  "  nix fmt nix/gemset.nix")
+          '
+
   publish:
     needs: [test, package]
     runs-on: ubuntu-latest
@@ -106,3 +164,84 @@ jobs:
           tag_name: v${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
           generate_release_notes: true
+
+  # Repins the Nix side on the gem publish just pushed. Runs after publish
+  # because bundix can only resolve a version RubyGems has already indexed.
+  #
+  # The master ruleset requires a pull request and has no bypass actors, so this
+  # cannot push to master directly. It opens a PR and lets auto-merge land it.
+  # GEMSET_BOT_TOKEN must be a PAT, not GITHUB_TOKEN: GitHub does not start check
+  # runs for pull requests opened with GITHUB_TOKEN, so the required contexts
+  # would never report and auto-merge would wait forever.
+  update-gemset:
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: master
+          token: ${{ secrets.GEMSET_BOT_TOKEN }}
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Get version
+        id: version
+        run: echo "version=$(ruby -e "require_relative 'lib/snippet_cli/version'; puts SnippetCli::VERSION")" >> $GITHUB_OUTPUT
+
+      - name: Wait for RubyGems to index the release
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl -sfo /dev/null "https://rubygems.org/api/v2/rubygems/snippet_cli/versions/${VERSION}.json"; then
+              echo "snippet_cli ${VERSION} is indexed"
+              exit 0
+            fi
+            echo "attempt ${attempt}: ${VERSION} not indexed yet, retrying in 20s"
+            sleep 20
+          done
+          echo "::error::snippet_cli ${VERSION} never appeared on RubyGems"
+          exit 1
+
+      - name: Regenerate Gemfile.lock and gemset.nix
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Scoped to snippet_cli so a release does not silently bump unrelated
+          # transitive gems. bundix emits compact lists, so reformat afterwards to
+          # match the nixfmt-rfc-style file that is checked in.
+          nix develop --command bash -c "cd nix && bundle lock --update snippet_cli && bundix"
+          nix fmt nix/gemset.nix
+          resolved=$(ruby -e 'puts File.read("nix/Gemfile.lock")[/^    snippet_cli \(([^)]+)\)$/, 1]')
+          if [ "$resolved" != "$VERSION" ]; then
+            echo "::error::bundler resolved snippet_cli ${resolved}, expected ${VERSION}."
+            echo "::error::Widen the version constraint in nix/Gemfile -- a major bump falls outside it."
+            exit 1
+          fi
+
+      - name: Open repin PR and enable auto-merge
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          GH_TOKEN: ${{ secrets.GEMSET_BOT_TOKEN }}
+        run: |
+          if git diff --quiet -- nix/Gemfile.lock nix/gemset.nix; then
+            echo "Nix pins already current, nothing to open"
+            exit 0
+          fi
+          branch="chore/repin-gemset-v${VERSION}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add nix/Gemfile.lock nix/gemset.nix
+          git commit -m "chore(nix): repin gemset on v${VERSION}"
+          git push origin "$branch"
+          # Title and body deliberately omit the release marker, so landing this
+          # PR does not retrigger publish.
+          gh pr create --base master --head "$branch" \
+            --title "chore(nix): repin gemset on v${VERSION}" \
+            --body "Opened by CI after publishing v${VERSION}. Points the flake at the released gem."
+          gh pr merge --auto --squash "$branch"

@@ -16,6 +16,13 @@
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
     in
     {
+      # Lets consumers add snippet_cli to nixpkgs and then refer to it by bare
+      # name in environment.systemPackages / home.packages, instead of threading
+      # `system` through a module to reach packages.${system}.default.
+      overlays.default = final: _prev: {
+        snippet_cli = final.callPackage ./nix { };
+      };
+
       packages = forAllSystems (pkgs: rec {
         snippet_cli = pkgs.callPackage ./nix { };
         default = snippet_cli;

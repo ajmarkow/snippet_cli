@@ -1,4 +1,10 @@
-{ lib, bundlerApp, bundlerUpdateScript, gum, defaultGemConfig }:
+{
+  lib,
+  bundlerApp,
+  bundlerUpdateScript,
+  gum,
+  defaultGemConfig,
+}:
 
 let
   # The gum Ruby gem ships its binary inside a platform-specific subdirectory of
@@ -25,10 +31,20 @@ bundlerApp {
 
   meta = with lib; {
     description = "Interactively build snippets for Espanso";
-    homepage    = "https://github.com/ajmarkow/snippet_cli";
-    license     = licenses.mit;
-    maintainers = with maintainers; [ ];
+    homepage = "https://github.com/ajmarkow/snippet_cli";
+    license = licenses.mit;
+    # Inline rather than `maintainers.ajmarkow` -- that attribute only exists
+    # once an entry lands in nixpkgs' maintainer-list.nix, which needs its own
+    # PR. Swap this for the lib reference if the package is ever upstreamed.
+    maintainers = [
+      {
+        name = "AJ Markow";
+        email = "alexanderjmarkow@gmail.com";
+        github = "ajmarkow";
+        githubId = 66390428;
+      }
+    ];
     mainProgram = "snippet_cli";
-    platforms   = platforms.unix;
+    platforms = platforms.unix;
   };
 }
