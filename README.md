@@ -11,7 +11,7 @@ A CLI gem for generating valid YAML snippet configs for [Espanso](https://espans
 
 ## Installation
 
-Needs Ruby 3.1 or newer.
+Needs Ruby 3.2 or newer.
 
 | Platform                        | Supported |
 | ------------------------------- | --------- |

@@ -12,7 +12,8 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Interactively build snippets for Espanso'
   spec.description   = 'A tool to build complex Espanso snippets interactively'
   spec.homepage      = 'https://github.com/ajmarkow/snippet_cli'
-  spec.required_ruby_version = Gem::Requirement.new('>= 3.1.0')
+  # 3.2 is the floor set by the gum and dry-cli runtime dependencies.
+  spec.required_ruby_version = Gem::Requirement.new('>= 3.2.0')
 
   spec.metadata['homepage_uri']    = spec.homepage
   spec.metadata['source_code_uri'] = 'https://github.com/ajmarkow/snippet_cli'
