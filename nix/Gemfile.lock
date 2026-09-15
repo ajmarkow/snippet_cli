@@ -12,7 +12,7 @@ GEM
       simpleidn (~> 0.2)
     regexp_parser (2.12.0)
     simpleidn (0.3.0)
-    snippet_cli (0.5.3)
+    snippet_cli (0.6.0)
       dry-cli (~> 1.0)
       gum (~> 0.3)
       json_schemer (~> 2.0)
@@ -26,4 +26,4 @@ DEPENDENCIES
   snippet_cli (~> 0.5)
 
 BUNDLED WITH
-   2.7.2
+   2.6.9
