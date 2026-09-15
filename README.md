@@ -1,8 +1,6 @@
 # snippet_cli
 
-![Gem Total Downloads](https://img.shields.io/gem/dt/snippet_cli)  ![Gem Version](https://img.shields.io/gem/v/snippet_cli)
-
-
+![Gem Total Downloads](https://img.shields.io/gem/dt/snippet_cli) ![Gem Version](https://img.shields.io/gem/v/snippet_cli)
 
 A CLI gem for generating valid YAML snippet configs for [Espanso](https://espanso.org), with utilities to validate match files and detect conflicting triggers.
 
@@ -10,14 +8,107 @@ A CLI gem for generating valid YAML snippet configs for [Espanso](https://espans
 
 > [!TIP]
 > To get started, run `snippet_cli new --save` to build a snippet interactively and append it directly to your config file.
-> 
+
 ## Installation
 
-Install with:
+### RubyGems
 
 ```bash
 gem install snippet_cli
 ```
+
+### Nix
+
+The flake builds `snippet_cli` and every gem it needs against a pinned Ruby, and
+wires up the [`gum`](https://github.com/charmbracelet/gum) binary for you. Nothing
+is written to `~/.gem`, so the install cannot break when your system Ruby changes.
+
+<details>
+<summary><b>Run it without installing</b> — <code>nix run</code></summary>
+
+Try the latest release straight from GitHub:
+
+```bash
+nix run github:ajmarkow/snippet_cli
+```
+
+Pass arguments after `--`:
+
+```bash
+nix run github:ajmarkow/snippet_cli -- new --save
+nix run github:ajmarkow/snippet_cli -- check ~/.config/espanso/match/base.yml
+```
+
+</details>
+
+<details>
+<summary><b>Install into your profile</b> — <code>nix profile add</code></summary>
+
+```bash
+nix profile add github:ajmarkow/snippet_cli
+```
+
+On Nix older than 2.30, the subcommand is `install` instead of `add`:
+
+```bash
+nix profile install github:ajmarkow/snippet_cli
+```
+
+Then upgrade or remove it with:
+
+```bash
+nix profile upgrade snippet_cli
+nix profile remove snippet_cli
+```
+
+</details>
+
+<details>
+<summary><b>Add it to your system config</b> — flake input, Home Manager, or NixOS</summary>
+
+Add the flake as an input:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    snippet_cli.url = "github:ajmarkow/snippet_cli";
+  };
+}
+```
+
+Then add the package where you need it — Home Manager:
+
+```nix
+home.packages = [ inputs.snippet_cli.packages.${pkgs.system}.default ];
+```
+
+…or NixOS:
+
+```nix
+environment.systemPackages = [ inputs.snippet_cli.packages.${pkgs.system}.default ];
+```
+
+</details>
+
+<details>
+<summary><b>Build from a local checkout</b></summary>
+
+```bash
+git clone https://github.com/ajmarkow/snippet_cli
+cd snippet_cli
+nix build .#snippet_cli   # result appears at ./result/bin/snippet_cli
+nix run .#snippet_cli -- version
+```
+
+Flakes only see files tracked by git, so `git add` any new file before building.
+
+</details>
+
+> [!NOTE]
+> The Nix commands above need flakes enabled. If your Nix predates flakes being
+> on by default, prefix them with
+> `--extra-experimental-features 'nix-command flakes'`.
 
 ## Features
 
@@ -114,7 +205,7 @@ gem install snippet_cli
    ```bash
    bundle exec rake spec
    ```
-</details>
+   </details>
 
 ### Releasing a new version
 
