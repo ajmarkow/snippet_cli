@@ -30,11 +30,18 @@ bump them by hand, the build breaks.
 
 ## Choose the number
 
-Follow [semantic versioning](https://semver.org). One case is easy to get wrong:
+Follow [semantic versioning](https://semver.org), with one caveat: the spec exempts
+`0.x` releases, where "anything MAY change at any time". While this gem is pre-1.0,
+the rule below is convention rather than a requirement — but follow it anyway.
 
-**Raising `required_ruby_version` is a minor bump, not a patch.** It stops users on
-the dropped Ruby from installing at all. Treat any narrowing of supported Ruby,
-Espanso schema, or platform the same way.
+**Raising `required_ruby_version` is a minor bump, not a patch.** Treat any narrowing
+of supported Ruby, Espanso schema, or platform the same way.
+
+Nobody breaks when you do this. RubyGems enforces `required_ruby_version` while
+resolving, so users on the dropped Ruby stay on the last version that supported them
+and keep a working install. What they lose is future updates, silently. The minor
+bump is what makes that visible, and it is what lets someone pinned at `~> 0.5.3` opt
+in deliberately instead of being held back without knowing why.
 
 ## Steps
 

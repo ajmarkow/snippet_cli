@@ -89,16 +89,22 @@ Add the flake as an input:
 }
 ```
 
-Then add the package where you need it — Home Manager:
+Simplest: apply the overlay, then refer to the package by name everywhere `pkgs`
+is in scope — no need to thread `system` through:
+
+```nix
+nixpkgs.overlays = [ inputs.snippet_cli.overlays.default ];
+```
+
+```nix
+home.packages = [ pkgs.snippet_cli ];             # Home Manager
+environment.systemPackages = [ pkgs.snippet_cli ]; # NixOS
+```
+
+Without the overlay, reach the package directly instead:
 
 ```nix
 home.packages = [ inputs.snippet_cli.packages.${pkgs.system}.default ];
-```
-
-…or NixOS:
-
-```nix
-environment.systemPackages = [ inputs.snippet_cli.packages.${pkgs.system}.default ];
 ```
 
 </details>
